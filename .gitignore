@@ -1,0 +1,22 @@
+# IDEs y Editores
+.vscode/
+.idea/
+*.swp
+
+# Archivos de sistema (Windows)
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+Desktop.ini
+
+# Archivos de sistema (macOS)
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Logs y Bases de Datos
+*.log
+*.sqlite
