@@ -20,3 +20,7 @@ Desktop.ini
 # Logs y Bases de Datos
 *.log
 *.sqlite
+
+node_modules
+dist
+.env
