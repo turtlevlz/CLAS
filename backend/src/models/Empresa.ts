@@ -12,54 +12,69 @@ import {
     timestamps: false
 })
 export class Empresa extends Model {
+
     @PrimaryKey
     @AutoIncrement
-    @Column({
-        type: DataType.INTEGER,
-        allowNull: false
-    })
+    @Column(DataType.INTEGER)
     id_empresa!: number;
 
     @Column({
-        type: DataType.STRING(100),
+        type: DataType.STRING(200),
         allowNull: false
     })
-    nombre!: string;
+    nombre_comercial!: string;
 
-    @Column({
-        type: DataType.TEXT,
-        allowNull: true
-    })
-    datos_generales?: string;
+    @Column(DataType.STRING)
+    razon_social?: string;
 
-    @Column({
-        type: DataType.STRING(150),
-        allowNull: true
-    })
+    @Column(DataType.STRING(13))
+    rfc?: string;
+
+    @Column(DataType.STRING)
     correo_electronico?: string;
 
-    @Column({
-        type: DataType.STRING(20),
-        allowNull: true
-    })
-    contacto?: string;
+    @Column(DataType.STRING(20))
+    telefono?: string;
+
+    @Column(DataType.STRING)
+    sitio_web?: string;
+
+    @Column(DataType.INTEGER)
+    membresia_id?: number;
+
+    @Column(DataType.INTEGER)
+    tipo_organizacion_id?: number;
+
+    @Column(DataType.STRING)
+    ciudad?: string;
+
+    @Column(DataType.TEXT)
+    domicilio_completo?: string;
+
+    @Column(DataType.STRING)
+    giro?: string;
 
     @Column({
-        type: DataType.STRING(50),
-        allowNull: true
+        type: DataType.BOOLEAN,
+        defaultValue: false
     })
-    nombre_contacto?: string;
+    fabrica_para_automotriz?: boolean;
 
     @Column({
-        type: DataType.INTEGER,
-        allowNull: false
+        type: DataType.BOOLEAN,
+        defaultValue: true
     })
-    tier_id!: number;
+    activo?: boolean;
+
+    @Column({
+        type: DataType.DATE
+    })
+    fecha_registro?: Date;
 
     @Column({
         type: DataType.STRING,
-        defaultValue: "default_logo.png",
-        allowNull: false
+        defaultValue: "default_logo.png"
     })
-    logo!: string;
+    logo?: string;
+
 }
