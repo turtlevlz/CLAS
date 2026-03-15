@@ -4,8 +4,20 @@ import {
     Model,
     DataType,
     PrimaryKey,
-    AutoIncrement
+    AutoIncrement,
+    ForeignKey,
+    BelongsTo,
+    HasMany,
+    BelongsToMany
 } from "sequelize-typescript";
+
+import { Membresia } from "./Membresia";
+import { TipoOrganizacion } from "./TipoOrganizacion";
+import { Contacto } from "./Contacto";
+import { Certificacion } from "./Certificacion";
+import { EmpresaCertificacion } from "./EmpresaCertificacion";
+import { Rubro } from "./Rubro";
+import { EmpresaRubro } from "./EmpresaRubro";
 
 @Table({
     tableName: "empresas",
@@ -39,9 +51,11 @@ export class Empresa extends Model {
     @Column(DataType.STRING)
     sitio_web?: string;
 
+    @ForeignKey(() => Membresia)
     @Column(DataType.INTEGER)
     membresia_id?: number;
 
+    @ForeignKey(() => TipoOrganizacion)
     @Column(DataType.INTEGER)
     tipo_organizacion_id?: number;
 
@@ -77,4 +91,20 @@ export class Empresa extends Model {
     })
     logo?: string;
 
+    //Relaciones
+
+    @BelongsTo(() => Membresia)
+    membresia!: Membresia;
+
+    @BelongsTo(() => TipoOrganizacion)
+    tipoOrganizacion!: TipoOrganizacion;
+
+    @HasMany(() => Contacto)
+    contactos!: Contacto[];
+
+    @BelongsToMany(() => Certificacion, () => EmpresaCertificacion)
+    certificaciones!: Certificacion[];
+
+    @BelongsToMany(() => Rubro, () => EmpresaRubro)
+    rubros!: Rubro[];
 }
