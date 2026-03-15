@@ -4,8 +4,12 @@ import {
     Model,
     DataType,
     PrimaryKey,
-    AutoIncrement
+    AutoIncrement,
+    BelongsToMany
 } from "sequelize-typescript";
+
+import { Empresa } from "./Empresa";
+import { EmpresaCertificacion } from "./EmpresaCertificacion";
 
 @Table({
     tableName: "certificaciones",
@@ -19,9 +23,12 @@ export class Certificacion extends Model {
     id_certificacion!: number;
 
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING(100),
         allowNull: false
     })
     nombre_certificacion!: string;
+
+    @BelongsToMany(() => Empresa, () => EmpresaCertificacion)
+    empresas!: Empresa[];
 
 }

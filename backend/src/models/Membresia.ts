@@ -4,8 +4,11 @@ import {
     Model,
     DataType,
     PrimaryKey,
-    AutoIncrement
+    AutoIncrement,
+    HasMany
 } from "sequelize-typescript";
+
+import { Empresa } from "./Empresa";
 
 @Table({
     tableName: "membresias",
@@ -19,9 +22,12 @@ export class Membresia extends Model {
     id_membresia!: number;
 
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING(50),
         allowNull: false
     })
     nombre_membresia!: string;
+
+    @HasMany(() => Empresa)
+    empresas!: Empresa[];
 
 }

@@ -8,26 +8,26 @@ import {
     HasMany
 } from "sequelize-typescript";
 
-import { Empresa } from "./Empresa";
+import { Contacto } from "./Contacto";
 
 @Table({
-    tableName: "tipos_organizacion",
+    tableName: "funciones_contacto",
     timestamps: false
 })
-export class TipoOrganizacion extends Model {
+export class FuncionContacto extends Model {
 
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.INTEGER)
-    id_tipo!: number;
+    id_funcion!: number;
 
     @Column({
         type: DataType.STRING(100),
         allowNull: false
     })
-    nombre_tipo!: string;
+    nombre_funcion!: string;
 
-    @HasMany(() => Empresa)
-    empresas!: Empresa[];
+    @HasMany(() => Contacto)
+    contactos!: Contacto[];
 
 }
