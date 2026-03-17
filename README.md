@@ -28,7 +28,7 @@ Para obtener una copia local y ponerla en marcha, sigue estos pasos:
 
 1. **Clonar el repositorio:**
    ```bash
-   git clone https://github.com/thuulk/CLAS-Landing-Page.git
+   git clone https://github.com/turtlevlz/CLAS.git
    ```
 
 ## 🛠️ Reglas del Workflow (Git & GitHub)
