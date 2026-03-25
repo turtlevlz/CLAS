@@ -11,7 +11,7 @@ router.get("/",verifyToken, getRubros);
 
 router.get("/:id", verifyToken, getRubroById);
 
-router.patch("/:id", verifyToken, updateRubro);
+router.patch("/:id", verifyToken, checkRole(1), updateRubro);
 
 router.delete("/:id", verifyToken, checkRole(1), deleteRubro);
 
