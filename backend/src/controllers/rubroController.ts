@@ -28,7 +28,7 @@ export const createRubro = async (req:Request, res:Response) => {
     }
 };
 
-export const getRubro = async (req: Request, res:Response) => {
+export const getRubros = async (req: Request, res:Response) => {
 
     try {
         const rubros = await Rubro.findAll({
@@ -77,7 +77,6 @@ export const updateRubro = async (req:Request, res:Response) => {
 
     try {
         const idRubro = Number(req.params.id);
-        const user = (req as any).user;
 
         if (isNaN(idRubro)) {
             return res.status(400).json ({
@@ -93,13 +92,14 @@ export const updateRubro = async (req:Request, res:Response) => {
             });
         }
 
-        if (user.rol_id !== 1) {
-            return res.status(403).json ({
-                message: "No autorizado"
+        const { nombre_rubro } = req.body;
+
+        if(!nombre_rubro) {
+            return res.status(400).json ({
+                message: "El nombre del rubro es obligatorio"
             });
         }
 
-        const { nombre_rubro } = req.body;
         await rubro.update({nombre_rubro});
 
         return res.json ({
@@ -134,7 +134,7 @@ export const deleteRubro = async (req:Request, res:Response) => {
 
         await rubro.destroy();
         return res.json ({
-            message: "Rubro elimiando correctamente"
+            message: "Rubro eliminado correctamente"
         });
     } catch(error) {
         return res.status(500).json ({

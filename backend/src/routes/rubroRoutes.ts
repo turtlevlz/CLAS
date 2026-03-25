@@ -1,13 +1,13 @@
 import { Router } from "express";
 import { verifyToken } from "../middleware/authMiddleware";
 import { checkRole } from "../middleware/roleMiddleware";
-import { createRubro, getRubro, getRubroById, updateRubro, deleteRubro } from "../controllers/rubroController";
+import { createRubro, getRubros, getRubroById, updateRubro, deleteRubro } from "../controllers/rubroController";
 
 const router = Router();
 
 router.post("/", verifyToken, checkRole(1), createRubro);
 
-router.get("/",verifyToken, getRubro);
+router.get("/",verifyToken, getRubros);
 
 router.get("/:id", verifyToken, getRubroById);
 
