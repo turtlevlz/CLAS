@@ -1,0 +1,18 @@
+import { Router } from "express";
+import { verifyToken } from "../middleware/authMiddleware";
+import { checkRole } from "../middleware/roleMiddleware";
+import { createRubro, getRubro, getRubroById, updateRubro, deleteRubro } from "../controllers/rubroController";
+
+const router = Router();
+
+router.post("/", verifyToken, checkRole(1), createRubro);
+
+router.get("/",verifyToken, getRubro);
+
+router.get("/:id", verifyToken, getRubroById);
+
+router.patch("/:id", verifyToken, updateRubro);
+
+router.delete("/:id", verifyToken, checkRole(1), deleteRubro);
+
+export default router;
