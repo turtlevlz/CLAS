@@ -15,7 +15,7 @@ app.use("/auth", authRoutes)
 
 app.use("/empresas", empresaRoutes);
 
-app.use("/rubro", rubroRoutes);
+app.use("/rubros", rubroRoutes);
 
 
 export default app;
