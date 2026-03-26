@@ -12,6 +12,16 @@ export const createCertificacion = async (req:Request, res:Response) => {
             });
         }
 
+        const exist = await Certificacion.findOne ({
+            where: { nombre_certificacion }
+        });
+
+        if(exist) {
+            return res.status(400).json ({
+                message: "Ya existe una certificacion con ese nombre"
+            });
+        }
+
         const certificacion = await Certificacion.create ({
             nombre_certificacion
         });
@@ -99,6 +109,16 @@ export const updateCertificacion = async (req:Request, res:Response) => {
                 message: "El nombre de la certificacion es obligatorio"
             });
         } 
+
+        const exist = await Certificacion.findOne ({
+            where: { nombre_certificacion }
+        });
+
+        if(exist) {
+            return res.status(400).json ({
+                message: "Ya existe una certificacion con ese nombre"
+            });
+        }
 
         await certificacion.update({nombre_certificacion});
 
