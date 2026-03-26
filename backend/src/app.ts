@@ -1,6 +1,7 @@
 import express from "express";
 import authRoutes from "./routes/authRoutes";
 import empresaRoutes from "./routes/empresaRoutes";
+import rubroRoutes from "./routes/rubroRoutes"
 
 const app = express();
 
@@ -13,6 +14,8 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoutes)
 
 app.use("/empresas", empresaRoutes);
+
+app.use("/rubros", rubroRoutes);
 
 
 export default app;

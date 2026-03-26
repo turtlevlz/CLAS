@@ -11,8 +11,7 @@ import {
 
 const router = Router();
 
-router.post("/", verifyToken, checkRole(1), createEmpresa
-);
+router.post("/", verifyToken, checkRole(1), createEmpresa);
 
 router.get("/", verifyToken, getEmpresas);
 
