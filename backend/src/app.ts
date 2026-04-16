@@ -3,6 +3,12 @@ import authRoutes from "./routes/authRoutes";
 import empresaRoutes from "./routes/empresaRoutes";
 import rubroRoutes from "./routes/rubroRoutes"
 import certificacionRoutes from "./routes/certificacionRoutes";
+import membresiaRoutes from "./routes/membresiaRoutes";
+import tipoOrganizacionRoutes from "./routes/tipoOrganizacionRoutes";
+import funcionContactoRoutes from "./routes/funcionContactoRoutes";
+import roleRoutes from "./routes/roleRoutes";
+import contactoRoutes from "./routes/contactoRoutes"
+import userRoutes from "./routes/userRoutes"
 
 const app = express();
 
@@ -19,5 +25,17 @@ app.use("/empresas", empresaRoutes);
 app.use("/rubros", rubroRoutes);
 
 app.use("/certificaciones", certificacionRoutes);
+
+app.use("/membresias", membresiaRoutes);
+
+app.use("/organizaciones", tipoOrganizacionRoutes);
+
+app.use("/funciones", funcionContactoRoutes);
+
+app.use("/roles", roleRoutes);
+
+app.use("/contactos", contactoRoutes);
+
+app.use("/usuarios", userRoutes);
 
 export default app;
