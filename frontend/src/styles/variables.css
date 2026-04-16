@@ -1,0 +1,25 @@
+/* Variables globales de diseño extraídas del Figma */
+:root {
+  --color-primary: #1181E5;
+  --color-primary-dark: #052440;
+  --color-primary-gradient: linear-gradient(90deg, #1181E5 16.47%, #0D6CBE 58.83%, #09487E 89.62%);
+  --color-text: #111827;
+  --color-text-muted: #6B6B6B;
+  --color-bg: #FFFFFF;
+  --color-footer: #0A0A0A;
+  --color-success: #10B981;
+  --font-heading: 'IBM Plex Sans', sans-serif;
+  --font-body: 'Roboto', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
