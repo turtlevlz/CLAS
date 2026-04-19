@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(rm src/components/Navbar.css src/components/Footer.css src/styles/variables.css src/App.css)",
+      "Bash(rmdir src/styles)",
+      "Bash(xargs sed *)"
+    ]
+  }
+}

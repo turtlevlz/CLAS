@@ -1,6 +1,4 @@
-/* Configuración de rutas principales con React Router */
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-
 import Home from './pages/Home';
 import Directorio from './pages/Directorio';
 import Noticias from './pages/Noticias';
@@ -14,14 +12,14 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/"                  element={<Home />} />
-        <Route path="/directorio"        element={<Directorio />} />
-        <Route path="/noticias"          element={<Noticias />} />
-        <Route path="/noticias/:id"      element={<NoticiaDetalle />} />
-        <Route path="/login"             element={<Login />} />
-        <Route path="/empresa/:id"       element={<EmpresaDetalle />} />
-        <Route path="/admin/usuarios"    element={<AdminUsuarios />} />
-        <Route path="/admin/empresa"     element={<AdminEmpresa />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/directorio" element={<Directorio />} />
+        <Route path="/noticias" element={<Noticias />} />
+        <Route path="/noticias/:id" element={<NoticiaDetalle />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/empresa/:id" element={<EmpresaDetalle />} />
+        <Route path="/admin/usuarios" element={<AdminUsuarios />} />
+        <Route path="/admin/empresa" element={<AdminEmpresa />} />
       </Routes>
     </BrowserRouter>
   );
