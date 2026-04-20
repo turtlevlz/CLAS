@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { verifyToken } from "../middleware/authMiddleware";
 import { checkRole } from "../middleware/roleMiddleware";
-import { createUser, getUsers, getUserById, updateUser, deleteUser } from "../controllers/userController";
+import { createUser, getUsers, getUsersByEmpresa, getUserById, updateUser, deleteUser } from "../controllers/userController";
 
 const router = Router();
 
@@ -11,8 +11,10 @@ router.get("/", verifyToken, checkRole(1), getUsers);
 
 router.get("/:id", verifyToken, getUserById);
 
-router.patch("/:id", verifyToken, updateUser);
+router.get("/empresa/:empresa_id", verifyToken, checkRole(1, 2, 3), getUsersByEmpresa);
 
-router.delete("/:id", verifyToken, checkRole(1, 2), deleteUser);
+router.patch("/:id", verifyToken, checkRole(1, 2, 3) ,updateUser);
+
+router.delete("/:id", verifyToken, checkRole(1, 2, 3), deleteUser);
 
 export default router;

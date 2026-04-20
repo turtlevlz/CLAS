@@ -1,13 +1,14 @@
 import { Request, Response } from "express";
 import { Op } from "sequelize";
 import { FuncionContacto } from "../models/FuncionContacto";
+import { Contacto } from "../models/Contacto";
 
 export const createFuncionContacto = async (req:Request, res:Response) => {
 
     try {
         const { nombre_funcion } = req.body;
 
-        if(!nombre_funcion) {
+        if(!nombre_funcion || nombre_funcion.trim() === "") {
             return res.status(400).json ({
                 message: "El nombre de la funcion es obligatorio"
             });
@@ -153,7 +154,14 @@ export const deleteFuncionContacto = async (req:Request, res:Response) => {
                 message: "Funcion no encontrada"
             });
         }
-
+        const assign = await Contacto.count ({
+            where: {funcion_id : id}
+        });
+        if (assign > 0) {
+            return res.status(400).json ({
+                message: "No puedes eliminar esta funcion por que actualmente esta asignada a un contacto o mas"
+            })
+        }
         await funcionContacto.destroy();
         return res.json ({
             message: "Funcion eliminada correctamente"

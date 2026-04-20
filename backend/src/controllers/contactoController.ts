@@ -15,10 +15,41 @@ export const createContacto = async (req:Request, res:Response) => {
             correo
         } = req.body;
 
-        if(!empresa_id || isNaN(Number(empresa_id))) {
+        const user = (req as any ).user;
+
+        const verifyId = (user.rol_id === 1) ? empresa_id : user.empresa_id;
+
+        if(!empresa_id || isNaN(Number(verifyId))) {
             return res.status(400).json ({
                 message: "El ID de la empresa es obligatorio"
             });
+        }
+
+        if(!nombre_completo || nombre_completo.trim() === "") {
+            return res.status(400).json ({
+                message: "El nombre del contacto es obligatorio"
+            })
+        }
+
+        if(!puesto || puesto.trim() === "") {
+            return res.status(400).json ({
+                message: "El puesto del contacto es olbigatorio"
+            })
+        }
+
+        if(!telefono_celular || telefono_celular.trim() === "") {
+            return res.status(400).json ({
+                message: "El telefono del contacto es obligatorio"
+            })
+        }
+
+        if(correo) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if(!emailRegex.test(correo)) {
+                return res.status(400).json ({
+                    message: "Formato de correo electronico no valido"
+                })
+            }
         }
 
         const empresa = await Empresa.findByPk(empresa_id);
@@ -30,8 +61,8 @@ export const createContacto = async (req:Request, res:Response) => {
         }
 
         if(funcion_id) {
-            const id = await FuncionContacto.findByPk(funcion_id)
-            if(!id) {
+            const funcion = await FuncionContacto.findByPk(funcion_id)
+            if(!funcion) {
                 return res.status(404).json ({
                     message: "Funcion no encontrada"
                 })
@@ -39,7 +70,7 @@ export const createContacto = async (req:Request, res:Response) => {
         }
 
         const contacto = await Contacto.create ({
-            empresa_id,
+            empresa_id: verifyId,
             funcion_id,
             nombre_completo,
             puesto,
@@ -84,6 +115,11 @@ export const getContactosByEmpresa = async (req:Request, res:Response) => {
                 {
                     model: FuncionContacto,
                     attributes: ["nombre_funcion"]
+                },
+
+                {
+                    model: Empresa,
+                    attributes: ["nombre_empresa"]
                 }
             ]
         });
@@ -108,7 +144,18 @@ export const getContactobyId = async (req:Request, res:Response) => {
             });
         }
 
-        const contacto = await Contacto.findByPk(id);
+        const contacto = await Contacto.findByPk(id, {
+            include: [
+                {
+                    model: FuncionContacto,
+                    attributes: ["nombre_funcion"]
+                },
+                {
+                    model: Empresa,
+                    attributes: ["nombre_empresa"]
+                }
+            ]
+        });
         if(!contacto) {
             return res.status(404).json ({
                 message: "Contacto no encontrado"
@@ -154,15 +201,34 @@ export const updateContacto = async (req:Request, res:Response) => {
         const updates: any = {};
 
         for (const key of allowedFields) {
-            if(req.body[key] !== undefined) {
-                updates[key] = req.body[key];
+            const value = req.body[key];
+            if (value !== undefined) {
+                if(value.trim() === "") {
+                    return res.status(400).json ({
+                        message: "No puedes enviar un campo vacio"
+                    });
+                }
+                updates[key] = value;
             }
         }
 
         await contacto.update(updates);
 
+        const actualizado = await contacto.reload ({
+            include: [{
+                model: FuncionContacto,
+                attributes: ["nombre_funcion"]
+            },
+            {
+                model: Empresa,
+                attributes: ["nombre_empresa"]
+            }
+            ]
+        }
+        )
         return res.json ({
-            message: "Contacto actualizado"
+            message: "Contacto actualizado",
+            contacto: actualizado
         });
 
     } catch (error) {

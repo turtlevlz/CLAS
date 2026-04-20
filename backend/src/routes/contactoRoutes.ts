@@ -11,14 +11,14 @@ import {
 
 const router = Router();
 
-router.post("/", verifyToken, checkRole(1), createContacto);
+router.post("/", verifyToken, checkRole(1, 2), createContacto);
 
 router.get("/empresa/:empresa_id", verifyToken, getContactosByEmpresa);
 
 router.get("/:id", verifyToken, getContactobyId);
 
-router.patch("/:id", verifyToken, checkRole(1), updateContacto);
+router.patch("/:id", verifyToken, checkRole(1, 2), updateContacto);
 
-router.delete("/:id", verifyToken, checkRole(1), deleteContacto);
+router.delete("/:id", verifyToken, checkRole(1, 2), deleteContacto);
 
 export default router;

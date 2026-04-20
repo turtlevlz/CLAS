@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Op } from "sequelize";
 import { Membresia } from "../models/Membresia";
+import { Empresa } from "../models/Empresa";
 
 export const createMembresia = async (req:Request, res:Response) => {
 
@@ -8,14 +9,16 @@ export const createMembresia = async (req:Request, res:Response) => {
 
         const { nombre_membresia } = req.body;
 
-        if (!nombre_membresia) {
+        if (!nombre_membresia || nombre_membresia.trim() === "") {
             return res.status(400).json ({
                 message: "El nombre de la membresia es obligatorio"
             });
         }
 
+        const nombre_limpio = String(nombre_membresia.trim());
+
         const exist = await Membresia.findOne ({
-            where: { nombre_membresia: {[Op.iLike]: nombre_membresia }}
+            where: { nombre_membresia: {[Op.iLike]: nombre_limpio }}
         });
 
         if(exist) {
@@ -34,6 +37,7 @@ export const createMembresia = async (req:Request, res:Response) => {
         });
 
     } catch(error) {
+        console.error("Error ", error)
         return res.status(500).json ({
             message: "Error al crear membresia"
         });
@@ -106,14 +110,19 @@ export const updateMembresia = async (req:Request, res:Response) => {
 
         const { nombre_membresia } = req.body;
 
-        if(!nombre_membresia) {
+        if(!nombre_membresia || nombre_membresia.trim() === "") {
             return res.status(400).json ({
                 message: "El nombre de la membresia es obligatorio"
             });
         }
 
+        const nombre_limpio = String(nombre_membresia.trim());
+
         const exist = await Membresia.findOne ({
-            where: { nombre_membresia: {[Op.iLike]: nombre_membresia }}
+            where: { 
+                nombre_membresia: {[Op.iLike]: nombre_limpio },
+                id_membresia: { [Op.ne]: idMembresia}
+            }
         });
 
         if(exist) {
@@ -122,7 +131,7 @@ export const updateMembresia = async (req:Request, res:Response) => {
             });
         }
 
-        await membresia.update({nombre_membresia});
+        await membresia.update({nombre_membresia: nombre_limpio});
 
         return res.json ({
             message: "Membresia actualizada",
@@ -151,6 +160,16 @@ export const deleteMembresia = async (req:Request, res:Response) => {
             return res.status(404).json ({
                 message: "Membresia no encontrada"
             });
+        }
+        
+        const assign = await Empresa.count ({
+            where: {membresia_id: id}
+        });
+
+        if (assign > 0) {
+            return res.status(400).json({
+                message: "No puedes eliminar esta membresia por que esta asignada a un registro o mas"
+            })
         }
 
         await membresia.destroy();
