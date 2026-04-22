@@ -3,10 +3,18 @@ export type DirectoryCategory = {
   label: string;
 };
 
+export type DirectoryCompanyTier =
+  | 'Tier 1'
+  | 'Tier 2'
+  | 'Tier 3'
+  | 'OEM'
+  | 'Gobierno'
+  | 'Otro';
+
 export type DirectoryCompany = {
   id: number;
   name: string;
-  tierLabel: 'Tier 1' | 'Tier 2' | 'Tier 3' | 'OEM' | 'Gobierno' | 'Otro';
+  tierLabel: DirectoryCompanyTier;
   shortDescription: string;
   city: string;
   state: string;

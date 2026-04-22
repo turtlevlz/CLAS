@@ -1,7 +1,9 @@
-/* Estilos globales base — sin fondos oscuros ni overrides del template Vite */
+@import "tailwindcss";
+
+/* Estilos globales base */
 body {
   margin: 0;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: #111827;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
