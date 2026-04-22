@@ -1,3 +1,4 @@
+@import 'tailwindcss';
 /* Estilos globales base — sin fondos oscuros ni overrides del template Vite */
 body {
   margin: 0;
