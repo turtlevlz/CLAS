@@ -5,7 +5,8 @@ import {
     DataType,
     PrimaryKey,
     AutoIncrement,
-    HasMany
+    HasMany,
+    AllowNull
 } from "sequelize-typescript";
 
 import { Empresa } from "./Empresa";
@@ -26,6 +27,13 @@ export class Membresia extends Model {
         allowNull: false
     })
     nombre_membresia!: string;
+
+    @Column({
+        type: DataType.DECIMAL(10, 2),
+        allowNull: false,
+        defaultValue: 0
+    })
+    precio!: number;
 
     @HasMany(() => Empresa)
     empresas!: Empresa[];
