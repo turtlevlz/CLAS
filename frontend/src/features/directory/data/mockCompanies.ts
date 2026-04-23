@@ -4,7 +4,7 @@ export const mockCompanies: DirectoryCompany[] = [
   {
     id: 1,
     name: 'Ford Hermosillo',
-    tierLabel: 'OEM',
+    tierLabel: 'Tier 1',
     shortDescription:
       'Planta de estampado y ensamble de Ford en Hermosillo, productora de Ford Bronco Sport y Ford Maverick.',
     city: 'Hermosillo',
