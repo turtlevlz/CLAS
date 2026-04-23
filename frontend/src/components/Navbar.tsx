@@ -1,40 +1,29 @@
-// Navbar principal de CLAS
 import { Link, NavLink } from 'react-router-dom'
-import './Navbar.css'
+import claslogo from '../assets/img/clas-logo-name.png'
+
+const linkClass = ({ isActive }: { isActive: boolean }) =>
+  isActive
+    ? 'font-body text-xl font-normal text-primary bg-[rgba(17,129,229,0.1)] px-4 py-1.5 rounded-[10px] no-underline'
+    : 'font-body text-xl font-normal text-text-muted no-underline transition-colors duration-200 hover:text-primary'
 
 export default function Navbar() {
   return (
-    <nav className="navbar">
-      {/* Logo */}
-      <Link to="/" className="navbar-logo">
-        <div className="navbar-logo-icon"></div>
-        <div className="navbar-logo-text">
-          <span className="navbar-logo-title">CLAS</span>
-          <span className="navbar-logo-subtitle">Cluster Automotriz De Sonora</span>
-        </div>
+    <nav className="sticky top-0 z-[100] flex items-center justify-between px-10 h-[90px] bg-white shadow-[0px_2px_8px_rgba(0,0,0,0.08)] max-md:px-5">
+      <Link to="/" className="flex items-center gap-3 no-underline">
+        <img src ={claslogo} alt="Logo CLAS" className="max-h-15"/>
+        
       </Link>
 
-      {/* Links de navegación */}
-      <ul className="navbar-links">
-        <li>
-          <NavLink to="/" className={({ isActive }) => isActive ? 'active-link' : ''} end>
-            Inicio
-          </NavLink>
-        </li>
-        <li>
-          <NavLink to="/directorio" className={({ isActive }) => isActive ? 'active-link' : ''}>
-            Directorio
-          </NavLink>
-        </li>
-        <li>
-          <NavLink to="/noticias" className={({ isActive }) => isActive ? 'active-link' : ''}>
-            Noticias
-          </NavLink>
-        </li>
+      <ul className="flex items-center gap-10 list-none max-md:hidden">
+        <li><NavLink to="/" className={linkClass} end>Inicio</NavLink></li>
+        <li><NavLink to="/directorio" className={linkClass}>Directorio</NavLink></li>
+        <li><NavLink to="/noticias" className={linkClass}>Noticias</NavLink></li>
       </ul>
 
-      {/* Botón login */}
-      <Link to="/login" className="navbar-btn">
+      <Link
+        to="/login"
+        className="bg-primary-dark text-white font-body text-lg font-semibold px-7 py-3 rounded-[15px] shadow-[0px_4px_4px_rgba(0,0,0,0.25)] no-underline transition-opacity duration-200 hover:opacity-90"
+      >
         Iniciar Sesión
       </Link>
     </nav>
