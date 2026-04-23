@@ -24,5 +24,3 @@ Desktop.ini
 node_modules
 dist
 .env
-
-.claude/
