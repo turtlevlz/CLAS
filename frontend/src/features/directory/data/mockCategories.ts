@@ -6,6 +6,10 @@ export const mockCategories: DirectoryCategory[] = [
     label: 'Todas las categorías',
   },
   {
+    id: 'oem',
+    label: 'OEM',
+  },
+  {
     id: 'manufactura',
     label: 'Manufactura',
   },

@@ -28,8 +28,19 @@ export default function CompanyCard({ company }: CompanyCardProps) {
       className="flex h-full min-h-102.5 flex-col rounded-[28px] border border-[#e7edf5] bg-white p-6! shadow-[0_16px_36px_rgba(15,23,42,0.06)] focus:outline-none focus:ring-4 focus:ring-sky-100"
     >
       <div className="flex items-start justify-between gap-4">
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[18px] bg-linear-to-br from-[#214780] to-[#3569b3] text-[17px] font-bold tracking-[0.08em] text-white">
-          {companyInitials}
+        <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-[18px] bg-linear-to-br from-[#214780] to-[#3569b3] text-[17px] font-bold tracking-[0.08em] text-white">
+          <span>{companyInitials}</span>
+
+          {company.logoUrl ? (
+            <img
+              src={company.logoUrl}
+              alt={`Logo de ${company.name}`}
+              className="absolute inset-0 h-full w-full bg-white object-contain p-2"
+              onError={(event) => {
+                event.currentTarget.style.display = 'none';
+              }}
+            />
+          ) : null}
         </div>
 
         <TierBadge tier={company.tierLabel} />
