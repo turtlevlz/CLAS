@@ -2,6 +2,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Link } from 'react-router-dom';
 import { StatCounter } from '../components/StatCounter';
+// 1. Asegúrate de importar useState y useEffect
 import { useState, useEffect, useRef } from 'react';
 import { 
   ArrowRightIcon, 
@@ -22,7 +23,19 @@ export default function Home() {
   const ctaRef = useRef(null);
   const [ctaVisible, setCtaVisible] = useState(false);
 
+  // 2. NUEVO: Agregamos las imágenes para el Hero
+  const heroImages = [
+    "https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=1000&auto=format&fit=crop", // Imagen original
+    "https://mecaluxmx.cdnwm.com/img/blog/logistica-industria-automotriz.1.11.jpg", // Imagen 2
+    "https://img1.wsimg.com/isteam/stock/98069/:/rs=w:1200,h:600,cg:true,m/cr=w:1200,h:600", // Imagen 3
+    "https://img1.wsimg.com/isteam/stock/2224/:/rs=w:1200,h:600,cg:true,m/cr=w:1200,h:600" // Imagen 4
+  ];
+
+  // 3. NUEVO: Estado para controlar la imagen actual
+  const [currentHeroImage, setCurrentHeroImage] = useState(0);
+
   useEffect(() => {
+    // Observer para el CTA (esto ya estaba en tu código)
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -31,10 +44,19 @@ export default function Home() {
       },
       { threshold: 0.3 } 
     );
-
     if (ctaRef.current) observer.observe(ctaRef.current);
-    return () => observer.disconnect();
-  }, []);
+
+    const interval = setInterval(() => {
+      setCurrentHeroImage((prevIndex) => 
+        prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 4000); // 5000ms = 5 segundos
+
+    return () => {
+      observer.disconnect();
+      clearInterval(interval); 
+    };
+  }, [heroImages.length]); 
 
   const logos = [
   "https://upload.wikimedia.org/wikipedia/commons/a/a0/Ford_Motor_Company_Logo.svg",
@@ -60,7 +82,7 @@ export default function Home() {
     },
     { 
       title: "Capacitación", 
-      desc: "Programas de formación y actualización para su equipo técnico.", 
+      desc: "Programas de formation y actualización para su equipo técnico.", 
       icon: AcademicCapIcon 
     },
     { 
@@ -97,12 +119,18 @@ export default function Home() {
             </div>
             
             <div className="flex-1 w-full">
-              <div className="relative">
-                <img 
-                  src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=1000&auto=format&fit=crop" 
-                  alt="Industria Automotriz"
-                  className="rounded-[3rem] shadow-2xl border-4 border-white/10 w-full object-cover h-[500px]"
-                />
+              <div className="relative w-full h-[500px] rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white/10">
+                {heroImages.map((src, index) => (
+                  <img 
+                    key={index}
+                    src={src} 
+                    alt={`Industria Automotriz Slide ${index + 1}`}
+                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out
+                      ${index === currentHeroImage ? 'opacity-100 z-10' : 'opacity-0 z-0'}
+                    `}
+                  />
+                ))}
+                
               </div>
             </div>
           </div>
