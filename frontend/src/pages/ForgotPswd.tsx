@@ -1,4 +1,5 @@
 import { useState } from "react";
+import claslogo from "../assets/img/clas-logo.png"
 import Footer from "../components/Footer";
 
 export default function ForgotPswd() {
@@ -17,8 +18,7 @@ export default function ForgotPswd() {
                             <div> 
 
                                 <div className="flex flex-col items-center p-8">
-                                        <div className="w-[50px] h-[50px] border-[3px] border-black flex items-center justify-center relative before:content-[''] before:absolute before:w-[65px] before:h-[3px] before:bg-black before:rotate-45 after:content-[''] after:absolute after:w-[65px] after:h-[3px] after:bg-black after:-rotate-45" />
-                                        <span className="font-heading font-bold text-5xl text-black leading-none">CLAS</span>
+                                        <img src={claslogo} className="max-h-35"/>
                                         <span className="font-heading font-light text-xl text-text-muted">Cluster Automotriz De Sonora</span>
                                 </div>
 
