@@ -150,19 +150,31 @@ export default function EmpresaDetalle() {
 
               <div className="!flex !justify-start lg:!justify-end">
                 <div className="!relative !flex !h-[150px] !w-[260px] !items-center !justify-center !overflow-hidden !rounded-[34px] !border !border-[#e5edf7] !bg-white !p-6 !shadow-[0_18px_55px_rgba(15,23,42,0.08)]">
-                  <span className="!text-[42px] !font-bold !tracking-[0.08em] !text-[#12284b]">
-                    {companyInitials}
-                  </span>
-
                   {company.logoUrl ? (
                     <img
                       src={company.logoUrl}
                       alt={`Logo de ${company.name}`}
-                      className="!absolute !inset-0 !h-full !w-full !object-contain !p-6"
+                      className="!h-full !w-full !object-contain !p-6"
                       onError={(event) => {
+                        const fallback = event.currentTarget.nextElementSibling as HTMLElement | null;
+
                         event.currentTarget.style.display = 'none';
+
+                        if (fallback) {
+                          fallback.style.display = 'flex';
+                        }
                       }}
                     />
+                  ) : null}
+
+                  <span className="!hidden !h-full !w-full !items-center !justify-center !text-[42px] !font-bold !tracking-[0.08em] !text-[#12284b]">
+                    {companyInitials}
+                  </span>
+
+                  {!company.logoUrl ? (
+                    <span className="!absolute !inset-0 !flex !items-center !justify-center !text-[42px] !font-bold !tracking-[0.08em] !text-[#12284b]">
+                      {companyInitials}
+                    </span>
                   ) : null}
                 </div>
               </div>

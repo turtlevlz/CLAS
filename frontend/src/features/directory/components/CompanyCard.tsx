@@ -25,50 +25,63 @@ export default function CompanyCard({ company }: CompanyCardProps) {
     <Link
       to={`/empresa/${company.id}`}
       aria-label={`Ver detalle de ${company.name}`}
-      className="flex h-full min-h-102.5 flex-col rounded-[28px] border border-[#e7edf5] bg-white p-6! shadow-[0_16px_36px_rgba(15,23,42,0.06)] focus:outline-none focus:ring-4 focus:ring-sky-100"
+      className="group !flex !h-full !min-h-[420px] !flex-col !rounded-[30px] !border !border-[#e4ebf5] !bg-white !p-7 !shadow-[0_18px_44px_rgba(15,23,42,0.07)] !transition hover:!-translate-y-[2px] hover:!shadow-[0_24px_58px_rgba(15,23,42,0.10)] focus:!outline-none focus:!ring-4 focus:!ring-sky-100"
     >
-      <div className="flex items-start justify-between gap-4">
-        <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-[18px] bg-linear-to-br from-[#214780] to-[#3569b3] text-[17px] font-bold tracking-[0.08em] text-white">
-          <span>{companyInitials}</span>
-
+      <div className="!flex !min-h-[90px] !items-center !justify-center">
+        <div className="!relative !flex !h-[60px] !w-[150px] !items-center !justify-center !overflow-hidden !rounded-[16px] !bg-white">
           {company.logoUrl ? (
             <img
               src={company.logoUrl}
               alt={`Logo de ${company.name}`}
-              className="absolute inset-0 h-full w-full bg-white object-contain p-2"
+              className="!h-full !w-full !object-contain"
               onError={(event) => {
+                const fallback = event.currentTarget.nextElementSibling as HTMLElement | null;
+
                 event.currentTarget.style.display = 'none';
+
+                if (fallback) {
+                  fallback.style.display = 'flex';
+                }
               }}
             />
           ) : null}
-        </div>
 
-        <TierBadge tier={company.tierLabel} />
+          <span
+            className="!hidden !h-full !w-full !items-center !justify-center !text-[22px] !font-bold !tracking-[0.08em] !text-[#12284b]"
+          >
+            {companyInitials}
+          </span>
+
+          {!company.logoUrl ? (
+            <span className="!absolute !inset-0 !flex !items-center !justify-center !text-[22px] !font-bold !tracking-[0.08em] !text-[#12284b]">
+              {companyInitials}
+            </span>
+          ) : null}
+        </div>
       </div>
 
-      <div className="mt-4.5!">
-        <h2 className="text-[24px] font-bold leading-[1.08] tracking-[-0.04em] text-[#12284b]">
+      <div className="!mt-5 !text-center">
+        <h2 className="!text-[24px] !font-bold !leading-[1.12] !tracking-[-0.04em] !text-[#12284b]">
           {company.name}
         </h2>
-
-        <p className="mt-3.5! text-[15px] leading-[1.7] text-[#64748b]">
-          {company.shortDescription}
-        </p>
       </div>
 
-      <div className="mt-4! text-[15px] leading-[1.7] text-[#334155]">
-        <p className="font-semibold">
-          {company.city}, {company.state}
+      <div className="!mt-6 !h-px !w-full !bg-[#e3eaf4]" />
+
+      <div className="!mt-6 !flex-1">
+        <p className="!text-center !text-[13px] !font-bold !uppercase !tracking-[0.12em] !text-[#94a3b8]">
+          Especialidades
         </p>
-        <p>{company.publicEmail}</p>
-        <p>{company.publicPhone}</p>
-        <p>{company.employeeRange}</p>
+
+        <div className="!mt-4 !flex !flex-wrap !justify-center !gap-2.5">
+          {company.specialties.map((specialty) => (
+            <SpecialtyChip key={specialty} label={specialty} />
+          ))}
+        </div>
       </div>
 
-      <div className="mt-4.5! flex flex-wrap gap-2.5">
-        {company.specialties.map((specialty) => (
-          <SpecialtyChip key={specialty} label={specialty} />
-        ))}
+      <div className="!mt-7">
+        <TierBadge tier={company.tierLabel} />
       </div>
     </Link>
   );
