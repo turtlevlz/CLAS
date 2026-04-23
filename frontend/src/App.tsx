@@ -6,6 +6,7 @@ import NoticiaDetalle from './pages/NoticiaDetalle';
 import Login from './pages/Login';
 import EmpresaDetalle from './pages/EmpresaDetalle';
 import Admin from './pages/Admin';
+import ForgotPswd from './pages/ForgotPswd'
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/empresa/:id" element={<EmpresaDetalle />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/contrasena_reset" element={<ForgotPswd />} />
       </Routes>
     </BrowserRouter>
   );
