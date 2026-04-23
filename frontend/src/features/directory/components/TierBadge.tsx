@@ -18,7 +18,7 @@ export default function TierBadge({ tier }: TierBadgeProps) {
 
   return (
     <span
-      className={`!inline-flex !min-h-[34px] !items-center !rounded-full !px-[14px] !text-[12px] !font-bold !leading-none !tracking-[0.03em] !uppercase ${className}`}
+      className={`inline-flex min-h-8.5 items-center rounded-full px-3.5! text-[12px] font-bold leading-none tracking-[0.03em] uppercase ${className}`}
     >
       {tier}
     </span>

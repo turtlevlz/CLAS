@@ -26,12 +26,12 @@ export default function DirectoryToolbar({
   }
 
   return (
-    <section className="!rounded-[28px] !border !border-[#e7edf5] !bg-white !p-[24px] !shadow-[0_18px_40px_rgba(15,23,42,0.07)]">
-      <div className="grid grid-cols-1 gap-[18px] lg:grid-cols-[minmax(0,1.7fr)_minmax(320px,0.9fr)] lg:items-end">
+    <section className="rounded-[28px] border border-[#e7edf5] bg-white p-6! shadow-[0_18px_40px_rgba(15,23,42,0.07)]">
+      <div className="grid grid-cols-1 gap-4.5 lg:grid-cols-[minmax(0,1.7fr)_minmax(320px,0.9fr)] lg:items-end">
         <div className="min-w-0">
           <label
             htmlFor="directory-search"
-            className="!mb-[12px] !block !pl-[2px] !text-[14px] !leading-[1.2] !font-bold !text-[#17304f]"
+            className="mb-3! block pl-0.5! text-[14px] leading-[1.2] font-bold text-[#17304f]"
           >
             Buscar miembros
           </label>
@@ -42,14 +42,14 @@ export default function DirectoryToolbar({
             value={searchValue}
             onChange={handleSearchChange}
             placeholder="Buscar por empresa, ciudad, categoría o especialidad"
-            className="!block !h-[54px] !w-full !min-w-0 !rounded-[18px] !border !border-[#dbe4ef] !bg-white !px-[18px] !text-[16px] !leading-none !text-[#334155] !shadow-none !outline-none placeholder:!text-[#94a3b8] focus:!outline-none focus:!ring-4 focus:!ring-sky-100"
+            className="block h-13.5 w-full min-w-0 rounded-[18px] border border-[#dbe4ef] bg-white px-4.5! text-[16px] leading-none text-[#334155] shadow-none outline-none placeholder:text-[#94a3b8] focus:outline-none focus:ring-4 focus:ring-sky-100"
           />
         </div>
 
         <div className="min-w-0">
           <label
             htmlFor="directory-category"
-            className="!mb-[12px] !block !pl-[2px] !text-[14px] !leading-[1.2] !font-bold !text-[#17304f]"
+            className="mb-3! block pl-0.5! text-[14px] leading-[1.2] font-bold text-[#17304f]"
           >
             Categoría
           </label>
@@ -58,7 +58,7 @@ export default function DirectoryToolbar({
             id="directory-category"
             value={categoryValue}
             onChange={handleCategoryChange}
-            className="!block !h-[54px] !w-full !min-w-0 !rounded-[18px] !border !border-[#dbe4ef] !bg-white !px-[18px] !text-[16px] !leading-none !text-[#334155] !shadow-none !outline-none focus:!outline-none focus:!ring-4 focus:!ring-sky-100"
+            className="block h-13.5 w-full min-w-0 rounded-[18px] border border-[#dbe4ef] bg-white px-4.5 text-[16px] leading-none text-[#334155] shadow-none outline-none focus:outline-none focus:ring-4 focus:ring-sky-100"
           >
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
