@@ -76,7 +76,7 @@ export default function Home() {
 
       <main>
         {/* --- SECCIÓN HERO --- */}
-        <section className="bg-linear-to-r from-[rgb(20,140,180)] to-[rgb(44,65,154)] py-15 lg:py-18 px-10">
+        <section className="bg-linear-to-r from-[rgb(20,140,180)] to-[rgb(44,65,154)] py-20 lg:py-18 px-10">
           <div style={{ maxWidth: '1200px', margin: '0 auto' }} className="flex flex-col lg:flex-row items-center gap-16">
             <div className="flex-1 text-white">
               <h1 className="text-4xl lg:text-6xl font-black leading-[1.1] tracking-tight mb-5">
@@ -108,8 +108,8 @@ export default function Home() {
           </div>
         </section>
 
-                {/* --- SECCIÓN STATS ACTUALIZADA --- */}
-        <section className="py-15 bg-white">
+        {/* --- SECCIÓN STATS ACTUALIZADA --- */}
+        <section className="py-20 bg-white">
           <div style={{ maxWidth: '1200px', margin: '0 auto' }} className="px-10 grid grid-cols-2 lg:grid-cols-4 gap-12">
             {stats.map((stat, idx) => (
               <div key={idx} className="text-center">
@@ -167,8 +167,9 @@ export default function Home() {
             </div>
           </div>
         </section>
-                {/* --- SECCIÓN MISIÓN Y VISIÓN --- */}
-        <section className="py-24 bg-neutral-100">
+
+        {/* --- SECCIÓN MISIÓN Y VISIÓN --- */}
+        <section className="py-20 bg-neutral-100">
           <div style={{ maxWidth: '1200px', margin: '0 auto' }} className="px-10 flex flex-col md:flex-row items-center gap-16">
             
             <div className="flex-1 w-full">
@@ -203,19 +204,19 @@ export default function Home() {
           </div>
         </section>
 
-              {/* --- SECCIÓN QUIÉNES SOMOS / EQUIPO --- */}
-      <section id="seccion-quienes-somos" className="py-30 bg-white">
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }} className="px-10">
-          
-          {/* Encabezado */}
-          <div className="text-center max-w-4xl mx-auto mb-20">
-            <h2 className="text-5xl font-black text-primary-dark mb-8">¿Quiénes Somos?</h2>
-            <p className="text-text-muted text-lg leading-relaxed font-medium">
-              En CLAS (Clúster Automotriz de Sonora) trabajamos para fortalecer y conectar el ecosistema automotriz del estado. 
-              Somos un equipo multidisciplinario comprometido con impulsar la colaboración entre empresas, proveedores, 
-              instituciones académicas y organismos gubernamentales.
-            </p>
-          </div>
+        {/* --- SECCIÓN QUIÉNES SOMOS / EQUIPO --- */}
+        <section id="seccion-quienes-somos" className="py-20 bg-white">
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }} className="px-10">
+            
+            {/* Encabezado */}
+            <div className="text-center max-w-4xl mx-auto mb-20">
+              <h2 className="text-5xl font-black text-primary-dark mb-8">¿Quiénes Somos?</h2>
+              <p className="text-text-muted text-lg leading-relaxed font-medium">
+                En CLAS (Clúster Automotriz de Sonora) trabajamos para fortalecer y conectar el ecosistema automotriz del estado. 
+                Somos un equipo multidisciplinario comprometido con impulsar la colaboración entre empresas, proveedores, 
+                instituciones académicas y organismos gubernamentales.
+              </p>
+            </div>
 
             {/* Grid de Equipo */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-10 max-w-4xl mx-auto">
@@ -225,14 +226,14 @@ export default function Home() {
                 { name: "Diego Cacho Campillo", role: "Tesorero", empresa: "Grupo Industrial ESD", correo: "tesoreria@clas.com.mx", image:"https://img1.wsimg.com/isteam/ip/dcf17818-4267-46ce-a60c-cfa6c45c9047/Diego%20Cacho.jpg/:/cr=t:2.17%25,l:0%25,w:100%25,h:71.41%25/rs=w:730,h:730,cg:true" },
                 { name: "Margarita Bejarano Celaya", role: "Directora", empresa: "CLAS", correo: "direccion@clas.com.mx", image:"https://img1.wsimg.com/isteam/ip/dcf17818-4267-46ce-a60c-cfa6c45c9047/blob-074403d.png/:/cr=t:0%25,l:15.07%25,w:48.08%25,h:32.04%25/rs=w:730,h:730,cg:true,m"}
               ].map((member, idx) => (
-                <div key={idx} className="bg-white border border-slate-200 rounded-[2rem] p-8 shadow-lg text-center hover:-translate-y-2 transition-transform duration-300">
+                <div key={idx} className="group bg-white border border-slate-200 rounded-[2rem] p-8 shadow-lg text-center hover:-translate-y-2 transition-transform duration-300">
                   
                   {/* Avatar */}
-            <div className="w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden border-4 border-slate-50 shadow-inner bg-slate-100">
+                  <div className="w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden border-4 border-slate-50 shadow-inner bg-slate-100">
                     <img 
                       src={member.image} 
                       alt={member.name} 
-                      className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500"
+                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
                     />
                   </div>
 
@@ -254,7 +255,6 @@ export default function Home() {
                   </a>
 
                   {/* Redes Sociales */}
-                  {/* Iconos de Redes Sociales en SVG */}
                   <div className="flex justify-center gap-3">
                     {/* LinkedIn */}
                     <a href="#" className="w-11 h-11 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:bg-[#0077b5] hover:text-white transition-all shadow-sm group/icon">
@@ -287,8 +287,6 @@ export default function Home() {
         {/* --- CTA FINAL --- */}
         <section ref={ctaRef} className="bg-linear-to-r from-[rgb(20,140,180)] to-[rgb(44,65,154)] py-20 text-center overflow-hidden">
           <div className="max-w-4xl mx-auto px-10">
-            
-            {/* TÍTULO: Cae desde arriba */}
             <h2 
               className={`text-5xl font-black text-white mb-8 tracking-tight italic transform transition-all duration-1000 ease-out
                 ${ctaVisible ? 'translate-y-0 opacity-100' : '-translate-y-12 opacity-0'}
@@ -296,8 +294,6 @@ export default function Home() {
             >
               ¿Listo para unirse a CLAS?
             </h2>
-            
-            {/* TEXTO: Entra desde abajo con un poco de retraso (delay-300) */}
             <p 
               className={`text-white/80 text-xl mb-12 font-medium transform transition-all duration-1000 delay-300 ease-out
                 ${ctaVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}
@@ -305,8 +301,6 @@ export default function Home() {
             >
               Forma parte del ecosistema automotriz más dinámico de Sonora.
             </p>
-            
-            {/* BOTÓN: Entra desde más abajo con mayor retraso (delay-500) */}
             <div 
               className={`transform transition-all duration-1000 delay-500 ease-out
                 ${ctaVisible ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0'}
