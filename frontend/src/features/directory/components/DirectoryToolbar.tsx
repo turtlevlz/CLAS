@@ -1,5 +1,5 @@
-import DirectoryCategorySelect from './DirectoryCategorySelect';
-import DirectorySearchInput from './DirectorySearchInput';
+import type { ChangeEvent } from 'react';
+
 import type { DirectoryCategory } from '../types/directory';
 
 type DirectoryToolbarProps = {
@@ -17,14 +17,57 @@ export default function DirectoryToolbar({
   onSearchChange,
   onCategoryChange,
 }: DirectoryToolbarProps) {
+  function handleSearchChange(event: ChangeEvent<HTMLInputElement>) {
+    onSearchChange(event.target.value);
+  }
+
+  function handleCategoryChange(event: ChangeEvent<HTMLSelectElement>) {
+    onCategoryChange(event.target.value);
+  }
+
   return (
-    <section className="directory-toolbar" aria-label="Filtros del directorio">
-      <DirectorySearchInput value={searchValue} onChange={onSearchChange} />
-      <DirectoryCategorySelect
-        value={categoryValue}
-        categories={categories}
-        onChange={onCategoryChange}
-      />
+    <section className="rounded-[28px] border border-[#e7edf5] bg-white p-6! shadow-[0_18px_40px_rgba(15,23,42,0.07)]">
+      <div className="grid grid-cols-1 gap-4.5 lg:grid-cols-[minmax(0,1.7fr)_minmax(320px,0.9fr)] lg:items-end">
+        <div className="min-w-0">
+          <label
+            htmlFor="directory-search"
+            className="mb-3! block pl-0.5! text-[14px] leading-[1.2] font-bold text-[#17304f]"
+          >
+            Buscar miembros
+          </label>
+
+          <input
+            id="directory-search"
+            type="text"
+            value={searchValue}
+            onChange={handleSearchChange}
+            placeholder="Buscar por empresa, ciudad, categoría o especialidad"
+            className="block h-13.5 w-full min-w-0 rounded-[18px] border border-[#dbe4ef] bg-white px-4.5! text-[16px] leading-none text-[#334155] shadow-none outline-none placeholder:text-[#94a3b8] focus:outline-none focus:ring-4 focus:ring-sky-100"
+          />
+        </div>
+
+        <div className="min-w-0">
+          <label
+            htmlFor="directory-category"
+            className="mb-3! block pl-0.5! text-[14px] leading-[1.2] font-bold text-[#17304f]"
+          >
+            Categoría
+          </label>
+
+          <select
+            id="directory-category"
+            value={categoryValue}
+            onChange={handleCategoryChange}
+            className="block h-13.5 w-full min-w-0 rounded-[18px] border border-[#dbe4ef] bg-white px-4.5 text-[16px] leading-none text-[#334155] shadow-none outline-none focus:outline-none focus:ring-4 focus:ring-sky-100"
+          >
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
     </section>
   );
 }

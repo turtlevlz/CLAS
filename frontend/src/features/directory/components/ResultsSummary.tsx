@@ -8,9 +8,10 @@ export default function ResultsSummary({
   totalCount,
 }: ResultsSummaryProps) {
   return (
-    <p className="directory-results-summary">
-      Mostrando <strong>{visibleCount}</strong> miembros de{' '}
-      <strong>{totalCount}</strong> miembros
+    <p className="text-[1.05rem] text-slate-500">
+      Mostrando <span className="font-semibold text-slate-700">{visibleCount}</span>{' '}
+      miembros de <span className="font-semibold text-slate-700">{totalCount}</span>{' '}
+      miembros
     </p>
   );
 }

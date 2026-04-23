@@ -11,7 +11,7 @@ export default function Navbar() {
     <nav className="sticky top-0 z-[100] flex items-center justify-between px-10 h-[90px] bg-white shadow-[0px_2px_8px_rgba(0,0,0,0.08)] max-md:px-5">
       <Link to="/" className="flex items-center gap-3 no-underline">
         <img src ={claslogo} alt="Logo CLAS" className="max-h-15"/>
-        
+
       </Link>
 
       <ul className="flex items-center gap-10 list-none max-md:hidden">

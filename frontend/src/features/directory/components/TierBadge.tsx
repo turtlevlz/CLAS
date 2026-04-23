@@ -1,33 +1,26 @@
+import type { DirectoryCompanyTier } from '../types/directory';
+
 type TierBadgeProps = {
-  label: string;
+  tier: DirectoryCompanyTier;
 };
 
-function getTierBadgeClassName(label: string) {
-  const normalizedLabel = label.trim().toLowerCase();
+const tierClassNames: Record<DirectoryCompanyTier, string> = {
+  'Tier 1': '!bg-[#1390ff] !text-[#ffffff]',
+  'Tier 2': '!bg-[#09487f] !text-[#ffffff]',
+  'Tier 3': '!bg-[#0e233e] !text-[#ffffff]',
+  OEM: '!bg-[#2e2e2e] !text-[#ffffff]',
+  Gobierno: '!bg-[#c4c4c4] !text-[#2e2e2e]',
+  Otro: '!bg-[#ececec] !text-[#525252]',
+};
 
-  if (normalizedLabel === 'tier 1') {
-    return 'directory-tier-badge directory-tier-badge--tier1';
-  }
+export default function TierBadge({ tier }: TierBadgeProps) {
+  const className = tierClassNames[tier] ?? tierClassNames.Otro;
 
-  if (normalizedLabel === 'tier 2') {
-    return 'directory-tier-badge directory-tier-badge--tier2';
-  }
-
-  if (normalizedLabel === 'tier 3') {
-    return 'directory-tier-badge directory-tier-badge--tier3';
-  }
-
-  if (normalizedLabel === 'oem') {
-    return 'directory-tier-badge directory-tier-badge--oem';
-  }
-
-  if (normalizedLabel === 'gobierno') {
-    return 'directory-tier-badge directory-tier-badge--government';
-  }
-
-  return 'directory-tier-badge directory-tier-badge--default';
-}
-
-export default function TierBadge({ label }: TierBadgeProps) {
-  return <span className={getTierBadgeClassName(label)}>{label}</span>;
+  return (
+    <span
+      className={`!flex !min-h-[44px] !w-full !items-center !justify-center !rounded-[14px] !text-center !text-[16px] !font-semibold !leading-none !tracking-[0.02em] ${className}`}
+    >
+      {tier}
+    </span>
+  );
 }

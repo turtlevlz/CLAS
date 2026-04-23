@@ -5,17 +5,16 @@ html {
 
 @theme {
   --font-sans: "Verdana", "Geneva", sans-serif;
-  --color-primary: #1181E5;
+  --color-primary: #1181e5;
   --color-primary-dark: #052440;
   --color-text: #111827;
-  --color-text-muted: #6B6B6B;
-  --color-footer: #0A0A0A;
-  --color-success: #10B981;
+  --color-text-muted: #6b6b6b;
+  --color-footer: #0a0a0a;
+  --color-success: #10b981;
 }
 
 @layer base {
   body {
-
     background-color: #ffffff;
     color: var(#000000); /* Usamos tu variable de color */
     -webkit-font-smoothing: antialiased;
@@ -32,8 +31,12 @@ html {
 
 @layer utilities {
   @keyframes infinite-slide {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); } /* Movimiento exacto a la mitad */
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    } /* Movimiento exacto a la mitad */
   }
 
   .animate-carousel {
@@ -43,11 +46,10 @@ html {
   }
 
   .logo-container {
-    width: 250px; 
+    width: 250px;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
   }
 }
-

@@ -8,9 +8,14 @@ export default function EmptyState({
   description,
 }: EmptyStateProps) {
   return (
-    <div className="directory-empty-state" role="status" aria-live="polite">
-      <h3>{title}</h3>
-      <p>{description}</p>
-    </div>
+    <section className="rounded-[30px] border border-dashed border-slate-200 bg-white/80 px-6 py-16 text-center">
+      <h2 className="text-2xl font-bold text-[#0d2340]">
+        {title}
+      </h2>
+
+      <p className="mt-4 text-lg leading-8 text-slate-500">
+        {description}
+      </p>
+    </section>
   );
 }
