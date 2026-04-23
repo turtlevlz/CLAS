@@ -1,17 +1,29 @@
 @import "tailwindcss";
 
-/* Estilos globales base */
-body {
-  margin: 0;
-  background-color: #ffffff;
-  color: #111827;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@theme {
+  --color-primary: #1181e5;
+  --color-primary-dark: #052440;
+  --color-text: #111827;
+  --color-text-muted: #6b6b6b;
+  --color-footer: #0a0a0a;
+  --color-success: #10b981;
+  --font-heading: "IBM Plex Sans", sans-serif;
+  --font-body: "Roboto", sans-serif;
 }
 
-#root {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+@layer base {
+  body {
+    background-color: #ffffff;
+    color: #111827;
+    font-family: "Roboto", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
 }
