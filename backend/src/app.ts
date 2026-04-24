@@ -9,10 +9,12 @@ import funcionContactoRoutes from "./routes/funcionContactoRoutes";
 import roleRoutes from "./routes/roleRoutes";
 import contactoRoutes from "./routes/contactoRoutes"
 import userRoutes from "./routes/userRoutes"
+import empresaCertificacionRoutes from "./routes/empresaCertificacionRoutes"
+import empresaRubroRoutes from "./routes/empresaRubroRoutes"
 
 const app = express();
 
-app.use(express.json());
+app.use(express.json()); 
 
 app.get("/", (req, res) => {
     res.send("CLAS API running");
@@ -37,5 +39,9 @@ app.use("/roles", roleRoutes);
 app.use("/contactos", contactoRoutes);
 
 app.use("/usuarios", userRoutes);
+
+app.use("/empresa-certificaciones", empresaCertificacionRoutes)
+
+app.use("/empresa-rubros", empresaRubroRoutes)
 
 export default app;
