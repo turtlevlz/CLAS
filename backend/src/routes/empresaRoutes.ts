@@ -15,7 +15,7 @@ router.post("/", verifyToken, checkRole(1), createEmpresa);
 
 router.get("/", verifyToken, getEmpresas);
 
-router.get("/:id", verifyToken, getEmpresaById)
+router.get("/:id", verifyToken, getEmpresaById);
 
 router.patch("/:id", verifyToken, updateEmpresa);
 
