@@ -5,33 +5,34 @@ import {
     DataType,
     PrimaryKey,
     AutoIncrement,
-    HasMany
+    BelongsToMany
 } from "sequelize-typescript";
 
 import { Empresa } from "./Empresa";
+import { EmpresaNecesidad } from "./EmpresaNecesidad";
 
 @Table({
-    tableName: "tipos_organizacion",
+    tableName: "necesidades_proveeduria",
     timestamps: false
 })
-export class TipoOrganizacion extends Model {
+export class Necesidad extends Model {
 
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.INTEGER)
-    id_tipo!: number;
+    id_necesidad!: number;
 
     @Column({
-        type: DataType.STRING(100),
+        type: DataType.STRING(150),
         allowNull: false,
         validate: {
             notNull: true,
-            notEmpty: true
+            notEmpty: true  
         }
     })
-    nombre_tipo!: string;
+    nombre_necesidad!: string;
 
-    @HasMany(() => Empresa)
+    @BelongsToMany(() => Empresa, () => EmpresaNecesidad)
     empresas!: Empresa[];
 
 }

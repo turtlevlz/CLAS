@@ -8,21 +8,20 @@ import {
 } from "sequelize-typescript";
 
 import { Empresa } from "./Empresa";
-import { Rubro } from "./Rubro";
-
+import { Industria } from "./Industria";
 @Table({
-    tableName: "empresa_rubros",
+    tableName: "empresa_industrias",
     timestamps: false
 })
-export class EmpresaRubro extends Model {
+export class EmpresaIndustria extends Model {
     @PrimaryKey
     @ForeignKey(() => Empresa)
     @Column(DataType.INTEGER)
     empresa_id!: number;
 
     @PrimaryKey
-    @ForeignKey(() => Rubro)
+    @ForeignKey(() => Industria)
     @Column(DataType.INTEGER)
-    rubro_id!: number;
+    industria_id!: number;
 
 }
