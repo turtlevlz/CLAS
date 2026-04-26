@@ -7,9 +7,15 @@ import { Certificacion } from "../models/Certificacion";
 import { Contacto } from "../models/Contacto";
 import { FuncionContacto } from "../models/FuncionContacto";
 
-export const createEmpresa = async (req: Request, res: Response) => {
+const fs = require("fs");
 
-    const fs = require("fs");
+const deleteFile = (file?: Express.Multer.File) => {
+    if (file) {
+        fs.unlink("uploads/logos/" + file.filename, () => { });
+    }
+};
+
+export const createEmpresa = async (req: Request, res: Response) => {
 
     try {
 
@@ -38,37 +44,39 @@ export const createEmpresa = async (req: Request, res: Response) => {
         giro = giro?.trim();
         rfc = rfc?.trim();
 
-        // Nombre obligatorio
+        // VALIDACIONES
+
         if (!nombre_comercial) {
+            deleteFile(req.file);
             return res.status(400).json({
                 message: "El nombre comercial es obligatorio"
             });
         }
 
-        // Email válido
         if (correo_electronico) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(correo_electronico)) {
+                deleteFile(req.file);
                 return res.status(400).json({
                     message: "Formato de correo electrónico no válido"
                 });
             }
         }
 
-        // Teléfono válido
         if (telefono) {
             const phoneRegex = /^[0-9]{10,15}$/;
             if (!phoneRegex.test(telefono)) {
+                deleteFile(req.file);
                 return res.status(400).json({
                     message: "Teléfono inválido (10-15 dígitos)"
                 });
             }
         }
 
-        // RFC básico (México)
         if (rfc) {
             const rfcRegex = /^[A-ZÑ&]{3,4}[0-9]{6}[A-Z0-9]{3}$/;
             if (!rfcRegex.test(rfc.toUpperCase())) {
+                deleteFile(req.file);
                 return res.status(400).json({
                     message: "Formato de RFC no válido"
                 });
@@ -76,36 +84,36 @@ export const createEmpresa = async (req: Request, res: Response) => {
             rfc = rfc.toUpperCase();
         }
 
-        // URL básica
         if (sitio_web) {
             const urlRegex = /^(https?:\/\/)?([\w.-]+)+(:\d+)?(\/([\w/_-]+))*$/;
             if (!urlRegex.test(sitio_web)) {
+                deleteFile(req.file);
                 return res.status(400).json({
                     message: "URL de sitio web no válida"
                 });
             }
         }
 
-        // DUPLICADO nombre (case insensitive)
+        // DUPLICADOS
+
         const empresaExistente = await Empresa.findOne({
-            where: {
-                nombre_comercial
-            }
+            where: { nombre_comercial }
         });
 
         if (empresaExistente) {
+            deleteFile(req.file);
             return res.status(409).json({
                 message: "Ya existe una empresa con ese nombre comercial"
             });
         }
 
-        // DUPLICADO RFC
         if (rfc) {
             const rfcExistente = await Empresa.findOne({
                 where: { rfc }
             });
 
             if (rfcExistente) {
+                deleteFile(req.file);
                 return res.status(409).json({
                     message: "Ya existe una empresa con ese RFC"
                 });
@@ -139,17 +147,14 @@ export const createEmpresa = async (req: Request, res: Response) => {
 
         console.error(error);
 
-        //limpiar imagen si falla
-        if (req.file) {
-            fs.unlink("uploads/logos/" + req.file.filename, () => { });
-        }
+        // error inesperado
+        deleteFile(req.file);
 
         return res.status(500).json({
             message: "Error al crear empresa"
         });
 
     }
-
 };
 
 
@@ -282,10 +287,7 @@ export const getEmpresaById = async (req: Request, res: Response) => {
 };
 
 
-
 export const updateEmpresa = async (req: Request, res: Response) => {
-
-    const fs = require("fs");
 
     try {
 
@@ -293,6 +295,7 @@ export const updateEmpresa = async (req: Request, res: Response) => {
         const user = (req as any).user;
 
         if (!Number.isInteger(idEmpresa) || idEmpresa <= 0) {
+            deleteFile(req.file);
             return res.status(400).json({
                 message: "ID inválido"
             });
@@ -301,6 +304,7 @@ export const updateEmpresa = async (req: Request, res: Response) => {
         const empresa = await Empresa.findByPk(idEmpresa);
 
         if (!empresa) {
+            deleteFile(req.file);
             return res.status(404).json({
                 message: "Empresa no encontrada"
             });
@@ -310,12 +314,7 @@ export const updateEmpresa = async (req: Request, res: Response) => {
             user.rol_id !== 1 &&
             !(user.rol_id === 2 && user.empresa_id === idEmpresa)
         ) {
-
-            // borrar archivo si no autorizado
-            if (req.file) {
-                fs.unlink("uploads/logos/" + req.file.filename, () => { });
-            }
-
+            deleteFile(req.file);
             return res.status(403).json({
                 message: "No autorizado"
             });
@@ -326,6 +325,7 @@ export const updateEmpresa = async (req: Request, res: Response) => {
         // nombre
         if (req.body.nombre_comercial !== undefined) {
             if (!req.body.nombre_comercial.trim()) {
+                deleteFile(req.file);
                 return res.status(400).json({
                     message: "El nombre comercial no puede estar vacío"
                 });
@@ -336,6 +336,7 @@ export const updateEmpresa = async (req: Request, res: Response) => {
             });
 
             if (existente && existente.id_empresa !== idEmpresa) {
+                deleteFile(req.file);
                 return res.status(409).json({
                     message: "Ya existe una empresa con ese nombre comercial"
                 });
@@ -349,6 +350,7 @@ export const updateEmpresa = async (req: Request, res: Response) => {
             if (req.body.correo_electronico) {
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailRegex.test(req.body.correo_electronico)) {
+                    deleteFile(req.file);
                     return res.status(400).json({
                         message: "Correo inválido"
                     });
@@ -362,6 +364,7 @@ export const updateEmpresa = async (req: Request, res: Response) => {
             if (req.body.telefono) {
                 const phoneRegex = /^[0-9]{10,15}$/;
                 if (!phoneRegex.test(req.body.telefono)) {
+                    deleteFile(req.file);
                     return res.status(400).json({
                         message: "Teléfono inválido"
                     });
@@ -387,6 +390,7 @@ export const updateEmpresa = async (req: Request, res: Response) => {
         }
 
         if (Object.keys(updates).length === 0) {
+            deleteFile(req.file);
             return res.status(400).json({
                 message: "No hay datos para actualizar"
             });
@@ -394,7 +398,7 @@ export const updateEmpresa = async (req: Request, res: Response) => {
 
         await empresa.update(updates);
 
-        //borrar logo viejo
+        // borrar logo viejo SOLO si todo salió bien
         if (req.file && oldLogo && oldLogo !== "default_logo.png") {
             fs.unlink("uploads/logos/" + oldLogo, () => { });
         }
@@ -408,19 +412,14 @@ export const updateEmpresa = async (req: Request, res: Response) => {
 
         console.error(error);
 
-        //limpiar archivo si falla
-        if (req.file) {
-            fs.unlink("uploads/logos/" + req.file.filename, () => { });
-        }
+        deleteFile(req.file);
 
         return res.status(500).json({
             message: "Error al actualizar empresa"
         });
 
     }
-
 };
-
 
 export const deleteEmpresa = async (req: Request, res: Response) => {
 
@@ -442,13 +441,29 @@ export const deleteEmpresa = async (req: Request, res: Response) => {
             });
         }
 
+        const logo = empresa.logo;
+
         await empresa.destroy();
+
+        console.log("Logo a borrar:", logo);
+
+        if (logo && logo !== "default_logo.png") {
+            fs.unlink("uploads/logos/" + logo, (err: any) => {
+                if (err) {
+                    console.error("Error al borrar archivo:", err);
+                } else {
+                    console.log("Logo eliminado correctamente");
+                }
+            });
+        }
 
         return res.json({
             message: "Empresa eliminada correctamente"
         });
 
     } catch (error) {
+
+        console.error(error);
 
         return res.status(500).json({
             message: "Error al eliminar empresa"
