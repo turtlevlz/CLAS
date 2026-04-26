@@ -5,7 +5,7 @@ import { createUser, getUsers, getUsersByEmpresa, getUserById, updateUser, delet
 
 const router = Router();
 
-router.post("/", verifyToken, checkRole(1, 2), createUser);
+router.post("/", verifyToken, checkRole(1), createUser);
 
 router.get("/", verifyToken, checkRole(1), getUsers);
 
@@ -13,7 +13,7 @@ router.get("/:id", verifyToken, getUserById);
 
 router.get("/empresa/:empresa_id", verifyToken, checkRole(1, 2), getUsersByEmpresa);
 
-router.patch("/:id", verifyToken, checkRole(1, 2, 3) ,updateUser);
+router.patch("/:id", verifyToken, checkRole(1, 2, 3), updateUser);
 
 router.delete("/:id", verifyToken, checkRole(1, 2, 3), deleteUser);
 

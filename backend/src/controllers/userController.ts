@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 import { Role } from "../models/Role";
 
 
-export const createUser = async (req:Request, res:Response) => {
+export const createUser = async (req: Request, res: Response) => {
 
     try {
 
@@ -21,26 +21,26 @@ export const createUser = async (req:Request, res:Response) => {
         const rolId = Number(rol_id);
         const empresaId = empresa_id === undefined || empresa_id === null || empresa_id === "" ? null : Number(empresa_id);
 
-        if(!nombre_usuario || String(nombre_usuario).trim() === "") {
-            return res.status(400).json ({
+        if (!nombre_usuario || String(nombre_usuario).trim() === "") {
+            return res.status(400).json({
                 message: "El nombre de usuario es obligatorio"
             });
         }
 
-        if(!correo_electronico || String(correo_electronico).trim() === "") {
-            return res.status(400).json ({
+        if (!correo_electronico || String(correo_electronico).trim() === "") {
+            return res.status(400).json({
                 message: "El correo electronico es obligatorio"
             });
         }
 
-        if(!contrasena || String(contrasena).trim() === "") {
-            return res.status(400).json ({
+        if (!contrasena || String(contrasena).trim() === "") {
+            return res.status(400).json({
                 message: "La contrasena es obligatoria"
             });
         }
 
-        if(isNaN(rolId)) {
-            return res.status(400).json ({
+        if (isNaN(rolId)) {
+            return res.status(400).json({
                 message: "El rol es obligatorio"
             })
         }
@@ -51,29 +51,35 @@ export const createUser = async (req:Request, res:Response) => {
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(correoLimpio)) {
-            return res.status(400).json({ 
-                message: "Formato de correo electrónico no válido" 
+            return res.status(400).json({
+                message: "Formato de correo electrónico no válido"
             });
         }
 
         const rolExist = await Role.findByPk(rolId);
 
         if (!rolExist) {
-            return res.status(404).json({ 
-                message: "El rol especificado no existe" 
+            return res.status(404).json({
+                message: "El rol especificado no existe"
             });
         }
 
         if (rolId === 2 || rolId === 3) {
             if (empresaId === null || isNaN(empresaId)) {
-                return res.status(400).json({ 
-                    message: "El ID de la empresa es obligatorio para usuarios y admins de empresa" 
+                return res.status(400).json({
+                    message: "El ID de la empresa es obligatorio para usuarios y admins de empresa"
                 });
             }
         }
 
+        if (rolId === 1 && empresaId !== null) {
+            return res.status(400).json({
+                message: "El admin cluster no debe tener empresa asignada"
+            });
+        }
+
         if (empresaId !== null) {
-            const empresa = await Empresa.findByPk(empresaId);   
+            const empresa = await Empresa.findByPk(empresaId);
 
             if (!empresa) {
                 return res.status(404).json({
@@ -81,19 +87,19 @@ export const createUser = async (req:Request, res:Response) => {
                 });
             }
 
-            if(!empresa.activo) {
+            if (!empresa.activo) {
                 return res.status(400).json({
                     message: "La empresa esta inactiva"
                 });
             }
         }
 
-        const exist = await User.findOne ({
+        const exist = await User.findOne({
             where: { correo_electronico: correoLimpio }
         });
 
-        if(exist) {
-            return res.status(400).json ({
+        if (exist) {
+            return res.status(409).json({
                 message: "Ya existe un usuario con ese correo electronico"
             });
         }
@@ -101,28 +107,28 @@ export const createUser = async (req:Request, res:Response) => {
         const user_log = (req as any).user;
 
         if (user_log.rol_id === 3) {
-            return res.status(403).json({ 
-                message: "No autorizado para crear usuarios" 
+            return res.status(403).json({
+                message: "No autorizado para crear usuarios"
             });
         }
 
-        if(user_log.rol_id === 2) {
-            if(rolId !== 3) {
-                return res.status(403).json ({
+        if (user_log.rol_id === 2) {
+            if (rolId !== 3) {
+                return res.status(403).json({
                     message: "No autorizado para crear ese tipo de usuario"
                 });
             }
 
-            if(empresaId !== user_log.empresa_id) {
-                return res.status(403).json ({
+            if (empresaId !== user_log.empresa_id) {
+                return res.status(403).json({
                     message: "No autorizado para crear usuarios en otra empresa"
                 });
             }
         }
 
         const hashedPassword = await bcrypt.hash(contrasenaLimpia, 10);
-        
-        const user = await User.create ({
+
+        const user = await User.create({
             nombre_usuario: nombreLimpio,
             correo_electronico: correoLimpio,
             contrasena: hashedPassword,
@@ -130,7 +136,7 @@ export const createUser = async (req:Request, res:Response) => {
             empresa_id: empresaId
         });
 
-        return res.status(201).json ({
+        return res.status(201).json({
             message: "Usuario creado correctamente",
             id_usuario: user.id_usuario,
             nombre_usuario: user.nombre_usuario,
@@ -141,16 +147,16 @@ export const createUser = async (req:Request, res:Response) => {
 
     } catch (error) {
         console.error("Error al crear usuario:", error)
-        return res.status(500).json ({
+        return res.status(500).json({
             message: "Error al crear usuario"
         });
     }
 };
 
-export const getUsers = async(req:Request, res:Response) => {
+export const getUsers = async (req: Request, res: Response) => {
 
     try {
-        const user = await User.findAll ({
+        const user = await User.findAll({
             attributes: [
                 "id_usuario",
                 "nombre_usuario",
@@ -158,24 +164,30 @@ export const getUsers = async(req:Request, res:Response) => {
                 "rol_id",
                 "empresa_id",
             ],
+            include: [
+                {
+                    model: Role,
+                    attributes: ["nombre_rol"]
+                }
+            ],
             order: [["nombre_usuario", "ASC"]]
         });
 
         return res.json(user);
 
     } catch (error) {
-        return res.status(500).json ({
+        return res.status(500).json({
             message: "Error al obtener usuarios"
         });
     }
 };
 
-export const getUserById = async (req:Request, res:Response) => {
+export const getUserById = async (req: Request, res: Response) => {
 
     try {
         const id = Number(req.params.id);
-        if(isNaN(id)) {
-            return res.status(400).json ({
+        if (isNaN(id)) {
+            return res.status(400).json({
                 message: "ID invalido"
             })
         }
@@ -187,11 +199,17 @@ export const getUserById = async (req:Request, res:Response) => {
                 "correo_electronico",
                 "rol_id",
                 "empresa_id"
+            ],
+            include: [
+                {
+                    model: Role,
+                    attributes: ["nombre_rol"]
+                }
             ]
         });
 
-        if(!user) {
-            return res.status(404).json ({
+        if (!user) {
+            return res.status(404).json({
                 message: "Usuario no encontrado"
             });
         }
@@ -215,7 +233,7 @@ export const getUserById = async (req:Request, res:Response) => {
         return res.json(user);
 
     } catch (error) {
-        return res.status(500).json ({
+        return res.status(500).json({
             message: "Error al obtener usuario"
         });
     }
@@ -232,18 +250,18 @@ export const getUsersByEmpresa = async (req: Request, res: Response) => {
         }
 
         const empresa = await Empresa.findByPk(empresa_id);
-        if(!empresa) {
-            return res.status(404).json ({
+        if (!empresa) {
+            return res.status(404).json({
                 message: "Empresa no encontrada"
             });
         }
 
         if (!empresa.activo) {
-            return res.status(400).json ({
+            return res.status(400).json({
                 message: "La empresa esta inactiva"
             });
         }
-        
+
         const user_log = (req as any).user;
 
         if (user_log.rol_id === 3) {
@@ -267,6 +285,12 @@ export const getUsersByEmpresa = async (req: Request, res: Response) => {
                 "rol_id",
                 "empresa_id"
             ],
+            include: [
+                {
+                    model: Role,
+                    attributes: ["nombre_rol"]
+                }
+            ],
             order: [["nombre_usuario", "ASC"]]
         });
 
@@ -280,36 +304,36 @@ export const getUsersByEmpresa = async (req: Request, res: Response) => {
     }
 };
 
-export const updateUser = async (req:Request, res:Response) => {
+export const updateUser = async (req: Request, res: Response) => {
 
     try {
         const idUser = Number(req.params.id);
 
-        if(isNaN(idUser)) {
-            return res.status(400).json ({
-        message: "ID invalido"
+        if (isNaN(idUser)) {
+            return res.status(400).json({
+                message: "ID invalido"
             });
         }
 
         const user = await User.findByPk(idUser);
 
-        if(!user) {
-            return res.status(404).json ({
+        if (!user) {
+            return res.status(404).json({
                 message: "Usuario no encontrado"
             });
         }
 
         const user_log = (req as any).user;
 
-        if(user_log.rol_id === 3) {
-            if(user_log.id_usuario !== idUser) {
-                return res.status(403).json ({
+        if (user_log.rol_id === 3) {
+            if (user_log.id_usuario !== idUser) {
+                return res.status(403).json({
                     message: "No autorizado"
                 });
             }
         } else if (user_log.rol_id === 2) {
-            if(user.empresa_id !== user_log.empresa_id) {
-                return res.status(403).json ({
+            if (user.empresa_id !== user_log.empresa_id) {
+                return res.status(403).json({
                     message: "No autorizado"
                 });
             }
@@ -345,20 +369,20 @@ export const updateUser = async (req:Request, res:Response) => {
             }
         }
 
-        if(updates.contrasena) {
+        if (updates.contrasena) {
             updates.contrasena = await bcrypt.hash(updates.contrasena, 10);
         }
 
         if (updates.correo_electronico) {
             const exist = await User.findOne({
-                where: { 
+                where: {
                     correo_electronico: updates.correo_electronico,
                     id_usuario: { [Op.ne]: idUser }
-                 }
+                }
             });
 
-            if(exist) {
-                return res.status(400).json({
+            if (exist) {
+                return res.status(409).json({
                     message: "Correo ya en uso"
                 })
             }
@@ -366,18 +390,18 @@ export const updateUser = async (req:Request, res:Response) => {
 
         await user.update(updates);
 
-        return res.json ({
+        return res.json({
             message: "Usuario actualizado correctamente"
         });
 
     } catch (error) {
-        return res.status(500).json ({
+        return res.status(500).json({
             message: "Error al actualizar usuario"
         });
-    }   
+    }
 };
 
-export const deleteUser = async (req:Request, res: Response) => {
+export const deleteUser = async (req: Request, res: Response) => {
 
     try {
 
@@ -391,14 +415,14 @@ export const deleteUser = async (req:Request, res: Response) => {
 
         const user = await User.findByPk(idUser);
 
-        if(!user) {
-            return res.status(404).json ({
+        if (!user) {
+            return res.status(404).json({
                 message: "Usuario no encontrado"
             });
         }
 
-        if(user.rol_id === 1) {
-            return res.status(403).json ({
+        if (user.rol_id === 1) {
+            return res.status(403).json({
                 message: "No se puede eliminar un usuario admin cluster"
             });
         }
@@ -421,14 +445,14 @@ export const deleteUser = async (req:Request, res: Response) => {
 
         await user.destroy();
 
-        return res.json ({
+        return res.json({
             message: "Usuario eliminado correctamente"
         });
 
     } catch (error) {
-        console.error("Error al eliminar usuario: ",error);
-        return res.status(500).json ({
+        console.error("Error al eliminar usuario: ", error);
+        return res.status(500).json({
             message: "Error al eliminar usuario"
         });
-    }   
+    }
 };
