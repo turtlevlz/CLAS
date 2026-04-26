@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     nombre_usuario VARCHAR(100) NOT NULL,
     contrasena VARCHAR(150) NOT NULL,
     correo_electronico VARCHAR(150) NOT NULL UNIQUE,
-    empresa_id INTEGER NOT NULL REFERENCES empresas(id_empresa) ON DELETE CASCADE,
+    empresa_id INTEGER REFERENCES empresas(id_empresa) ON DELETE CASCADE,
     rol_id INTEGER NOT NULL REFERENCES roles(id_rol) ON DELETE RESTRICT
 );
 

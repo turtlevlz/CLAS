@@ -48,9 +48,9 @@ export class User extends Model {
     @ForeignKey(() => Empresa)
     @Column({
         type: DataType.INTEGER,
-        allowNull: false
+        allowNull: true
     })
-    empresa_id!: number;
+    empresa_id?: number;
 
     @ForeignKey(() => Role)
     @Column({

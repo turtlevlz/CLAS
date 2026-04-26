@@ -6,6 +6,7 @@ import { Rubro } from "../models/Rubro";
 import { Certificacion } from "../models/Certificacion";
 import { Contacto } from "../models/Contacto";
 import { FuncionContacto } from "../models/FuncionContacto";
+import { Op } from "sequelize";
 
 const fs = require("fs");
 
@@ -16,114 +17,8 @@ const deleteFile = (file?: Express.Multer.File) => {
 };
 
 export const createEmpresa = async (req: Request, res: Response) => {
-
     try {
-
-        let {
-            nombre_comercial,
-            razon_social,
-            rfc,
-            correo_electronico, 
-            telefono,
-            sitio_web,
-            membresia_id,
-            tipo_organizacion_id,
-            ciudad,
-            domicilio_completo,
-            giro
-        } = req.body;
-
-        // NORMALIZAR
-        nombre_comercial = nombre_comercial?.trim();
-        razon_social = razon_social?.trim();
-        correo_electronico = correo_electronico?.trim();
-        telefono = telefono?.trim();
-        sitio_web = sitio_web?.trim();
-        ciudad = ciudad?.trim();
-        domicilio_completo = domicilio_completo?.trim();
-        giro = giro?.trim();
-        rfc = rfc?.trim();
-
-        // VALIDACIONES
-
-        if (!nombre_comercial) {
-            deleteFile(req.file);
-            return res.status(400).json({
-                message: "El nombre comercial es obligatorio"
-            });
-        }
-
-        if (correo_electronico) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(correo_electronico)) {
-                deleteFile(req.file);
-                return res.status(400).json({
-                    message: "Formato de correo electrónico no válido"
-                });
-            }
-        }
-
-        if (telefono) {
-            const phoneRegex = /^[0-9]{10,15}$/;
-            if (!phoneRegex.test(telefono)) {
-                deleteFile(req.file);
-                return res.status(400).json({
-                    message: "Teléfono inválido (10-15 dígitos)"
-                });
-            }
-        }
-
-        if (rfc) {
-            const rfcRegex = /^[A-ZÑ&]{3,4}[0-9]{6}[A-Z0-9]{3}$/;
-            if (!rfcRegex.test(rfc.toUpperCase())) {
-                deleteFile(req.file);
-                return res.status(400).json({
-                    message: "Formato de RFC no válido"
-                });
-            }
-            rfc = rfc.toUpperCase();
-        }
-
-        if (sitio_web) {
-            const urlRegex = /^(https?:\/\/)?([\w.-]+)+(:\d+)?(\/([\w/_-]+))*$/;
-            if (!urlRegex.test(sitio_web)) {
-                deleteFile(req.file);
-                return res.status(400).json({
-                    message: "URL de sitio web no válida"
-                });
-            }
-        }
-
-        // DUPLICADOS
-
-        const empresaExistente = await Empresa.findOne({
-            where: { nombre_comercial }
-        });
-
-        if (empresaExistente) {
-            deleteFile(req.file);
-            return res.status(409).json({
-                message: "Ya existe una empresa con ese nombre comercial"
-            });
-        }
-
-        if (rfc) {
-            const rfcExistente = await Empresa.findOne({
-                where: { rfc }
-            });
-
-            if (rfcExistente) {
-                deleteFile(req.file);
-                return res.status(409).json({
-                    message: "Ya existe una empresa con ese RFC"
-                });
-            }
-        }
-
-        // IMAGEN
-        const logo = req.file ? req.file.filename : undefined;
-
-        const empresa = await Empresa.create({
+        const {
             nombre_comercial,
             razon_social,
             rfc,
@@ -135,6 +30,176 @@ export const createEmpresa = async (req: Request, res: Response) => {
             ciudad,
             domicilio_completo,
             giro,
+            fabrica_para_automotriz,
+            descripcion,
+            anio_fundacion,
+            rango_empleados
+        } = req.body;
+
+        const nombreComercialLimpio = nombre_comercial ? String(nombre_comercial).trim() : "";
+        const razonSocialLimpia = razon_social ? String(razon_social).trim() : undefined;
+        const rfcLimpio = rfc ? String(rfc).trim().toUpperCase() : "";
+        const correoLimpio = correo_electronico ? String(correo_electronico).trim().toLowerCase() : "";
+        const telefonoLimpio = telefono ? String(telefono).trim() : undefined;
+        const sitioWebLimpio = sitio_web ? String(sitio_web).trim() : undefined;
+        const ciudadLimpia = ciudad ? String(ciudad).trim() : undefined;
+        const domicilioLimpio = domicilio_completo ? String(domicilio_completo).trim() : undefined;
+        const giroLimpio = giro ? String(giro).trim() : undefined;
+        const descripcionLimpia = descripcion ? String(descripcion).trim() : undefined;
+        const rangoEmpleadosLimpio = rango_empleados ? String(rango_empleados).trim() : undefined;
+        const membresiaId = Number(membresia_id);
+        const tipoOrganizacionId = Number(tipo_organizacion_id);
+        const anioFundacion = anio_fundacion !== undefined && anio_fundacion !== null && anio_fundacion !== "" ? Number(anio_fundacion) : undefined;
+
+        if (!nombreComercialLimpio) {
+            deleteFile(req.file);
+            return res.status(400).json({
+                message: "El nombre comercial es obligatorio"
+            });
+        }
+
+        if (!rfcLimpio) {
+            deleteFile(req.file);
+            return res.status(400).json({
+                message: "El RFC es obligatorio"
+            });
+        }
+
+        if (!correoLimpio) {
+            deleteFile(req.file);
+            return res.status(400).json({
+                message: "El correo electronico es obligatorio"
+            });
+        }
+
+        if (isNaN(membresiaId)) {
+            deleteFile(req.file);
+            return res.status(400).json({
+                message: "La membresia es obligatoria"
+            });
+        }
+
+        if (isNaN(tipoOrganizacionId)) {
+            deleteFile(req.file);
+            return res.status(400).json({
+                message: "El tipo de organizacion es obligatorio"
+            });
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(correoLimpio)) {
+            deleteFile(req.file);
+            return res.status(400).json({
+                message: "Formato de correo electronico no valido"
+            });
+        }
+
+        if (telefonoLimpio) {
+            const phoneRegex = /^[0-9]{10,15}$/;
+            if (!phoneRegex.test(telefonoLimpio)) {
+                deleteFile(req.file);
+                return res.status(400).json({
+                    message: "Telefono invalido (10-15 digitos)"
+                });
+            }
+        }
+
+        const rfcRegex = /^[A-ZÑ&]{3,4}[0-9]{6}[A-Z0-9]{3}$/;
+        if (!rfcRegex.test(rfcLimpio)) {
+            deleteFile(req.file);
+            return res.status(400).json({
+                message: "Formato de RFC no valido"
+            });
+        }
+
+        if (sitioWebLimpio) {
+            const urlRegex = /^(https?:\/\/)?([\w.-]+)+(:\d+)?(\/([\w/_-]+))*$/;
+            if (!urlRegex.test(sitioWebLimpio)) {
+                deleteFile(req.file);
+                return res.status(400).json({
+                    message: "URL de sitio web no valida"
+                });
+            }
+        }
+
+        if (anioFundacion !== undefined && isNaN(anioFundacion)) {
+            deleteFile(req.file);
+            return res.status(400).json({
+                message: "El anio de fundacion no es valido"
+            });
+        }
+
+        const membresia = await Membresia.findByPk(membresiaId);
+        if (!membresia) {
+            deleteFile(req.file);
+            return res.status(404).json({
+                message: "Membresia no encontrada"
+            });
+        }
+
+        const tipoOrganizacion = await TipoOrganizacion.findByPk(tipoOrganizacionId);
+        if (!tipoOrganizacion) {
+            deleteFile(req.file);
+            return res.status(404).json({
+                message: "Tipo de organizacion no encontrado"
+            });
+        }
+
+        const empresaExistente = await Empresa.findOne({
+            where: {
+                nombre_comercial: { [Op.iLike]: nombreComercialLimpio }
+            }
+        });
+
+        if (empresaExistente) {
+            deleteFile(req.file);
+            return res.status(409).json({
+                message: "Ya existe una empresa con ese nombre comercial"
+            });
+        }
+
+        const rfcExistente = await Empresa.findOne({
+            where: { rfc: rfcLimpio }
+        });
+
+        if (rfcExistente) {
+            deleteFile(req.file);
+            return res.status(409).json({
+                message: "Ya existe una empresa con ese RFC"
+            });
+        }
+
+        const correoExistente = await Empresa.findOne({
+            where: {
+                correo_electronico: { [Op.iLike]: correoLimpio }
+            }
+        });
+
+        if (correoExistente) {
+            deleteFile(req.file);
+            return res.status(409).json({
+                message: "Ya existe una empresa con ese correo electronico"
+            });
+        }
+
+        const logo = req.file ? req.file.filename : undefined;
+
+        const empresa = await Empresa.create({
+            nombre_comercial: nombreComercialLimpio,
+            razon_social: razonSocialLimpia,
+            rfc: rfcLimpio,
+            correo_electronico: correoLimpio,
+            telefono: telefonoLimpio,
+            sitio_web: sitioWebLimpio,
+            membresia_id: membresiaId,
+            tipo_organizacion_id: tipoOrganizacionId,
+            ciudad: ciudadLimpia,
+            domicilio_completo: domicilioLimpio,
+            giro: giroLimpio,
+            fabrica_para_automotriz: fabrica_para_automotriz === true || fabrica_para_automotriz === "true",
+            descripcion: descripcionLimpia,
+            anio_fundacion: anioFundacion,
+            rango_empleados: rangoEmpleadosLimpio,
             ...(logo && { logo })
         });
 
@@ -144,18 +209,15 @@ export const createEmpresa = async (req: Request, res: Response) => {
         });
 
     } catch (error) {
-
-        console.error(error);
-
-        // error inesperado
+        console.error("Error al crear empresa:", error);
         deleteFile(req.file);
 
         return res.status(500).json({
             message: "Error al crear empresa"
         });
-
     }
 };
+
 
 
 export const getEmpresas = async (req: Request, res: Response) => {
@@ -322,9 +384,10 @@ export const updateEmpresa = async (req: Request, res: Response) => {
 
         const updates: any = {};
 
-        // nombre
         if (req.body.nombre_comercial !== undefined) {
-            if (!req.body.nombre_comercial.trim()) {
+            const nombreComercialLimpio = String(req.body.nombre_comercial).trim();
+
+            if (!nombreComercialLimpio) {
                 deleteFile(req.file);
                 return res.status(400).json({
                     message: "El nombre comercial no puede estar vacío"
@@ -332,58 +395,98 @@ export const updateEmpresa = async (req: Request, res: Response) => {
             }
 
             const existente = await Empresa.findOne({
-                where: { nombre_comercial: req.body.nombre_comercial }
+                where: {
+                    nombre_comercial: { [Op.iLike]: nombreComercialLimpio },
+                    id_empresa: { [Op.ne]: idEmpresa }
+                }
             });
 
-            if (existente && existente.id_empresa !== idEmpresa) {
+            if (existente) {
                 deleteFile(req.file);
                 return res.status(409).json({
                     message: "Ya existe una empresa con ese nombre comercial"
                 });
             }
 
-            updates.nombre_comercial = req.body.nombre_comercial.trim();
+            updates.nombre_comercial = nombreComercialLimpio;
         }
 
-        // email
         if (req.body.correo_electronico !== undefined) {
-            if (req.body.correo_electronico) {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(req.body.correo_electronico)) {
-                    deleteFile(req.file);
-                    return res.status(400).json({
-                        message: "Correo inválido"
-                    });
-                }
+            const correoLimpio = String(req.body.correo_electronico).trim();
+
+            if (!correoLimpio) {
+                deleteFile(req.file);
+                return res.status(400).json({
+                    message: "El correo electrónico no puede estar vacío"
+                });
             }
-            updates.correo_electronico = req.body.correo_electronico;
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(correoLimpio)) {
+                deleteFile(req.file);
+                return res.status(400).json({
+                    message: "Correo inválido"
+                });
+            }
+
+            const correoExistente = await Empresa.findOne({
+                where: {
+                    correo_electronico: { [Op.iLike]: correoLimpio },
+                    id_empresa: { [Op.ne]: idEmpresa }
+                }
+            });
+
+            if (correoExistente) {
+                deleteFile(req.file);
+                return res.status(409).json({
+                    message: "Ya existe una empresa con ese correo electrónico"
+                });
+            }
+
+            updates.correo_electronico = correoLimpio;
         }
 
-        // teléfono
         if (req.body.telefono !== undefined) {
-            if (req.body.telefono) {
+            const telefonoLimpio = String(req.body.telefono).trim();
+
+            if (telefonoLimpio) {
                 const phoneRegex = /^[0-9]{10,15}$/;
-                if (!phoneRegex.test(req.body.telefono)) {
+                if (!phoneRegex.test(telefonoLimpio)) {
                     deleteFile(req.file);
                     return res.status(400).json({
                         message: "Teléfono inválido"
                     });
                 }
             }
-            updates.telefono = req.body.telefono;
+
+            updates.telefono = telefonoLimpio;
         }
 
-        // otros campos
-        const fields = ["razon_social", "sitio_web", "ciudad", "domicilio_completo", "giro"];
+        if (req.body.sitio_web !== undefined) {
+            const sitioWebLimpio = String(req.body.sitio_web).trim();
+
+            if (sitioWebLimpio) {
+                const urlRegex = /^(https?:\/\/)?([\w.-]+)+(:\d+)?(\/([\w/_-]+))*$/;
+                if (!urlRegex.test(sitioWebLimpio)) {
+                    deleteFile(req.file);
+                    return res.status(400).json({
+                        message: "URL de sitio web no válida"
+                    });
+                }
+            }
+
+            updates.sitio_web = sitioWebLimpio;
+        }
+
+        const fields = ["razon_social", "ciudad", "domicilio_completo", "giro"];
 
         for (const key of fields) {
             if (req.body[key] !== undefined) {
-                updates[key] = req.body[key];
+                updates[key] = String(req.body[key]).trim();
             }
         }
 
-        // imagen nueva
-        let oldLogo = empresa.logo;
+        const oldLogo = empresa.logo;
 
         if (req.file) {
             updates.logo = req.file.filename;
@@ -398,7 +501,6 @@ export const updateEmpresa = async (req: Request, res: Response) => {
 
         await empresa.update(updates);
 
-        // borrar logo viejo SOLO si todo salió bien
         if (req.file && oldLogo && oldLogo !== "default_logo.png") {
             fs.unlink("uploads/logos/" + oldLogo, () => { });
         }
@@ -410,7 +512,7 @@ export const updateEmpresa = async (req: Request, res: Response) => {
 
     } catch (error) {
 
-        console.error(error);
+        console.error("Error al actualizar empresa:", error);
 
         deleteFile(req.file);
 
@@ -421,13 +523,15 @@ export const updateEmpresa = async (req: Request, res: Response) => {
     }
 };
 
+
 export const deleteEmpresa = async (req: Request, res: Response) => {
 
     try {
 
         const id = Number(req.params.id);
+        const user = (req as any).user;
 
-        if (isNaN(id)) {
+        if (!Number.isInteger(id) || id <= 0) {
             return res.status(400).json({
                 message: "ID inválido"
             });
@@ -441,18 +545,20 @@ export const deleteEmpresa = async (req: Request, res: Response) => {
             });
         }
 
+        if (user.rol_id !== 1) {
+            return res.status(403).json({
+                message: "No autorizado para eliminar empresas"
+            });
+        }
+
         const logo = empresa.logo;
 
         await empresa.destroy();
-
-        console.log("Logo a borrar:", logo);
 
         if (logo && logo !== "default_logo.png") {
             fs.unlink("uploads/logos/" + logo, (err: any) => {
                 if (err) {
                     console.error("Error al borrar archivo:", err);
-                } else {
-                    console.log("Logo eliminado correctamente");
                 }
             });
         }
@@ -463,7 +569,7 @@ export const deleteEmpresa = async (req: Request, res: Response) => {
 
     } catch (error) {
 
-        console.error(error);
+        console.error("Error al eliminar empresa:", error);
 
         return res.status(500).json({
             message: "Error al eliminar empresa"
