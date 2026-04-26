@@ -20,4 +20,6 @@ app.use("/rubros", rubroRoutes);
 
 app.use("/certificaciones", certificacionRoutes);
 
+app.use("/uploads", express.static("uploads"));
+
 export default app;
