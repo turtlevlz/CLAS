@@ -4,22 +4,49 @@ import { Empresa } from "../models/Empresa"
 import { Rubro } from "../models/Rubro"
 
 
-export const addRubroToEmpresa = async(req:Request, res:Response) => {
+const canManageEmpresa = (user: any, empresa_id: number): boolean => {
+    if (user.rol_id === 1) return true;
+    if (user.rol_id === 2 && Number(user.empresa_id) === empresa_id) return true;
+    return false;
+}
+
+export const addRubroToEmpresa = async (req:Request, res:Response) => {
 
     try {
 
-        const empresa_id = Number(req.body.empresa_id);
-        const rubro_id   = Number(req.body.rubro_id);
+        const { empresa_id: empresaIdRaw, rubro_id: rubroIdRaw } = req.body;
 
-        if(isNaN(empresa_id)) {
+        if (empresaIdRaw === undefined || empresaIdRaw === null || empresaIdRaw === "") {
             return res.status(400).json({
-                message: "ID de empresa invalido"
+                message: "ID de empresa requerido"
+            });
+        }
+
+        if (rubroIdRaw === undefined || rubroIdRaw === null || rubroIdRaw === "") {
+            return res.status(400).json({
+                message: "ID de rubro requerido"
+            });
+        }
+
+        const empresa_id = Number(empresaIdRaw);
+        const rubro_id = Number(rubroIdRaw);
+
+        if (isNaN(empresa_id)) {
+            return res.status(400).json({
+                message: "ID de empresa inválido"
             });
         }
 
         if (isNaN(rubro_id)) {
-            return res.status(400).json ({
-                message: "ID de rubro invalido"
+            return res.status(400).json({
+                message: "ID de rubro inválido"
+            });
+        }
+
+        const user = (req as any).user;
+        if (!canManageEmpresa(user, empresa_id)) {
+            return res.status(403).json({
+                message: "No tienes permisos para asignar rubros a esta empresa"
             });
         }
 
@@ -37,34 +64,30 @@ export const addRubroToEmpresa = async(req:Request, res:Response) => {
             });
         }
 
-        const exists = await EmpresaRubro.findOne({
-            where:
-            {
-                empresa_id,
-                rubro_id
+        const [empresaRubro, created] = await EmpresaRubro.findOrCreate({
+            where: { empresa_id, rubro_id },
+            defaults: { empresa_id, rubro_id }
+        });
+
+        if (!created) {
+            return res.status(400).json({
+                message: "El rubro ya ha sido asignado a la empresa"
+            });
+        }
+
+        return res.status(201).json({
+            message: "Rubro asignado correctamente a la empresa",
+            data: {
+                empresa_id: empresaRubro.empresa_id,
+                rubro_id: empresaRubro.rubro_id
             }
         });
 
-        if (exists) {
-            return res.status(400).json ({
-                message: "El rubro ya ha sido asignado a la empresa"
-            })
-        }
-
-        const empresaRubro = await EmpresaRubro.create ({
-            empresa_id,
-            rubro_id
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Error al crear relación entre empresa y rubro"
         });
-
-        return res.status(201).json ({
-            message: "Rubro asignado correctamente a una empresa",
-            empresaRubro
-        });
-
-    } catch(error) {
-        return res.status(500).json ({
-            message: "Error al crear relacion entre rubro y empresa"
-        })
     }
 }
 
@@ -72,54 +95,60 @@ export const removeRubroFromEmpresa = async (req:Request, res:Response) => {
 
     try {
         const empresa_id = Number(req.params.empresa_id);
-        const rubro_id   = Number(req.params.rubro_id);
+        const rubro_id = Number(req.params.rubro_id);
 
-        if(isNaN(empresa_id)) {
-            return res.status(400).json ({
-                message: "ID de empresa invalido"
+        if (isNaN(empresa_id)) {
+            return res.status(400).json({
+                message: "ID de empresa inválido"
             });
         }
 
-        if(isNaN(rubro_id)) {
-            return res.status(400).json ({
-                message: "ID de rubro invalido"
+        if (isNaN(rubro_id)) {
+            return res.status(400).json({
+                message: "ID de rubro inválido"
+            });
+        }
+
+        const user = (req as any).user;
+        if (!canManageEmpresa(user, empresa_id)) {
+            return res.status(403).json({
+                message: "No tienes permisos para remover rubros de esta empresa"
             });
         }
 
         const relacion = await EmpresaRubro.findOne({
-            where:
-            {
-                empresa_id,
-                rubro_id
-            }
+            where: { empresa_id, rubro_id }
         });
 
-        if(!relacion) {
+        if (!relacion) {
             return res.status(404).json({
-                message: "relacion no encontrada"
+                message: "Relación no encontrada"
             });
         }
 
         await relacion.destroy();
 
-        return res.json ({
-            message: "Relacion removida correctamente entre empresa y rubro"
+        return res.json({
+            message: "Relación removida correctamente entre empresa y rubro",
+            data: { empresa_id, rubro_id }
         });
-    } catch(error) {
-        return res.status(500).json ({
-            message: "Error al remover la relacion entre empresa y rubro"
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Error al remover la relación entre empresa y rubro"
         });
     }
 }
 
-export const getRubrosByEmpresa = async(req:Request, res:Response) => {
+export const getRubrosByEmpresa = async (req:Request, res:Response) => {
 
     try {
-        const empresa_id = Number(req.params.empresa_id)
-        
+        const empresa_id = Number(req.params.empresa_id);
+
         if (isNaN(empresa_id)) {
-            return res.status(400).json ({
-                message: "Id invalido"
+            return res.status(400).json({
+                message: "ID de empresa inválido"
             });
         }
 
@@ -129,7 +158,7 @@ export const getRubrosByEmpresa = async(req:Request, res:Response) => {
                 {
                     model: Rubro,
                     attributes: ["id_rubro", "nombre_rubro"],
-                    through: { attributes: []}
+                    through: { attributes: [] }
                 }
             ]
         });
@@ -140,9 +169,13 @@ export const getRubrosByEmpresa = async(req:Request, res:Response) => {
             });
         }
 
-        return res.json(empresa);
-    } catch(error) {
-        return res.status(500).json ({
+        return res.json({
+            message: "Rubros obtenidos correctamente",
+            data: empresa
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
             message: "Error al obtener relaciones"
         });
     }
@@ -154,31 +187,35 @@ export const getEmpresasByRubro = async (req:Request, res:Response) => {
         const rubro_id = Number(req.params.rubro_id);
         if (isNaN(rubro_id)) {
             return res.status(400).json({
-                message: "ID invalido"
+                message: "ID de rubro inválido"
             });
         }
 
         const rubro = await Rubro.findByPk(rubro_id, {
-            attributes : ["id_rubro", "nombre_rubro"],
+            attributes: ["id_rubro", "nombre_rubro"],
             include: [
                 {
                     model: Empresa,
                     attributes: ["id_empresa", "nombre_comercial", "ciudad"],
-                    through: { attributes: []}
+                    through: { attributes: [] }
                 }
             ]
         });
 
         if (!rubro) {
             return res.status(404).json({
-                message: "rubro no encontrado"
+                message: "Rubro no encontrado"
             });
         }
 
-        return res.json(rubro);
-    } catch(error) {
-        return res.status(500).json ({
+        return res.json({
+            message: "Empresas obtenidas correctamente",
+            data: rubro
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
             message: "Error al obtener las relaciones"
-        })
+        });
     }
 }

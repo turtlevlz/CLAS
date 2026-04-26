@@ -10,9 +10,9 @@ import {
 
 const router = Router();
 
-router.post("/", verifyToken, checkRole(1), addCertificacionToEmpresa);
+router.post("/", verifyToken, checkRole(1, 2), addCertificacionToEmpresa);
 
-router.delete("/:empresa_id/:certificacion_id", verifyToken, checkRole(1), removeCertificacionFromEmpresa);
+router.delete("/:empresa_id/:certificacion_id", verifyToken, checkRole(1, 2), removeCertificacionFromEmpresa);
 
 router.get("/empresa/:empresa_id", verifyToken, getCertificacionesByEmpresa);
 
