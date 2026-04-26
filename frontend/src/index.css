@@ -1,0 +1,55 @@
+@import "tailwindcss";
+html {
+  scroll-behavior: smooth;
+}
+
+@theme {
+  --font-sans: "Verdana", "Geneva", sans-serif;
+  --color-primary: #1181e5;
+  --color-primary-dark: #052440;
+  --color-text: #111827;
+  --color-text-muted: #6b6b6b;
+  --color-footer: #0a0a0a;
+  --color-success: #10b981;
+}
+
+@layer base {
+  body {
+    background-color: #ffffff;
+    color: var(#000000); /* Usamos tu variable de color */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+}
+
+@layer utilities {
+  @keyframes infinite-slide {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    } /* Movimiento exacto a la mitad */
+  }
+
+  .animate-carousel {
+    display: flex;
+    width: max-content; /* Deja que el contenido defina el ancho */
+    animation: infinite-slide 25s linear infinite;
+  }
+
+  .logo-container {
+    width: 250px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+  }
+}

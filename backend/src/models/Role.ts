@@ -22,7 +22,11 @@ export class Role extends Model {
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: false,
+        validate: {
+            notNull: true,
+            notEmpty: true
+        }
     })
     nombre_rol!: string;
 

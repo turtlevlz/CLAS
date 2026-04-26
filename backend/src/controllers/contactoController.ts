@@ -17,42 +17,55 @@ export const createContacto = async (req:Request, res:Response) => {
 
         const user = (req as any ).user;
 
-        const verifyId = (user.rol_id === 1) ? empresa_id : user.empresa_id;
+        const empresaId = user.rol_id === 1 ? Number(empresa_id) : Number(user.empresa_id);
 
-        if(!empresa_id || isNaN(Number(verifyId))) {
+        const funcionId = Number(funcion_id);
+
+        if(isNaN(empresaId)) {
             return res.status(400).json ({
                 message: "El ID de la empresa es obligatorio"
             });
         }
 
-        if(!nombre_completo || nombre_completo.trim() === "") {
+        if (isNaN(funcionId)) {
+            return res.status(400).json ({
+                message: "La funcion del contacto es obligatoria"
+            });
+        }
+
+        if(!nombre_completo || String(nombre_completo).trim() === "") {
             return res.status(400).json ({
                 message: "El nombre del contacto es obligatorio"
             })
         }
 
-        if(!puesto || puesto.trim() === "") {
+        if(!puesto || String(puesto).trim() === "") {
             return res.status(400).json ({
-                message: "El puesto del contacto es olbigatorio"
+                message: "El puesto del contacto es obligatorio"
             })
         }
 
-        if(!telefono_celular || telefono_celular.trim() === "") {
+        if(!telefono_celular || String(telefono_celular).trim() === "") {
             return res.status(400).json ({
                 message: "El telefono del contacto es obligatorio"
             })
         }
 
-        if(correo) {
+        const nombreLimpio = String(nombre_completo).trim();
+        const puestoLimpio = String(puesto).trim();
+        const telefonoLimpio = String(telefono_celular).trim();
+        const correoLimpio = correo ? String(correo).trim() : null;
+
+        if(correoLimpio) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if(!emailRegex.test(correo)) {
+            if(!emailRegex.test(correoLimpio)) {
                 return res.status(400).json ({
                     message: "Formato de correo electronico no valido"
-                })
+                });
             }
         }
 
-        const empresa = await Empresa.findByPk(empresa_id);
+        const empresa = await Empresa.findByPk(empresaId);
 
         if(!empresa) {
             return res.status(404).json ({
@@ -60,22 +73,27 @@ export const createContacto = async (req:Request, res:Response) => {
             });
         }
 
-        if(funcion_id) {
-            const funcion = await FuncionContacto.findByPk(funcion_id)
-            if(!funcion) {
-                return res.status(404).json ({
-                    message: "Funcion no encontrada"
-                })
-            }
+        if(!empresa.activo) {
+            return res.status(400).json ({
+                message: "La empresa esta inactiva"
+            });
+        }
+
+        const funcion = await FuncionContacto.findByPk(funcionId);
+
+        if(!funcion) {
+            return res.status(404).json ({
+                message: "Funcion no encontrada"
+            });
         }
 
         const contacto = await Contacto.create ({
-            empresa_id: verifyId,
-            funcion_id,
-            nombre_completo,
-            puesto,
-            telefono_celular,
-            correo
+            empresa_id: empresaId,
+            funcion_id: funcionId,
+            nombre_completo: nombreLimpio,
+            puesto: puestoLimpio,
+            telefono_celular: telefonoLimpio,
+            correo: correoLimpio
         });
 
         return res.status(201).json ({
@@ -84,6 +102,7 @@ export const createContacto = async (req:Request, res:Response) => {
         });
 
     } catch(error) {
+        console.error("Error al crear contacto:", error)
         return res.status(500).json ({
             message: "Error al crear contacto"
         });
@@ -174,6 +193,7 @@ export const getContactobyId = async (req:Request, res:Response) => {
 export const updateContacto = async (req:Request, res:Response) => {
 
     try {
+        
         const id = Number(req.params.id);
 
         if(isNaN(id)) {
@@ -190,50 +210,114 @@ export const updateContacto = async (req:Request, res:Response) => {
             });
         }
 
-        const allowedFields = [
-            "funcion_id",
-            "nombre_completo",
-            "puesto",
-            "telefono_celular",
-            "correo"
-        ];
+        const user = (req as any).user;
+
+        if(user.rol_id === 3) {
+            return res.status(403).json ({
+                message: "No autorizado para actualizar contactos"
+            });
+        }  
+
+        if (user.rol_id === 2 && contacto.empresa_id !== user.empresa_id) {
+            return res.status(403).json ({
+                message: "No autorizado para modificar contacto de otra empresa"
+            });
+        }
 
         const updates: any = {};
 
-        for (const key of allowedFields) {
-            const value = req.body[key];
-            if (value !== undefined) {
-                if(value.trim() === "") {
-                    return res.status(400).json ({
-                        message: "No puedes enviar un campo vacio"
-                    });
-                }
-                updates[key] = value;
+        if (req.body.funcion_id !== undefined) {
+            const funcionId = Number(req.body.funcion_id);
+
+            if(isNaN(funcionId)) {
+                return res.status(400).json ({
+                    message: "La funcion del contacto no es valida"
+                });
             }
+
+            const funcion = await FuncionContacto.findByPk(funcionId);
+
+            if(!funcion) {
+                return res.status(404).json ({
+                    message: "Funcion no encontrada"
+                });
+            }
+
+            updates.funcion_id = funcionId;
+        }
+
+        if(req.body.nombre_completo !== undefined) {
+            if(String(req.body.nombre_completo).trim() === "") {
+                return res.status(400).json ({
+                    message: "No puedes enviar un nombre vacio"
+                });
+            }
+
+            updates.nombre_completo = String(req.body.nombre_completo).trim();
+        }
+
+        if (req.body.puesto !== undefined) {
+            if(String(req.body.puesto).trim() === "" ){
+                return res.status(400).json ({
+                    message: "No puedes enviar un puesto vacio"
+                });
+            }
+
+            updates.puesto = String(req.body.puesto).trim();
+        }
+
+        if(req.body.telefono_celular !== undefined) {
+            if(String(req.body.telefono_celular).trim() === "") {
+                return res.status(400).json ({
+                    message: "No puedes enviar un telefono vacio"
+                });
+            }
+
+            updates.telefono_celular = String(req.body.telefono_celular).trim();
+        }
+
+        if(req.body.correo !== undefined) {
+            const correoLimpio = String(req.body.correo).trim();
+            if(correoLimpio === "") {
+                return res.status(400).json ({
+                    message: "No puedes enviar un correo vacio"
+                });
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(correoLimpio)) {
+                return res.status(400).json ({
+                    message: "Formato de correo electronico no valido"
+                });
+            } 
+
+            updates.correo = correoLimpio;
         }
 
         await contacto.update(updates);
 
         const actualizado = await contacto.reload ({
-            include: [{
-                model: FuncionContacto,
-                attributes: ["nombre_funcion"]
-            },
-            {
-                model: Empresa,
-                attributes: ["nombre_empresa"]
-            }
+            include: [
+                {
+                    model: FuncionContacto,
+                    attributes: ["nombre_funcion"]
+                },
+                {
+                    model: Empresa,
+                    attributes: ["nombre_comercial"]
+                }
             ]
-        }
-        )
+        });
+
         return res.json ({
             message: "Contacto actualizado",
             contacto: actualizado
         });
 
     } catch (error) {
+        console.error("Error al actualizar contacto:", error);
         return res.status(500).json ({
-            message: "Error al actualziar contacto"
+            message: "Error al actualizar contacto"
         });
     }
 };
@@ -258,12 +342,27 @@ export const deleteContacto = async (req:Request, res:Response) => {
             });
         }
 
+        const user = (req as any).user;
+
+        if(user.rol_id === 3) {
+            return res.status(403).json ({
+                message: "No autorizado para eliminar contactos"
+            });
+        }
+
+        if(user.rol_id === 2 && contacto.empresa_id !== user.empresa_id) {
+            return res.status(403).json ({
+                message: "No autorizado para eliminar contactos de otra empresa"
+            });
+        }
+
         await contacto.destroy();
 
         return res.json ({
             message: "Contacto eliminado correctamente"
         });
     } catch (error) {
+        console.error("Error al eliminar contacto:", error)
         return res.status(500).json ({
             message: "Error al eliminar contacto"
         });

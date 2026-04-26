@@ -23,9 +23,24 @@ export class Membresia extends Model {
 
     @Column({
         type: DataType.STRING(50),
-        allowNull: false
+        allowNull: false,
+        validate: {
+            notNull: true,
+            notEmpty: true
+        }
     })
     nombre_membresia!: string;
+
+    @Column({
+        type: DataType.DECIMAL(10, 2),
+        allowNull: false,
+        defaultValue: 0,
+        validate: {
+            notNull: true,
+            min: 0
+        }
+    })
+    precio!: string;
 
     @HasMany(() => Empresa)
     empresas!: Empresa[];

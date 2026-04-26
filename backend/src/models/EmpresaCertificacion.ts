@@ -3,8 +3,8 @@ import {
     Column,
     Model,
     DataType,
-    ForeignKey,
-    PrimaryKey
+    PrimaryKey,
+    ForeignKey
 } from "sequelize-typescript";
 
 import { Empresa } from "./Empresa";

@@ -23,7 +23,11 @@ export class FuncionContacto extends Model {
 
     @Column({
         type: DataType.STRING(100),
-        allowNull: false
+        allowNull: false,
+        validate: {
+            notNull: true,
+            notEmpty: true
+        }
     })
     nombre_funcion!: string;
 
