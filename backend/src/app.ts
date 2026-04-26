@@ -15,6 +15,9 @@ import industriaRoutes from "./routes/industriaRoutes";
 import necesidadRoutes from "./routes/necesidadRoutes";
 import productoFabricadoRoutes from "./routes/productoFabricadoRoutes";
 import procesoRoutes from "./routes/procesoRoutes";
+import empresaIndustriaRoutes from "./routes/empresaIndustriaRoutes";
+import empresaNecesidadRoutes from "./routes/empresaNecesidadRoutes";
+import empresaProcesoRoutes from "./routes/empresaProcesoRoutes";
 
 const app = express();
 
@@ -57,5 +60,11 @@ app.use("/necesidades", necesidadRoutes);
 app.use("/productos", productoFabricadoRoutes);
 
 app.use("/procesos", procesoRoutes);
+
+app.use("/empresa-industrias", empresaIndustriaRoutes);
+
+app.use("/empresa-necesidades", empresaNecesidadRoutes);
+
+app.use("/empresa-procesos", empresaProcesoRoutes);
 
 export default app;
