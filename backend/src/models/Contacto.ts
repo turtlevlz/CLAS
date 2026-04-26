@@ -24,23 +24,44 @@ export class Contacto extends Model {
     id_contacto!: number;
 
     @ForeignKey(() => Empresa)
-    @Column(DataType.INTEGER)
+    @Column({
+        type: DataType.INTEGER,
+        allowNull: false
+    })
     empresa_id!: number;
 
     @ForeignKey(() => FuncionContacto)
-    @Column(DataType.INTEGER)
-    funcion_id?: number;
+    @Column({
+        type: DataType.INTEGER,
+        allowNull: false
+    })  
+    funcion_id!: number;
 
-    @Column(DataType.STRING(150))
+    @Column({
+        type: DataType.STRING(150),
+        validate: {
+            notEmpty: true
+        }
+    })
     nombre_completo?: string;
 
     @Column(DataType.STRING(150))
     puesto?: string;
 
-    @Column(DataType.STRING(20))
+    @Column({
+        type: DataType.STRING(20),
+        validate: {
+            is: /^[0-9+\-\s()]+$/i
+        }
+    })
     telefono_celular?: string;
 
-    @Column(DataType.STRING(150))
+    @Column({
+        type: DataType.STRING(150),
+        validate: {
+            isEmail: true
+        }
+    })
     correo?: string;
 
     @BelongsTo(() => Empresa)

@@ -24,7 +24,11 @@ export class Proceso extends Model {
 
     @Column({
         type: DataType.STRING(150),
-        allowNull: false
+        allowNull: false,
+        validate: {
+            notEmpty: true,
+            notNull: true
+        }
     })
     nombre_proceso!: string;
 

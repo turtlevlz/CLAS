@@ -31,15 +31,25 @@ export class ProductoFabricado extends Model {
 
     @Column({
         type: DataType.TEXT,
-        allowNull: false
+        allowNull: false,
+        validate: {
+            notEmpty: true,
+            notNull: true
+        }
     })
     nombre_producto!: string;
 
     @Column(DataType.TEXT)
-    clientes!: string;
+    clientes?: string;
 
-    @Column(DataType.DECIMAL(5, 2))
-    porcentaje_produccion!: number;
+    @Column({
+        type: DataType.DECIMAL(5, 2),
+        validate: {
+            min: 0,
+            max: 100
+        }
+    })
+    porcentaje_produccion?: string;
 
     @BelongsTo(() => Empresa)
     empresa!: Empresa;

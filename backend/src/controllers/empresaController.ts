@@ -23,7 +23,7 @@ export const createEmpresa = async (req: Request, res: Response) => {
             nombre_comercial,
             razon_social,
             rfc,
-            correo_electronico,
+            correo_electronico, 
             telefono,
             sitio_web,
             membresia_id,

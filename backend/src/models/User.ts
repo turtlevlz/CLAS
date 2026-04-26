@@ -4,8 +4,13 @@ import {
     Model,
     DataType,
     PrimaryKey,
-    Default
+    Default,
+    ForeignKey,
+    BelongsTo,
 } from "sequelize-typescript";
+
+import { Empresa } from "./Empresa";
+import { Role } from "./Role";
 
 @Table({
     tableName: "usuarios",
@@ -22,31 +27,54 @@ export class User extends Model {
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: false,
+        validate: {
+            notEmpty: true,
+            notNull: true
+        }
     })
     nombre_usuario!: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: false,
+        validate: {
+            notNull: true,
+            notEmpty: true
+        }
     })
     contrasena!: string;
 
+    @ForeignKey(() => Empresa)
     @Column({
-        type: DataType.INTEGER
+        type: DataType.INTEGER,
+        allowNull: false
     })
     empresa_id!: number;
 
+    @ForeignKey(() => Role)
     @Column({
-        type: DataType.INTEGER
+        type: DataType.INTEGER,
+        allowNull: false
     })
     rol_id!: number;
 
     @Column({
         type: DataType.STRING,
         allowNull: false,
-        unique: true
+        unique: true,
+        validate: {
+            notNull: true,
+            notEmpty: true,
+            isEmail: true
+        }
     })
     correo_electronico!: string;
 
+    //Relaciones
+    @BelongsTo(() => Empresa)
+    empresa!: Empresa;
+
+    @BelongsTo(() => Role)
+    rol!: Role;
 }
