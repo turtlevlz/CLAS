@@ -9,7 +9,7 @@ export const createMembresia = async (req:Request, res:Response) => {
 
         const { nombre_membresia } = req.body;
 
-        if (!nombre_membresia || nombre_membresia.trim() === "") {
+        if (!nombre_membresia || String(nombre_membresia).trim() === "") {
             return res.status(400).json ({
                 message: "El nombre de la membresia es obligatorio"
             });
@@ -28,7 +28,7 @@ export const createMembresia = async (req:Request, res:Response) => {
         }
 
         const membresia = await Membresia.create({
-            nombre_membresia
+            nombre_membresia: nombre_limpio
         });
 
         return res.status(201).json ({
@@ -37,7 +37,7 @@ export const createMembresia = async (req:Request, res:Response) => {
         });
 
     } catch(error) {
-        console.error("Error ", error)
+        console.error("Error al crear membresia ", error)
         return res.status(500).json ({
             message: "Error al crear membresia"
         });
@@ -57,6 +57,7 @@ export const getMembresias = async (req:Request, res:Response) => {
 
         return res.json(membresias);
     } catch (error) {
+        console.error("Error al obtener membresias:", error);
         return res.status(500).json ({
             message: "Error al obtener las membresias"
         });
@@ -84,6 +85,7 @@ export const getMembresiaByID = async (req:Request, res: Response) => {
         return res.json(membresia);
 
     } catch (error) {
+        console.error("Error al obtener la membresia:", error);
         return res.status(500).json ({
             message: "Error al obtener la membresia"
         });
@@ -94,6 +96,7 @@ export const updateMembresia = async (req:Request, res:Response) => {
 
     try {
         const idMembresia = Number(req.params.id);
+
         if(isNaN(idMembresia)) {
             return res.status(400).json ({
                 message: "ID invalido"
@@ -110,7 +113,7 @@ export const updateMembresia = async (req:Request, res:Response) => {
 
         const { nombre_membresia } = req.body;
 
-        if(!nombre_membresia || nombre_membresia.trim() === "") {
+        if(!nombre_membresia || String(nombre_membresia).trim() === "") {
             return res.status(400).json ({
                 message: "El nombre de la membresia es obligatorio"
             });
@@ -139,6 +142,7 @@ export const updateMembresia = async (req:Request, res:Response) => {
         });
 
     } catch (error) {
+        console.error("Error al actualizar membresia:", error);
         return res.status(500).json ({
             message: "Error al actualizar membresia"
         });
@@ -149,6 +153,7 @@ export const deleteMembresia = async (req:Request, res:Response) => {
 
     try {
         const id = Number(req.params.id);
+
         if(isNaN(id)) {
             return res.status(400).json ({
                 message: "ID invalido"
@@ -156,6 +161,7 @@ export const deleteMembresia = async (req:Request, res:Response) => {
         }
 
         const membresia = await Membresia.findByPk(id);
+
         if(!membresia) {
             return res.status(404).json ({
                 message: "Membresia no encontrada"
@@ -173,11 +179,13 @@ export const deleteMembresia = async (req:Request, res:Response) => {
         }
 
         await membresia.destroy();
+
         return res.json ({
             message: "Membresia eliminada correctamente"
         });
 
     } catch (error) {
+        console.error("Error al eliminar membresia:", error);
         return res.status(500).json ({
             message: "Error al eliminar membresia"
         });

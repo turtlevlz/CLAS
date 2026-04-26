@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { Op } from "sequelize";
 import { Certificacion } from "../models/Certificacion";
 
 export const createCertificacion = async (req:Request, res:Response) => {
@@ -6,14 +7,16 @@ export const createCertificacion = async (req:Request, res:Response) => {
     try {
         const { nombre_certificacion } = req.body;
 
-        if(!nombre_certificacion) {
+        if(!nombre_certificacion || String(nombre_certificacion).trim() === "") {
             return res.status(400).json ({
                 message: "El nombre de la certificacion es obligatorio"
             });
         }
 
+        const nombreLimpio = String(nombre_certificacion).trim();
+
         const exist = await Certificacion.findOne ({
-            where: { nombre_certificacion }
+            where: { nombre_certificacion: {[Op.iLike]: nombreLimpio }}
         });
 
         if(exist) {
@@ -23,7 +26,7 @@ export const createCertificacion = async (req:Request, res:Response) => {
         }
 
         const certificacion = await Certificacion.create ({
-            nombre_certificacion
+            nombre_certificacion: nombreLimpio
         });
 
         return res.status(201).json ({
@@ -31,6 +34,7 @@ export const createCertificacion = async (req:Request, res:Response) => {
             certificacion
         });
     } catch (error) {
+        console.error("Error al crear la certificacion:", error)
         return res.status(500).json ({
             message: "Error al crear la certificacion"
         });
@@ -104,14 +108,19 @@ export const updateCertificacion = async (req:Request, res:Response) => {
 
         const { nombre_certificacion } = req.body;
 
-        if(!nombre_certificacion) {
+        if(!nombre_certificacion || String(nombre_certificacion).trim() === "") {
             return res.status(400).json ({
                 message: "El nombre de la certificacion es obligatorio"
             });
         } 
 
+        const nombreLimpio = String(nombre_certificacion).trim();
+
         const exist = await Certificacion.findOne ({
-            where: { nombre_certificacion }
+            where: { 
+                nombre_certificacion: {[Op.iLike]: nombreLimpio},
+                id_certificacion: {[Op.ne]: idCertificacion}
+            }
         });
 
         if(exist) {
@@ -120,13 +129,14 @@ export const updateCertificacion = async (req:Request, res:Response) => {
             });
         }
 
-        await certificacion.update({nombre_certificacion});
+        await certificacion.update({nombre_certificacion: nombreLimpio});
 
         return res.json ({
             message: "Certificacion actualizada",
             certificacion
         });
     } catch (error) {
+        console.error("Error al actualizar la certificacion:", error)
         return res.status(500).json ({
             message: "Error al actualizar la certificacion"
         });
@@ -157,6 +167,7 @@ export const deleteCertificacion = async (req:Request, res:Response) => {
             message: "Certificacion eliminada correctamente"
         });
     } catch (error) {
+        console.error("Error al eliminar certificacion:", error)
         return res.status(500).json ({
             message: "Error al eliminar certificacion"
         });

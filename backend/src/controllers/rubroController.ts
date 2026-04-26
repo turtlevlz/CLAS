@@ -1,27 +1,41 @@
 import { Request, Response } from "express";
+import { Op } from "sequelize";
 import { Rubro } from "../models/Rubro";
 
 export const createRubro = async (req:Request, res:Response) => {
 
     try {
-        const {
-            nombre_rubro
-        } = req.body;
-        if (!nombre_rubro) {
+        const {nombre_rubro} = req.body;
+
+        if (!nombre_rubro || String(nombre_rubro).trim() === "") {
             return res.status(400).json ({
                 message: "El nombre del rubro es obligatorio"
             });
         }
 
+        const nombreLimpio = String(nombre_rubro).trim();
+        
+        const exist = await Rubro.findOne ({
+            where: { nombre_rubro: {[Op.iLike]: nombreLimpio}}
+        });
+
+        if(exist) {
+            return res.status(400).json ({
+                message: "Ya existe un rubro con ese nombre"
+            });
+        }
+
         const rubro = await Rubro.create({
-            nombre_rubro
+            nombre_rubro: nombreLimpio
         });
 
         return res.status(201).json ({
             message: "Rubro creado correctamente",
             rubro
         });
+
     } catch (error) {
+        console.error("Error al crear el rubro:", error);
         return res.status(500).json ({
             message: "Error al crear el rubro"
         });
@@ -94,19 +108,36 @@ export const updateRubro = async (req:Request, res:Response) => {
 
         const { nombre_rubro } = req.body;
 
-        if(!nombre_rubro) {
+        if(!nombre_rubro || String(nombre_rubro).trim() === "") {
             return res.status(400).json ({
                 message: "El nombre del rubro es obligatorio"
             });
         }
 
-        await rubro.update({nombre_rubro});
+        const nombreLimpio = String(nombre_rubro).trim();
+
+        const exist = await Rubro.findOne ({
+            where: {
+                nombre_rubro: {[Op.iLike]: nombreLimpio},
+                id_rubro: {[Op.ne]: idRubro}
+            }
+        });
+
+        if(exist) {
+            return res.status(400).json ({
+                message: "Ya existe un rubro con ese nombre"
+            });
+        }
+
+        await rubro.update({nombre_rubro: nombreLimpio});
 
         return res.json ({
             message: "Rubro actualizado",
             rubro
         });
+
     } catch (error) {
+        console.error("Error al actualizar rubro:", error);
         return res.status(500).json ({
             message: "Error al actualizar rubro"
         });
@@ -133,10 +164,12 @@ export const deleteRubro = async (req:Request, res:Response) => {
         }
 
         await rubro.destroy();
+
         return res.json ({
             message: "Rubro eliminado correctamente"
         });
     } catch(error) {
+        console.error("Error al eliminar rubro:", error);
         return res.status(500).json ({
             message: "Error al eliminar rubro"
         });

@@ -8,14 +8,16 @@ export const createFuncionContacto = async (req:Request, res:Response) => {
     try {
         const { nombre_funcion } = req.body;
 
-        if(!nombre_funcion || nombre_funcion.trim() === "") {
+        if(!nombre_funcion || String(nombre_funcion).trim() === "") {
             return res.status(400).json ({
                 message: "El nombre de la funcion es obligatorio"
             });
         }
 
+        const nombreLimpio = String(nombre_funcion).trim();
+
         const exist = await FuncionContacto.findOne ({
-            where: { nombre_funcion: {[Op.iLike]: nombre_funcion }}
+            where: { nombre_funcion: {[Op.iLike]: nombreLimpio }}
         });
 
         if(exist) {
@@ -25,7 +27,7 @@ export const createFuncionContacto = async (req:Request, res:Response) => {
         }
 
         const funcionContacto = await FuncionContacto.create ({
-            nombre_funcion
+            nombre_funcion: nombreLimpio
         });
 
         return res.status(201).json ({
@@ -34,6 +36,7 @@ export const createFuncionContacto = async (req:Request, res:Response) => {
         });
 
     } catch (error) {
+        console.error("Error al crear funcion:", error)
         return res.status(500).json ({
             message: "Error al crear funcion"
         });
@@ -107,14 +110,19 @@ export const updateFuncionContacto = async (req:Request, res:Response) => {
 
         const { nombre_funcion } = req.body;
 
-        if(!nombre_funcion) {
+        if(!nombre_funcion || String(nombre_funcion).trim() === "") {
             return res.status(400).json ({
                 message: "El nombre de la funcion es obligatorio"
             });
         }
 
+        const nombreLimpio = String(nombre_funcion).trim();
+
         const exist = await FuncionContacto.findOne ({
-            where: { nombre_funcion: {[Op.iLike]: nombre_funcion }}
+            where: { 
+                nombre_funcion: {[Op.iLike]: nombreLimpio} ,
+                id_funcion: {[Op.ne]: id}
+            }
         });
 
         if(exist) {
@@ -123,13 +131,14 @@ export const updateFuncionContacto = async (req:Request, res:Response) => {
             });
         }
 
-        await funcionContacto.update({nombre_funcion});
+        await funcionContacto.update({nombre_funcion: nombreLimpio});
 
         return res.json ({
             message: "Funcion actualizada",
             funcionContacto
         });
     } catch (error) {
+        console.error("Error al actualizar la funcion:", error);
         return res.status(500).json ({
             message: "Error al actualizar la funcion"
         });
@@ -157,17 +166,20 @@ export const deleteFuncionContacto = async (req:Request, res:Response) => {
         const assign = await Contacto.count ({
             where: {funcion_id : id}
         });
+
         if (assign > 0) {
             return res.status(400).json ({
                 message: "No puedes eliminar esta funcion por que actualmente esta asignada a un contacto o mas"
             })
         }
         await funcionContacto.destroy();
+
         return res.json ({
             message: "Funcion eliminada correctamente"
         });
 
     } catch (error) {
+        console.error("Error al eliminar la funcion:", error);
         return res.status(500).json ({
             message: "Error al eliminar la funcion"
         });

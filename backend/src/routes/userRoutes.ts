@@ -11,7 +11,7 @@ router.get("/", verifyToken, checkRole(1), getUsers);
 
 router.get("/:id", verifyToken, getUserById);
 
-router.get("/empresa/:empresa_id", verifyToken, checkRole(1, 2, 3), getUsersByEmpresa);
+router.get("/empresa/:empresa_id", verifyToken, checkRole(1, 2), getUsersByEmpresa);
 
 router.patch("/:id", verifyToken, checkRole(1, 2, 3) ,updateUser);
 

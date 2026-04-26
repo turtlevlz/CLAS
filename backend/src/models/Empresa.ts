@@ -18,6 +18,14 @@ import { Certificacion } from "./Certificacion";
 import { EmpresaCertificacion } from "./EmpresaCertificacion";
 import { Rubro } from "./Rubro";
 import { EmpresaRubro } from "./EmpresaRubro";
+import { Proceso } from "./Proceso";
+import { EmpresaProceso } from "./EmpresaProceso";
+import { ProductoFabricado } from "./ProductoFabricado";
+import { User } from "./User";
+import { Industria } from "./Industria";
+import { EmpresaIndustria } from "./EmpresaIndustria";
+import { Necesidad } from "./Necesidad";
+import { EmpresaNecesidad } from "./EmpresaNecesidad";
 
 @Table({
     tableName: "empresas",
@@ -32,32 +40,62 @@ export class Empresa extends Model {
 
     @Column({
         type: DataType.STRING(200),
-        allowNull: false
+        allowNull: false,
+        validate: {
+            notNull: true,
+            notEmpty: true
+        }
     })
     nombre_comercial!: string;
 
     @Column(DataType.STRING)
     razon_social?: string;
 
-    @Column(DataType.STRING(13))
-    rfc?: string;
+    @Column({
+        type: DataType.STRING(13),
+        allowNull: false,
+        validate: {
+            notNull: true,
+            notEmpty: true,
+            len: [12, 13]
+        }
+    })
+    rfc!: string;
 
-    @Column(DataType.STRING)
-    correo_electronico?: string;
+    @Column({
+        type: DataType.STRING,
+        allowNull: false,
+        validate: {
+            notEmpty: true,
+            notNull: true,
+            isEmail: true
+        }
+    })
+    correo_electronico!: string;
 
-    @Column(DataType.STRING(20))
+    @Column({
+        type: DataType.STRING(20),
+        validate: {
+            is: /^[0-9+\-\s()]+$/i
+        }
+    })
     telefono?: string;
 
-    @Column(DataType.STRING)
+    @Column({
+        type: DataType.STRING,
+        validate: {
+            isUrl: true
+        }
+    })
     sitio_web?: string;
 
     @ForeignKey(() => Membresia)
     @Column(DataType.INTEGER)
-    membresia_id?: number;
+    membresia_id!: number;
 
     @ForeignKey(() => TipoOrganizacion)
     @Column(DataType.INTEGER)
-    tipo_organizacion_id?: number;
+    tipo_organizacion_id!: number;
 
     @Column(DataType.STRING)
     ciudad?: string;
@@ -91,6 +129,15 @@ export class Empresa extends Model {
     })
     logo?: string;
 
+    @Column(DataType.TEXT)
+    descripcion?: string;
+
+    @Column(DataType.INTEGER)
+    anio_fundacion?: number;
+
+    @Column(DataType.STRING(50))
+    rango_empleados?: string;
+
     //Relaciones
 
     @BelongsTo(() => Membresia)
@@ -107,4 +154,19 @@ export class Empresa extends Model {
 
     @BelongsToMany(() => Rubro, () => EmpresaRubro)
     rubros!: Rubro[];
+
+    @BelongsToMany(() => Proceso, () => EmpresaProceso)
+    procesos!: Proceso[];
+
+    @HasMany(() => ProductoFabricado)
+    productosFabricados!: ProductoFabricado[];
+
+    @HasMany(() => User)
+    usuarios!: User[];
+
+    @BelongsToMany(() => Industria, () => EmpresaIndustria)
+    industrias!: Industria[];
+
+    @BelongsToMany(() => Necesidad, () => EmpresaNecesidad)
+    necesidades!: Necesidad[];
 }

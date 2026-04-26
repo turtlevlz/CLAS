@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Op } from "sequelize";
+import { ForeignKeyConstraintError, Op } from "sequelize";
 import { TipoOrganizacion } from "../models/TipoOrganizacion";
 
 export const createTipoOrganizacion = async (req:Request, res:Response) => {
@@ -7,14 +7,16 @@ export const createTipoOrganizacion = async (req:Request, res:Response) => {
     try {
         const { nombre_tipo } = req.body;
 
-        if(!nombre_tipo) {
+        if(!nombre_tipo || String(nombre_tipo).trim() === "") {
             return res.status(400).json ({
                 message: "El nombre del tipo de organizacion es obligatorio"
             });
         }
 
+        const nombreLimpio = String(nombre_tipo).trim();
+
         const exist = await TipoOrganizacion.findOne ({
-            where: { nombre_tipo: {[Op.iLike]: nombre_tipo }}
+            where: { nombre_tipo: {[Op.iLike]: nombreLimpio }}
         });
 
         if(exist) {
@@ -23,16 +25,17 @@ export const createTipoOrganizacion = async (req:Request, res:Response) => {
             });
         }
 
-        const tipo_organizacion = await TipoOrganizacion.create ({
-            nombre_tipo
+        const tipoOrganizacion = await TipoOrganizacion.create ({
+            nombre_tipo: nombreLimpio
         });
 
         return res.status(201).json ({
             message: "Tipo de organizacion creado correctamente",
-            tipo_organizacion
+            tipoOrganizacion
         });
 
     } catch (error) {
+        console.error("Error al crear el tipo de organizacion:", error)
         return res.status(500).json ({
             message: "Error al crear el tipo de organizacion"
         });
@@ -87,6 +90,7 @@ export const updateTipoOrganizacion = async (req:Request, res:Response) => {
 
     try {
         const idTipoOrganizacion = Number(req.params.id);
+
         if(isNaN(idTipoOrganizacion)) {
             return res.status(400).json ({
                 message: "ID invalido"
@@ -94,6 +98,7 @@ export const updateTipoOrganizacion = async (req:Request, res:Response) => {
         }
 
         const tipoOrganizacion = await TipoOrganizacion.findByPk(idTipoOrganizacion);
+
         if(!tipoOrganizacion) {
             return res.status(404).json ({
                 message: "Tipo de organizacion no encontrado"
@@ -102,15 +107,20 @@ export const updateTipoOrganizacion = async (req:Request, res:Response) => {
 
         const { nombre_tipo } = req.body;
 
-        if(!nombre_tipo) {
+        if(!nombre_tipo || String(nombre_tipo).trim() === "") {
             return res.status(400).json ({
                 message: "El nombre del tipo de organizacion es obligatorio"
             });
         }
 
+        const nombreLimpio = String(nombre_tipo).trim();
+
         const exist = await TipoOrganizacion.findOne ({
-            where: {nombre_tipo: {[Op.iLike]: nombre_tipo }}
-        })
+            where: {
+                nombre_tipo: {[Op.iLike]: nombreLimpio },
+                id_tipo: {[Op.ne]: idTipoOrganizacion}
+            }
+        });
 
         if(exist) {
             return res.status(400).json ({
@@ -118,7 +128,7 @@ export const updateTipoOrganizacion = async (req:Request, res:Response) => {
             });
         }
 
-        await tipoOrganizacion.update({nombre_tipo});
+        await tipoOrganizacion.update({nombre_tipo: nombreLimpio});
 
         return res.json ({
             message: "Tipo de organizacion actualizada",
@@ -126,6 +136,7 @@ export const updateTipoOrganizacion = async (req:Request, res:Response) => {
         });
 
     } catch (error) {
+        console.error("Error al actualizar el tipo de organizacion:", error);
         return res.status(500).json ({
             message: "Error al actualizar el tipo de organizacion"
         });
@@ -136,14 +147,16 @@ export const deleteTipoOrganizacion = async (req:Request, res:Response) => {
 
     try {
 
-        const id = Number(req.params.id);
-        if(isNaN(id)) {
+        const idTipoOrganizacion = Number(req.params.id);
+
+        if(isNaN(idTipoOrganizacion)) {
             return res.status(400).json ({
                 message: "ID invalido"
             });
         }
 
-        const tipoOrganizacion = await TipoOrganizacion.findByPk(id);
+        const tipoOrganizacion = await TipoOrganizacion.findByPk(idTipoOrganizacion);
+
         if(!tipoOrganizacion) {
             return res.status(404).json ({
                 message: "Tipo de organizacion no encontrado"
@@ -155,7 +168,16 @@ export const deleteTipoOrganizacion = async (req:Request, res:Response) => {
         return res.json ({
             message: "Tipo de organizacion eliminada correctamente"
         });
+
     } catch (error) {
+        console.error("Error al eliminar tipo de organizacion:", error)
+
+        if (error instanceof ForeignKeyConstraintError) {
+            return res.status(400).json({
+                message: "No se puede eliminar el tipo de organizacion porque está siendo usado por una o más empresas"
+            });
+        }
+
         return res.status(500).json ({
             message: "Error al eliminar tipo de organizacion"
         });

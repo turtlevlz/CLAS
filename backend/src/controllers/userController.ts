@@ -18,25 +18,28 @@ export const createUser = async (req:Request, res:Response) => {
             empresa_id
         } = req.body
 
-        if(!nombre_usuario || nombre_usuario.trim() === "") {
+        const rolId = Number(rol_id);
+        const empresaId = empresa_id === undefined || empresa_id === null || empresa_id === "" ? null : Number(empresa_id);
+
+        if(!nombre_usuario || String(nombre_usuario).trim() === "") {
             return res.status(400).json ({
                 message: "El nombre de usuario es obligatorio"
             });
         }
 
-        if(!correo_electronico || correo_electronico.trim() === "") {
+        if(!correo_electronico || String(correo_electronico).trim() === "") {
             return res.status(400).json ({
                 message: "El correo electronico es obligatorio"
             });
         }
 
-        if(!contrasena || contrasena.trim() === "") {
+        if(!contrasena || String(contrasena).trim() === "") {
             return res.status(400).json ({
                 message: "La contrasena es obligatoria"
             });
         }
 
-        if(!rol_id || isNaN(Number(rol_id))) {
+        if(isNaN(rolId)) {
             return res.status(400).json ({
                 message: "El rol es obligatorio"
             })
@@ -48,18 +51,39 @@ export const createUser = async (req:Request, res:Response) => {
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(correoLimpio)) {
-            return res.status(400).json({ message: "Formato de correo electrónico no válido" });
+            return res.status(400).json({ 
+                message: "Formato de correo electrónico no válido" 
+            });
         }
 
-        const rolExist = await Role.findByPk(rol_id);
+        const rolExist = await Role.findByPk(rolId);
+
         if (!rolExist) {
-            return res.status(404).json({ message: "El rol especificado no existe" });
+            return res.status(404).json({ 
+                message: "El rol especificado no existe" 
+            });
         }
 
-        if (Number(rol_id) === 2 || Number(rol_id) === 3) {
-            if (!empresa_id || isNaN(Number(empresa_id))) {
+        if (rolId === 2 || rolId === 3) {
+            if (empresaId === null || isNaN(empresaId)) {
                 return res.status(400).json({ 
                     message: "El ID de la empresa es obligatorio para usuarios y admins de empresa" 
+                });
+            }
+        }
+
+        if (empresaId !== null) {
+            const empresa = await Empresa.findByPk(empresaId);   
+
+            if (!empresa) {
+                return res.status(404).json({
+                    message: "Empresa no encontrada"
+                });
+            }
+
+            if(!empresa.activo) {
+                return res.status(400).json({
+                    message: "La empresa esta inactiva"
                 });
             }
         }
@@ -74,29 +98,22 @@ export const createUser = async (req:Request, res:Response) => {
             });
         }
 
-        if (empresa_id) {
-            const empresa = await Empresa.findByPk(empresa_id);
-            if(!empresa) {
-                return res.status(404).json ({
-                    message: "Empresa no encontrada"
-                });
-            }
-        }
-
         const user_log = (req as any).user;
 
         if (user_log.rol_id === 3) {
-            return res.status(403).json({ message: "No autorizado para crear usuarios" });
+            return res.status(403).json({ 
+                message: "No autorizado para crear usuarios" 
+            });
         }
 
         if(user_log.rol_id === 2) {
-            if(rol_id !== 3) {
+            if(rolId !== 3) {
                 return res.status(403).json ({
                     message: "No autorizado para crear ese tipo de usuario"
                 });
             }
 
-            if(empresa_id !== user_log.empresa_id) {
+            if(empresaId !== user_log.empresa_id) {
                 return res.status(403).json ({
                     message: "No autorizado para crear usuarios en otra empresa"
                 });
@@ -109,8 +126,8 @@ export const createUser = async (req:Request, res:Response) => {
             nombre_usuario: nombreLimpio,
             correo_electronico: correoLimpio,
             contrasena: hashedPassword,
-            rol_id,
-            empresa_id
+            rol_id: rolId,
+            empresa_id: empresaId
         });
 
         return res.status(201).json ({
@@ -214,6 +231,19 @@ export const getUsersByEmpresa = async (req: Request, res: Response) => {
             });
         }
 
+        const empresa = await Empresa.findByPk(empresa_id);
+        if(!empresa) {
+            return res.status(404).json ({
+                message: "Empresa no encontrada"
+            });
+        }
+
+        if (!empresa.activo) {
+            return res.status(400).json ({
+                message: "La empresa esta inactiva"
+            });
+        }
+        
         const user_log = (req as any).user;
 
         if (user_log.rol_id === 3) {
@@ -350,6 +380,7 @@ export const updateUser = async (req:Request, res:Response) => {
 export const deleteUser = async (req:Request, res: Response) => {
 
     try {
+
         const idUser = Number(req.params.id);
 
         if (isNaN(idUser)) {
@@ -363,6 +394,12 @@ export const deleteUser = async (req:Request, res: Response) => {
         if(!user) {
             return res.status(404).json ({
                 message: "Usuario no encontrado"
+            });
+        }
+
+        if(user.rol_id === 1) {
+            return res.status(403).json ({
+                message: "No se puede eliminar un usuario admin cluster"
             });
         }
 
@@ -384,11 +421,12 @@ export const deleteUser = async (req:Request, res: Response) => {
 
         await user.destroy();
 
-        res.json ({
+        return res.json ({
             message: "Usuario eliminado correctamente"
         });
 
     } catch (error) {
+        console.error("Error al eliminar usuario: ",error);
         return res.status(500).json ({
             message: "Error al eliminar usuario"
         });

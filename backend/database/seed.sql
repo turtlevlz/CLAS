@@ -21,6 +21,6 @@ INSERT INTO servicios (nombre_servicio) VALUES
 
 -- ROLES
 INSERT INTO roles (nombre_rol) VALUES 
-('ADMIN CLUSTER'),
-('ADMIN EMPRESA'),
-('USUARIO EMPRESA');
+('ADMIN CLUSTER'),--id: 1
+('ADMIN EMPRESA'),--id:2
+('USUARIO EMPRESA');--id:3
