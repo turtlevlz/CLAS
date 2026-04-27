@@ -64,6 +64,10 @@ export default function CompanyCard({ company }: CompanyCardProps) {
         <h2 className="!text-[24px] !font-bold !leading-[1.12] !tracking-[-0.04em] !text-[#12284b]">
           {company.name}
         </h2>
+
+        <div className='mt-4.5 flex justify-center'>
+          <TierBadge tier={company.tierLabel} />
+        </div>
       </div>
 
       <div className="!mt-6 !h-px !w-full !bg-[#e3eaf4]" />
@@ -78,10 +82,6 @@ export default function CompanyCard({ company }: CompanyCardProps) {
             <SpecialtyChip key={specialty} label={specialty} />
           ))}
         </div>
-      </div>
-
-      <div className="!mt-7">
-        <TierBadge tier={company.tierLabel} />
       </div>
     </Link>
   );
