@@ -23,7 +23,7 @@ router.post(
 
 router.get("/", verifyToken, getEmpresas);
 
-router.get("/:id", verifyToken, getEmpresaById)
+router.get("/:id", verifyToken, getEmpresaById);
 
 router.patch(
     "/:id",
