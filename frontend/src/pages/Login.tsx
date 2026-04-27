@@ -1,6 +1,8 @@
 /* Página de inicio de sesión */
 import { useState } from 'react';
-import photo from '../assets/img/login-stock-photo.jpg'
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import photo from '../assets/img/login-stock-photo.jpg';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
@@ -8,9 +10,37 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = () => {
-    console.log({ email, password, remember });
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+      const response = await fetch('http://localhost:3000/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          correo_electronico: email,
+          contrasena: password
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Error al iniciar sesión');
+      }
+
+      login(data.token);
+      navigate('/directorio');
+
+    } catch (err: any) {
+      setError(err.message);
+    }
   }
 
   return (
@@ -33,6 +63,12 @@ export default function Login() {
                   <p className='text-xs text-gray-400'>Accede a tu cuenta de CLAS</p>
                 </div>
               </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-lg text-sm mb-4">
+                {error}
+              </div>
+            )}
 
             <label className='block text-xs text-gray-500 mb-1'>Correo Electrónico</label>
             <input 
