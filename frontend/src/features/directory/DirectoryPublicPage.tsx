@@ -8,6 +8,7 @@ import { mockCategories } from './data/mockCategories';
 import { mockCompanies } from './data/mockCompanies';
 import type { DirectoryFilters } from './types/directory';
 import { filterCompanies } from './utils/filterCompanies';
+import { sortCompaniesByName } from './utils/sortCompaniesByName';
 
 const initialFilters: DirectoryFilters = {
   search: '',
@@ -18,7 +19,9 @@ export default function DirectoryPublicPage() {
   const [filters, setFilters] = useState<DirectoryFilters>(initialFilters);
 
   const filteredCompanies = useMemo(() => {
-    return filterCompanies(mockCompanies, filters);
+    const companiesMatchingFilters = filterCompanies(mockCompanies, filters);
+
+    return sortCompaniesByName(companiesMatchingFilters);
   }, [filters]);
 
   const totalCompanies = mockCompanies.length;
