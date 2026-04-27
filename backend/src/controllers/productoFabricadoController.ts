@@ -1,10 +1,21 @@
 import { Request, Response } from "express";
-import { Op } from "sequelize";
 import { ProductoFabricado } from "../models/ProductoFabricado";
 import { Empresa } from "../models/Empresa";
 
-export const createProductoFabricado = async(req:Request, res:Response) => {
+const validarAccesoEmpresa = (req: Request, res: Response, empresaId: number) => {
+    const user = (req as any).user;
 
+    if (user.rol_id === 2 && Number(user.empresa_id) !== Number(empresaId)) {
+        res.status(403).json({
+            message: "No autorizado para operar sobre productos de otra empresa"
+        });
+        return false;
+    }
+
+    return true;
+};
+
+export const createProductoFabricado = async (req: Request, res: Response) => {
     try {
         const {
             empresa_id,
@@ -15,15 +26,8 @@ export const createProductoFabricado = async(req:Request, res:Response) => {
 
         const user = (req as any).user;
 
-        const empresaId = user.rol_id === 1
-            ? Number(empresa_id)
-            : Number(user.empresa_id);
-
-        if (user.rol_id === 3) {
-            return res.status(403).json({
-                message: "No autorizado para crear productos fabricados"
-            });
-        }
+        const empresaId =
+            user.rol_id === 1 ? Number(empresa_id) : Number(user.empresa_id);
 
         if (isNaN(empresaId)) {
             return res.status(400).json({
@@ -31,14 +35,17 @@ export const createProductoFabricado = async(req:Request, res:Response) => {
             });
         }
 
-        if (!nombre_producto || String(nombre_producto).trim() === "") {
+        if (!validarAccesoEmpresa(req, res, empresaId)) {
+            return;
+        }
+
+        const nombreLimpio = String(nombre_producto ?? "").trim();
+
+        if (!nombreLimpio) {
             return res.status(400).json({
                 message: "El nombre del producto es obligatorio"
             });
         }
-
-        const nombreProductoLimpio = String(nombre_producto).trim();
-        const clientesLimpio = clientes ? String(clientes).trim() : undefined;
 
         const porcentaje =
             porcentaje_produccion === undefined ||
@@ -72,8 +79,8 @@ export const createProductoFabricado = async(req:Request, res:Response) => {
 
         const productoFabricado = await ProductoFabricado.create({
             empresa_id: empresaId,
-            nombre_producto: nombreProductoLimpio,
-            clientes: clientesLimpio,
+            nombre_producto: nombreLimpio,
+            clientes: clientes ? String(clientes).trim() : undefined,
             porcentaje_produccion: porcentaje
         });
 
@@ -81,8 +88,7 @@ export const createProductoFabricado = async(req:Request, res:Response) => {
             message: "Producto fabricado creado correctamente",
             productoFabricado
         });
-
-    } catch(error) {
+    } catch (error) {
         console.error("Error al crear producto fabricado:", error);
         return res.status(500).json({
             message: "Error al crear producto fabricado"
@@ -90,8 +96,7 @@ export const createProductoFabricado = async(req:Request, res:Response) => {
     }
 };
 
-export const getProductosByEmpresa = async(req:Request, res:Response) => {
-
+export const getProductosByEmpresa = async (req: Request, res: Response) => {
     try {
         const empresa_id = Number(req.params.empresa_id);
 
@@ -99,6 +104,10 @@ export const getProductosByEmpresa = async(req:Request, res:Response) => {
             return res.status(400).json({
                 message: "ID invalido"
             });
+        }
+
+        if (!validarAccesoEmpresa(req, res, empresa_id)) {
+            return;
         }
 
         const empresa = await Empresa.findByPk(empresa_id);
@@ -115,20 +124,6 @@ export const getProductosByEmpresa = async(req:Request, res:Response) => {
             });
         }
 
-        const user = (req as any).user;
-
-        if (user.rol_id === 3) {
-            return res.status(403).json({
-                message: "No autorizado para consultar productos fabricados"
-            });
-        }
-
-        if (user.rol_id === 2 && user.empresa_id !== empresa_id) {
-            return res.status(403).json({
-                message: "No autorizado para consultar productos de otra empresa"
-            });
-        }
-
         const productosFabricados = await ProductoFabricado.findAll({
             where: { empresa_id },
             attributes: [
@@ -142,7 +137,6 @@ export const getProductosByEmpresa = async(req:Request, res:Response) => {
         });
 
         return res.json(productosFabricados);
-
     } catch (error) {
         console.error("Error al obtener productos fabricados:", error);
         return res.status(500).json({
@@ -151,8 +145,7 @@ export const getProductosByEmpresa = async(req:Request, res:Response) => {
     }
 };
 
-export const getProductoFabricadoById = async(req:Request, res:Response) => {
-
+export const getProductoFabricadoById = async (req: Request, res: Response) => {
     try {
         const id = Number(req.params.id);
 
@@ -170,25 +163,11 @@ export const getProductoFabricadoById = async(req:Request, res:Response) => {
             });
         }
 
-        const user = (req as any).user;
-
-        if (user.rol_id === 3) {
-            return res.status(403).json({
-                message: "No autorizado para consultar productos fabricados"
-            });
-        }
-
-        if (
-            user.rol_id === 2 &&
-            productoFabricado.empresa_id !== user.empresa_id
-        ) {
-            return res.status(403).json({
-                message: "No autorizado para consultar productos de otra empresa"
-            });
+        if (!validarAccesoEmpresa(req, res, productoFabricado.empresa_id)) {
+            return;
         }
 
         return res.json(productoFabricado);
-
     } catch (error) {
         console.error("Error al obtener producto fabricado:", error);
         return res.status(500).json({
@@ -197,8 +176,7 @@ export const getProductoFabricadoById = async(req:Request, res:Response) => {
     }
 };
 
-export const updateProductoFabricado = async(req:Request, res:Response) => {
-
+export const updateProductoFabricado = async (req: Request, res: Response) => {
     try {
         const id = Number(req.params.id);
 
@@ -216,47 +194,27 @@ export const updateProductoFabricado = async(req:Request, res:Response) => {
             });
         }
 
-        const user = (req as any).user;
-
-        if (user.rol_id === 3) {
-            return res.status(403).json({
-                message: "No autorizado para actualizar productos fabricados"
-            });
-        }
-
-        if (
-            user.rol_id === 2 &&
-            productoFabricado.empresa_id !== user.empresa_id
-        ) {
-            return res.status(403).json({
-                message: "No autorizado para actualizar productos de otra empresa"
-            });
+        if (!validarAccesoEmpresa(req, res, productoFabricado.empresa_id)) {
+            return;
         }
 
         const updates: any = {};
 
         if (req.body.nombre_producto !== undefined) {
-            const nombreProductoLimpio = String(req.body.nombre_producto).trim();
+            const nombreLimpio = String(req.body.nombre_producto).trim();
 
-            if (nombreProductoLimpio === "") {
+            if (!nombreLimpio) {
                 return res.status(400).json({
                     message: "El nombre del producto no puede estar vacio"
                 });
             }
 
-            updates.nombre_producto = nombreProductoLimpio;
+            updates.nombre_producto = nombreLimpio;
         }
 
         if (req.body.clientes !== undefined) {
             const clientesLimpio = String(req.body.clientes).trim();
-
-            if (clientesLimpio === "") {
-                return res.status(400).json({
-                    message: "El campo clientes no puede estar vacio"
-                });
-            }
-
-            updates.clientes = clientesLimpio;
+            updates.clientes = clientesLimpio === "" ? undefined : clientesLimpio;
         }
 
         if (req.body.porcentaje_produccion !== undefined) {
@@ -290,7 +248,6 @@ export const updateProductoFabricado = async(req:Request, res:Response) => {
             message: "Producto fabricado actualizado correctamente",
             productoFabricado
         });
-
     } catch (error) {
         console.error("Error al actualizar producto fabricado:", error);
         return res.status(500).json({
@@ -299,8 +256,7 @@ export const updateProductoFabricado = async(req:Request, res:Response) => {
     }
 };
 
-export const deleteProductoFabricado = async(req:Request, res:Response) => {
-
+export const deleteProductoFabricado = async (req: Request, res: Response) => {
     try {
         const id = Number(req.params.id);
 
@@ -318,21 +274,8 @@ export const deleteProductoFabricado = async(req:Request, res:Response) => {
             });
         }
 
-        const user = (req as any).user;
-
-        if (user.rol_id === 3) {
-            return res.status(403).json({
-                message: "No autorizado para eliminar productos fabricados"
-            });
-        }
-
-        if (
-            user.rol_id === 2 &&
-            productoFabricado.empresa_id !== user.empresa_id
-        ) {
-            return res.status(403).json({
-                message: "No autorizado para eliminar productos de otra empresa"
-            });
+        if (!validarAccesoEmpresa(req, res, productoFabricado.empresa_id)) {
+            return;
         }
 
         await productoFabricado.destroy();
@@ -340,7 +283,6 @@ export const deleteProductoFabricado = async(req:Request, res:Response) => {
         return res.json({
             message: "Producto fabricado eliminado correctamente"
         });
-
     } catch (error) {
         console.error("Error al eliminar producto fabricado:", error);
         return res.status(500).json({
