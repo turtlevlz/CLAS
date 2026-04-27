@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { Op } from "sequelize";
 import { ProductoFabricado } from "../models/ProductoFabricado";
 import { Empresa } from "../models/Empresa";
 
@@ -74,6 +75,19 @@ export const createProductoFabricado = async (req: Request, res: Response) => {
         if (!empresa.activo) {
             return res.status(400).json({
                 message: "La empresa esta inactiva"
+            });
+        }
+
+        const exist = await ProductoFabricado.findOne({
+            where: {
+                empresa_id: empresaId,
+                nombre_producto: { [Op.iLike]: nombreLimpio }
+            }
+        });
+
+        if (exist) {
+            return res.status(409).json({
+                message: "Ya existe un producto fabricado con ese nombre en la empresa"
             });
         }
 
@@ -206,6 +220,20 @@ export const updateProductoFabricado = async (req: Request, res: Response) => {
             if (!nombreLimpio) {
                 return res.status(400).json({
                     message: "El nombre del producto no puede estar vacio"
+                });
+            }
+
+            const exist = await ProductoFabricado.findOne({
+                where: {
+                    empresa_id: productoFabricado.empresa_id,
+                    nombre_producto: { [Op.iLike]: nombreLimpio },
+                    id_producto: { [Op.ne]: productoFabricado.id_producto }
+                }
+            });
+
+            if (exist) {
+                return res.status(409).json({
+                    message: "Ya existe un producto fabricado con ese nombre en la empresa"
                 });
             }
 
