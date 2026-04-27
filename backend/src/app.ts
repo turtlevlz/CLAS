@@ -9,6 +9,10 @@ import funcionContactoRoutes from "./routes/funcionContactoRoutes";
 import roleRoutes from "./routes/roleRoutes";
 import contactoRoutes from "./routes/contactoRoutes";
 import userRoutes from "./routes/userRoutes";
+import industriaRoutes from "./routes/industriaRoutes";
+import necesidadRoutes from "./routes/necesidadRoutes";
+import productoFabricadoRutes from "./routes/productoFabricadoRoutes";
+import procesoRoutes from "./routes/procesoRoutes";
 
 const app = express();
 
@@ -39,5 +43,13 @@ app.use("/contactos", contactoRoutes);
 app.use("/usuarios", userRoutes);
 
 app.use("/uploads", express.static("uploads"));
+
+app.use("/industrias", industriaRoutes);
+
+app.use("/necesidades", necesidadRoutes)
+
+app.use("/productos", productoFabricadoRutes);
+
+app.use("/procesos", procesoRoutes);
 
 export default app;
