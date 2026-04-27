@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 
 import CompanyCard from './components/CompanyCard';
 import DirectoryToolbar from './components/DirectoryToolbar';
@@ -41,16 +40,7 @@ export default function DirectoryPublicPage() {
 
   return (
     <main className="overflow-x-clip bg-[radial-gradient(circle_at_top_right,rgba(17,129,229,0.14),transparent_38%),#ffffff]">
-      <div className="relative mx-auto! w-[min(1180px,calc(100%-48px))] pb-24! pt-12!">
-        <div className="flex justify-end">
-          <Link
-            to="/"
-            aria-label="Cerrar directorio"
-            className="inline-flex h-15 w-15 items-center justify-center rounded-full border border-[#e5e7eb] bg-white text-[38px] font-light leading-none text-[#334155] shadow-[0_8px_20px_rgba(15,23,42,0.08)] focus:outline-none focus:ring-4 focus:ring-sky-100"
-          >
-            ×
-          </Link>
-        </div>
+      <div className="relative mx-auto w-[min(1180px,calc(100%-48px))] pb-24 pt-6">
 
         <section className="pt-5!">
           <span className="inline-flex items-center rounded-full bg-[#e5effa] px-4.5! py-2! text-[13px] font-bold leading-none tracking-[0.08em] text-[#213854] uppercase">
