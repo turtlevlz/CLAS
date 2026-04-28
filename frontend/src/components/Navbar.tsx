@@ -1,31 +1,63 @@
-import { Link, NavLink } from 'react-router-dom'
-import claslogo from '../assets/img/clas-logo-name.png'
+import { BuildingOffice2Icon, HomeIcon, MegaphoneIcon } from '@heroicons/react/20/solid';
+import { Link, NavLink } from 'react-router-dom';
+
+import claslogo from '../assets/img/clas-logo-name.png';
+
+const navItems = [
+  {
+    label: 'Inicio',
+    to: '/',
+    icon: HomeIcon,
+    end: true,
+  },
+  {
+    label: 'Directorio',
+    to: '/directorio',
+    icon: BuildingOffice2Icon,
+  },
+  {
+    label: 'Noticias',
+    to: '/noticias',
+    icon: MegaphoneIcon,
+  },
+];
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
-  isActive
-    ? 'font-body text-xl font-normal text-primary bg-[rgba(17,129,229,0.1)] px-4 py-1.5 rounded-[10px] no-underline'
-    : 'font-body text-xl font-normal text-text-muted no-underline transition-colors duration-200 hover:text-primary'
+  [
+    'font-body inline-flex min-w-[150px] items-center justify-center gap-2 rounded-[10px] px-4 py-1.5 text-xl font-normal no-underline transition-colors duration-200',
+    isActive
+      ? 'bg-[rgba(17,129,229,0.1)] text-primary'
+      : 'text-text-muted hover:text-primary',
+  ].join(' ');
 
 export default function Navbar() {
   return (
-    <nav className="sticky top-0 z-[100] flex items-center justify-between px-10 h-[90px] bg-white shadow-[0px_2px_8px_rgba(0,0,0,0.08)] max-md:px-5">
-      <Link to="/" className="flex items-center gap-3 no-underline">
-        <img src ={claslogo} alt="Logo CLAS" className="max-h-15"/>
-
+    <nav className="sticky top-0 z-[100] grid h-[90px] grid-cols-[1fr_auto_1fr] items-center bg-white px-10 shadow-[0px_2px_8px_rgba(0,0,0,0.08)] max-md:px-5">
+      <Link to="/" className="flex items-center justify-self-start gap-3 no-underline">
+        <img src={claslogo} alt="Logo CLAS" className="max-h-15" />
       </Link>
 
-      <ul className="flex items-center gap-10 list-none max-md:hidden">
-        <li><NavLink to="/" className={linkClass} end>Inicio</NavLink></li>
-        <li><NavLink to="/directorio" className={linkClass}>Directorio</NavLink></li>
-        <li><NavLink to="/noticias" className={linkClass}>Noticias</NavLink></li>
+      <ul className="flex list-none items-center gap-4 justify-self-center max-md:hidden">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+
+          return (
+            <li key={item.to}>
+              <NavLink to={item.to} className={linkClass} end={item.end}>
+                <Icon aria-hidden="true" className="h-5 w-5 shrink-0" />
+                <span>{item.label}</span>
+              </NavLink>
+            </li>
+          );
+        })}
       </ul>
 
       <Link
         to="/login"
-        className="bg-primary-dark text-white font-body text-lg font-semibold px-7 py-3 rounded-[15px] shadow-[0px_4px_4px_rgba(0,0,0,0.25)] no-underline transition-opacity duration-200 hover:opacity-90"
+        className="justify-self-end bg-primary-dark font-body rounded-[15px] px-7 py-3 text-lg font-semibold text-white no-underline shadow-[0px_4px_4px_rgba(0,0,0,0.25)] transition-opacity duration-200 hover:opacity-90"
       >
         Iniciar Sesión
       </Link>
     </nav>
-  )
+  );
 }
