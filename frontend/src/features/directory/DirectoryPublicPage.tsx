@@ -6,7 +6,10 @@ import EmptyState from './components/EmptyState';
 import ResultsSummary from './components/ResultsSummary';
 import { mockCategories } from './data/mockCategories';
 import { mockCompanies } from './data/mockCompanies';
-import type { DirectoryFilters } from './types/directory';
+import type {
+  DirectoryFilters,
+  DirectorySortDirection,
+} from './types/directory';
 import { filterCompanies } from './utils/filterCompanies';
 import { sortCompaniesByName } from './utils/sortCompaniesByName';
 
@@ -17,12 +20,14 @@ const initialFilters: DirectoryFilters = {
 
 export default function DirectoryPublicPage() {
   const [filters, setFilters] = useState<DirectoryFilters>(initialFilters);
+  const [sortDirection, setSortDirection] =
+    useState<DirectorySortDirection>('asc');
 
   const filteredCompanies = useMemo(() => {
     const companiesMatchingFilters = filterCompanies(mockCompanies, filters);
 
-    return sortCompaniesByName(companiesMatchingFilters);
-  }, [filters]);
+    return sortCompaniesByName(companiesMatchingFilters, sortDirection);
+  }, [filters, sortDirection]);
 
   const totalCompanies = mockCompanies.length;
   const visibleCompanies = filteredCompanies.length;
@@ -39,6 +44,16 @@ export default function DirectoryPublicPage() {
       ...currentFilters,
       categoryId: value,
     }));
+  }
+
+  function handleSortDirectionToggle() {
+    setSortDirection((currentDirection) => {
+      if (currentDirection === 'asc') {
+        return 'desc';
+      }
+
+      return 'asc';
+    });
   }
 
   return (
@@ -65,9 +80,11 @@ export default function DirectoryPublicPage() {
           <DirectoryToolbar
             searchValue={filters.search}
             categoryValue={filters.categoryId}
+            sortDirection={sortDirection}
             categories={mockCategories}
             onSearchChange={handleSearchChange}
             onCategoryChange={handleCategoryChange}
+            onSortDirectionToggle={handleSortDirectionToggle}
           />
         </section>
 

@@ -5,24 +5,35 @@ import {
   ListboxOption,
   ListboxOptions,
 } from '@headlessui/react';
-import { CheckIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
+import {
+  ArrowsUpDownIcon,
+  CheckIcon,
+  ChevronDownIcon,
+} from '@heroicons/react/20/solid';
 
-import type { DirectoryCategory } from '../types/directory';
+import type {
+  DirectoryCategory,
+  DirectorySortDirection,
+} from '../types/directory';
 
 type DirectoryToolbarProps = {
   searchValue: string;
   categoryValue: string;
+  sortDirection: DirectorySortDirection;
   categories: DirectoryCategory[];
   onSearchChange: (value: string) => void;
   onCategoryChange: (value: string) => void;
+  onSortDirectionToggle: () => void;
 };
 
 export default function DirectoryToolbar({
   searchValue,
   categoryValue,
+  sortDirection,
   categories,
   onSearchChange,
   onCategoryChange,
+  onSortDirectionToggle,
 }: DirectoryToolbarProps) {
   function handleSearchChange(event: ChangeEvent<HTMLInputElement>) {
     onSearchChange(event.target.value);
@@ -32,13 +43,23 @@ export default function DirectoryToolbar({
     onCategoryChange(value);
   }
 
+  function handleSortDirectionToggle() {
+    onSortDirectionToggle();
+  }
+
   const selectedCategory = categories.find(
     (category) => category.id === categoryValue,
   );
 
+  const sortDirectionLabel = sortDirection === 'asc' ? 'A-Z' : 'Z-A';
+  const sortDirectionAriaLabel =
+    sortDirection === 'asc'
+      ? 'Cambiar orden a descendente'
+      : 'Cambiar orden a ascendente';
+
   return (
     <section className="rounded-[28px] border border-[#e7edf5] bg-white p-6! shadow-[0_18px_40px_rgba(15,23,42,0.07)]">
-      <div className="grid grid-cols-1 gap-4.5 lg:grid-cols-[minmax(0,1.7fr)_minmax(320px,0.9fr)] lg:items-end">
+      <div className="grid grid-cols-1 gap-4.5 lg:grid-cols-[minmax(0,1.6fr)_minmax(280px,0.9fr)_auto] lg:items-end">
         <div className="min-w-0">
           <label
             htmlFor="directory-search"
@@ -110,6 +131,24 @@ export default function DirectoryToolbar({
               </ListboxOptions>
             </div>
           </Listbox>
+        </div>
+        <div>
+          <label className="mb-3! block pl-0.5! text-[14px] leading-[1.2] font-bold text-[#17304f]">
+            Orden
+          </label>
+
+          <button
+            type="button"
+            aria-label={sortDirectionAriaLabel}
+            onClick={handleSortDirectionToggle}
+            className="flex h-13.5 min-w-[104px] items-center justify-center gap-2 rounded-[18px] border border-[#dbe4ef] bg-white px-4.5 text-[15px] font-bold leading-none text-[#17304f] shadow-none outline-none transition hover:bg-[#eef6ff] focus:outline-none focus:ring-4 focus:ring-sky-100"
+          >
+            <ArrowsUpDownIcon
+              aria-hidden="true"
+              className="h-5 w-5 shrink-0 text-[#64748b]"
+            />
+            <span>{sortDirectionLabel}</span>
+          </button>
         </div>
       </div>
     </section>
