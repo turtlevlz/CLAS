@@ -10,7 +10,7 @@ const canManageEmpresa = (user: any, empresa_id: number): boolean => {
     return false;
 }
 
-export const addIndustriaToEmpresa = async (req:Request, res:Response) => {
+export const addIndustriaToEmpresa = async (req: Request, res: Response) => {
 
     try {
 
@@ -70,7 +70,7 @@ export const addIndustriaToEmpresa = async (req:Request, res:Response) => {
         });
 
         if (!created) {
-            return res.status(400).json({
+            return res.status(409).json({
                 message: "La industria ya ha sido asignada a la empresa"
             });
         }
@@ -91,7 +91,7 @@ export const addIndustriaToEmpresa = async (req:Request, res:Response) => {
     }
 }
 
-export const removeIndustriaFromEmpresa = async (req:Request, res:Response) => {
+export const removeIndustriaFromEmpresa = async (req: Request, res: Response) => {
 
     try {
         const empresa_id = Number(req.params.empresa_id);
@@ -141,7 +141,7 @@ export const removeIndustriaFromEmpresa = async (req:Request, res:Response) => {
     }
 }
 
-export const getIndustriasByEmpresa = async (req:Request, res:Response) => {
+export const getIndustriasByEmpresa = async (req: Request, res: Response) => {
 
     try {
         const empresa_id = Number(req.params.empresa_id);
@@ -181,7 +181,7 @@ export const getIndustriasByEmpresa = async (req:Request, res:Response) => {
     }
 }
 
-export const getEmpresasByIndustria = async (req:Request, res:Response) => {
+export const getEmpresasByIndustria = async (req: Request, res: Response) => {
 
     try {
         const industria_id = Number(req.params.industria_id);

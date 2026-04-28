@@ -10,7 +10,7 @@ const canManageEmpresa = (user: any, empresa_id: number): boolean => {
     return false;
 }
 
-export const addRubroToEmpresa = async (req:Request, res:Response) => {
+export const addRubroToEmpresa = async (req: Request, res: Response) => {
 
     try {
 
@@ -70,7 +70,7 @@ export const addRubroToEmpresa = async (req:Request, res:Response) => {
         });
 
         if (!created) {
-            return res.status(400).json({
+            return res.status(409).json({
                 message: "El rubro ya ha sido asignado a la empresa"
             });
         }
@@ -91,7 +91,7 @@ export const addRubroToEmpresa = async (req:Request, res:Response) => {
     }
 }
 
-export const removeRubroFromEmpresa = async (req:Request, res:Response) => {
+export const removeRubroFromEmpresa = async (req: Request, res: Response) => {
 
     try {
         const empresa_id = Number(req.params.empresa_id);
@@ -141,7 +141,7 @@ export const removeRubroFromEmpresa = async (req:Request, res:Response) => {
     }
 }
 
-export const getRubrosByEmpresa = async (req:Request, res:Response) => {
+export const getRubrosByEmpresa = async (req: Request, res: Response) => {
 
     try {
         const empresa_id = Number(req.params.empresa_id);
@@ -181,7 +181,7 @@ export const getRubrosByEmpresa = async (req:Request, res:Response) => {
     }
 }
 
-export const getEmpresasByRubro = async (req:Request, res:Response) => {
+export const getEmpresasByRubro = async (req: Request, res: Response) => {
 
     try {
         const rubro_id = Number(req.params.rubro_id);

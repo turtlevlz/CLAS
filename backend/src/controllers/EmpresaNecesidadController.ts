@@ -10,7 +10,7 @@ const canManageEmpresa = (user: any, empresa_id: number): boolean => {
     return false;
 }
 
-export const addNecesidadToEmpresa = async (req:Request, res:Response) => {
+export const addNecesidadToEmpresa = async (req: Request, res: Response) => {
 
     try {
 
@@ -70,7 +70,7 @@ export const addNecesidadToEmpresa = async (req:Request, res:Response) => {
         });
 
         if (!created) {
-            return res.status(400).json({
+            return res.status(409).json({
                 message: "La necesidad ya ha sido asignada a la empresa"
             });
         }
@@ -91,7 +91,7 @@ export const addNecesidadToEmpresa = async (req:Request, res:Response) => {
     }
 }
 
-export const removeNecesidadFromEmpresa = async (req:Request, res:Response) => {
+export const removeNecesidadFromEmpresa = async (req: Request, res: Response) => {
 
     try {
         const empresa_id = Number(req.params.empresa_id);
@@ -141,7 +141,7 @@ export const removeNecesidadFromEmpresa = async (req:Request, res:Response) => {
     }
 }
 
-export const getNecesidadesByEmpresa = async (req:Request, res:Response) => {
+export const getNecesidadesByEmpresa = async (req: Request, res: Response) => {
 
     try {
         const empresa_id = Number(req.params.empresa_id);
@@ -181,7 +181,7 @@ export const getNecesidadesByEmpresa = async (req:Request, res:Response) => {
     }
 }
 
-export const getEmpresasByNecesidad = async (req:Request, res:Response) => {
+export const getEmpresasByNecesidad = async (req: Request, res: Response) => {
 
     try {
         const necesidad_id = Number(req.params.necesidad_id);

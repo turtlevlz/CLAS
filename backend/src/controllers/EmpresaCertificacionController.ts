@@ -10,7 +10,7 @@ const canManageEmpresa = (user: any, empresa_id: number): boolean => {
     return false;
 }
 
-export const addCertificacionToEmpresa = async (req:Request, res:Response) => {
+export const addCertificacionToEmpresa = async (req: Request, res: Response) => {
 
     try {
 
@@ -70,7 +70,7 @@ export const addCertificacionToEmpresa = async (req:Request, res:Response) => {
         });
 
         if (!created) {
-            return res.status(400).json({
+            return res.status(409).json({
                 message: "La certificación ya ha sido asignada a la empresa"
             });
         }
@@ -91,7 +91,7 @@ export const addCertificacionToEmpresa = async (req:Request, res:Response) => {
     }
 }
 
-export const removeCertificacionFromEmpresa = async (req:Request, res:Response) => {
+export const removeCertificacionFromEmpresa = async (req: Request, res: Response) => {
 
     try {
         const empresa_id = Number(req.params.empresa_id);
@@ -143,7 +143,7 @@ export const removeCertificacionFromEmpresa = async (req:Request, res:Response) 
 
 
 
-export const getEmpresasByCertificacion = async (req:Request, res:Response) => {
+export const getEmpresasByCertificacion = async (req: Request, res: Response) => {
 
     try {
         const certificacion_id = Number(req.params.certificacion_id);
@@ -182,7 +182,7 @@ export const getEmpresasByCertificacion = async (req:Request, res:Response) => {
     }
 }
 
-export const getCertificacionesByEmpresa = async (req:Request, res:Response) => {
+export const getCertificacionesByEmpresa = async (req: Request, res: Response) => {
 
     try {
         const empresa_id = Number(req.params.empresa_id);

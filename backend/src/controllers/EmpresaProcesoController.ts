@@ -10,7 +10,7 @@ const canManageEmpresa = (user: any, empresa_id: number): boolean => {
     return false;
 }
 
-export const addProcesoToEmpresa = async (req:Request, res:Response) => {
+export const addProcesoToEmpresa = async (req: Request, res: Response) => {
 
     try {
 
@@ -70,7 +70,7 @@ export const addProcesoToEmpresa = async (req:Request, res:Response) => {
         });
 
         if (!created) {
-            return res.status(400).json({
+            return res.status(409).json({
                 message: "El proceso ya ha sido asignado a la empresa"
             });
         }
@@ -91,7 +91,7 @@ export const addProcesoToEmpresa = async (req:Request, res:Response) => {
     }
 }
 
-export const removeProcesoFromEmpresa = async (req:Request, res:Response) => {
+export const removeProcesoFromEmpresa = async (req: Request, res: Response) => {
 
     try {
         const empresa_id = Number(req.params.empresa_id);
@@ -141,7 +141,7 @@ export const removeProcesoFromEmpresa = async (req:Request, res:Response) => {
     }
 }
 
-export const getProcesosByEmpresa = async (req:Request, res:Response) => {
+export const getProcesosByEmpresa = async (req: Request, res: Response) => {
 
     try {
         const empresa_id = Number(req.params.empresa_id);
@@ -181,7 +181,7 @@ export const getProcesosByEmpresa = async (req:Request, res:Response) => {
     }
 }
 
-export const getEmpresasByProceso = async (req:Request, res:Response) => {
+export const getEmpresasByProceso = async (req: Request, res: Response) => {
 
     try {
         const proceso_id = Number(req.params.proceso_id);
