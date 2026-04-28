@@ -20,6 +20,8 @@ function getCompanyInitials(name: string) {
 
 export default function CompanyCard({ company }: CompanyCardProps) {
   const companyInitials = getCompanyInitials(company.name);
+  const visibleSpecialties = company.specialties.slice(0, 4);
+  const hiddenSpecialtiesCount = company.specialties.length - visibleSpecialties.length;
 
   return (
     <Link
@@ -61,7 +63,7 @@ export default function CompanyCard({ company }: CompanyCardProps) {
       </div>
 
       <div className="!mt-4 !text-center">
-        <h2 className="!text-[24px] !font-bold !leading-[1.12] !tracking-[-0.04em] !text-[#12284b]">
+        <h2 className="!line-clamp-3 !text-[24px] !font-bold !leading-[1.12] !tracking-[-0.04em] !text-[#12284b]">
           {company.name}
         </h2>
 
@@ -78,9 +80,13 @@ export default function CompanyCard({ company }: CompanyCardProps) {
         </p>
 
         <div className="!mt-3.5 !flex !flex-wrap !justify-center !gap-2.5">
-          {company.specialties.map((specialty) => (
+          {visibleSpecialties.map((specialty) => (
             <SpecialtyChip key={specialty} label={specialty} />
           ))}
+
+          {hiddenSpecialtiesCount > 0 ? (
+            <SpecialtyChip label={`+${hiddenSpecialtiesCount} más`} />
+          ) : null}
         </div>
       </div>
     </Link>
