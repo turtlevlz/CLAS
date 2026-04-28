@@ -12,16 +12,20 @@ import type {
 } from './types/directory';
 import { filterCompanies } from './utils/filterCompanies';
 import { sortCompaniesByName } from './utils/sortCompaniesByName';
+import DirectoryPagination from './components/DirectoryPagination';
 
 const initialFilters: DirectoryFilters = {
   search: '',
   categoryId: 'all',
 };
 
+const companiesPerPage = 9;
+
 export default function DirectoryPublicPage() {
   const [filters, setFilters] = useState<DirectoryFilters>(initialFilters);
   const [sortDirection, setSortDirection] =
     useState<DirectorySortDirection>('asc');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filteredCompanies = useMemo(() => {
     const companiesMatchingFilters = filterCompanies(mockCompanies, filters);
@@ -29,14 +33,26 @@ export default function DirectoryPublicPage() {
     return sortCompaniesByName(companiesMatchingFilters, sortDirection);
   }, [filters, sortDirection]);
 
+  const totalPages = Math.ceil(filteredCompanies.length / companiesPerPage);
+
+  const paginatedCompanies = useMemo(() => {
+    const startIndex = (currentPage - 1) * companiesPerPage;
+    const endIndex = startIndex + companiesPerPage;
+
+    return filteredCompanies.slice(startIndex, endIndex);
+  }, [currentPage, filteredCompanies]);
+
+
   const totalCompanies = mockCompanies.length;
   const visibleCompanies = filteredCompanies.length;
+  const hasCompanies = visibleCompanies > 0;
 
   function handleSearchChange(value: string) {
     setFilters((currentFilters) => ({
       ...currentFilters,
       search: value,
     }));
+    setCurrentPage(1);
   }
 
   function handleCategoryChange(value: string) {
@@ -44,6 +60,7 @@ export default function DirectoryPublicPage() {
       ...currentFilters,
       categoryId: value,
     }));
+    setCurrentPage(1);
   }
 
   function handleSortDirectionToggle() {
@@ -54,6 +71,12 @@ export default function DirectoryPublicPage() {
 
       return 'asc';
     });
+
+    setCurrentPage(1);
+  }
+
+  function handlePageChange(page: number) {
+    setCurrentPage(page);
   }
 
   return (
@@ -95,7 +118,7 @@ export default function DirectoryPublicPage() {
           />
         </section>
 
-        {visibleCompanies === 0 ? (
+        {!hasCompanies ? (
           <section className="mt-7!">
             <EmptyState
               title="No encontramos miembros con esos filtros"
@@ -103,11 +126,19 @@ export default function DirectoryPublicPage() {
             />
           </section>
         ) : (
-          <section className="mt-7! grid! grid-cols-1! gap-6! md:grid-cols-2! xl:grid-cols-3!">
-            {filteredCompanies.map((company) => (
-              <CompanyCard key={company.id} company={company} />
-            ))}
-          </section>
+          <>
+            <section className="mt-7! grid! grid-cols-1! gap-6! md:grid-cols-2! xl:grid-cols-3!">
+              {paginatedCompanies.map((company) => (
+                <CompanyCard key={company.id} company={company} />
+              ))}
+            </section>
+
+            <DirectoryPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </>
         )}
       </div>
     </main>
