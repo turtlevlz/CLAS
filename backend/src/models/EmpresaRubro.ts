@@ -15,6 +15,7 @@ import { Rubro } from "./Rubro";
     timestamps: false
 })
 export class EmpresaRubro extends Model {
+
     @PrimaryKey
     @ForeignKey(() => Empresa)
     @Column(DataType.INTEGER)
