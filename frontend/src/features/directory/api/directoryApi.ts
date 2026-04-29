@@ -4,6 +4,13 @@ export type PublicCompanyApi = {
   id_empresa: number;
   nombre_comercial: string;
   razon_social?: string | null;
+  rfc?: string | null;
+  correo_electronico?: string | null;
+  telefono?: string | null;
+  membresia_id?: number | null;
+  tipo_organizacion_id?: number | null;
+  activo?: boolean | null;
+  fecha_registro?: string | null;
   ciudad?: string | null;
   domicilio_completo?: string | null;
   giro?: string | null;

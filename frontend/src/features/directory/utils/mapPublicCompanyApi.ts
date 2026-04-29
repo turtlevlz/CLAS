@@ -33,7 +33,6 @@ function createCategoryId(label: string) {
 export function mapPublicCompanyApi(
   company: PublicCompanyApi,
 ): DirectoryCompany {
-  const membresia = company.Membresia ?? company.membresia;
   const tipoOrganizacion =
     company.TipoOrganizacion ?? company.tipoOrganizacion;
   const rubros = company.Rubros ?? company.rubros ?? [];
@@ -41,18 +40,18 @@ export function mapPublicCompanyApi(
     company.Certificaciones ?? company.certificaciones ?? [];
   const contactos = company.Contactos ?? company.contactos ?? [];
 
-  const categoryLabel = tipoOrganizacion?.nombre_tipo ?? 'Sin categoría';
   const specialties = rubros.map((rubro) => rubro.nombre_rubro);
+  const categoryLabel = company.giro ?? specialties[0] ?? 'Sin categoría';
 
   return {
     id: company.id_empresa,
     name: company.nombre_comercial,
-    tierLabel: mapTierLabel(membresia?.nombre_membresia),
+    tierLabel: mapTierLabel(tipoOrganizacion?.nombre_tipo),
     shortDescription: company.descripcion ?? '',
     city: company.ciudad ?? 'Sonora',
     state: 'Sonora',
-    publicEmail: '',
-    publicPhone: '',
+    publicEmail: company.correo_electronico ?? '',
+    publicPhone: company.telefono ?? '',
     specialties,
     employeeRange: company.rango_empleados ?? '',
     categoryId: createCategoryId(categoryLabel),
