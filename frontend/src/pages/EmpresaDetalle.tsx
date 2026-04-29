@@ -79,6 +79,18 @@ function InfoRow({
   );
 }
 
+function hasValue(value: string) {
+  return value.trim().length > 0;
+}
+
+function formatBoolean(value: boolean | null) {
+  if (value === null) {
+    return '';
+  }
+
+  return value ? 'Sí' : 'No';
+}
+
 function hasItems(items: string[]) {
   return items.length > 0;
 }
@@ -263,43 +275,103 @@ export default function EmpresaDetalle() {
             <div className="!space-y-6">
               <SectionCard eyebrow="Perfil" title="Información general">
                 <dl className="!grid !gap-4 sm:!grid-cols-2">
-                  <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
-                    <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
-                      Dirección
-                    </dt>
-                    <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
-                      {company.detail.address}
-                    </dd>
-                  </div>
+                  {hasValue(company.detail.legalName) ? (
+                    <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
+                      <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
+                        Razón social
+                      </dt>
+                      <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
+                        {company.detail.legalName}
+                      </dd>
+                    </div>
+                  ) : null}
 
-                  <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
-                    <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
-                      Giro
-                    </dt>
-                    <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
-                      {company.detail.businessLine}
-                    </dd>
-                  </div>
+                  {hasValue(company.detail.rfc) ? (
+                    <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
+                      <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
+                        RFC
+                      </dt>
+                      <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
+                        {company.detail.rfc}
+                      </dd>
+                    </div>
+                  ) : null}
 
-                  <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
-                    <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
-                      Fundación
-                    </dt>
-                    <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
-                      {company.detail.foundedYear}
-                    </dd>
-                  </div>
+                  {hasValue(company.detail.address) ? (
+                    <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
+                      <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
+                        Dirección
+                      </dt>
+                      <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
+                        {company.detail.address}
+                      </dd>
+                    </div>
+                  ) : null}
 
-                  <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
-                    <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
-                      Empleados
-                    </dt>
-                    <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
-                      {company.employeeRange}
-                    </dd>
-                  </div>
+                  {hasValue(company.detail.businessLine) ? (
+                    <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
+                      <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
+                        Giro
+                      </dt>
+                      <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
+                        {company.detail.businessLine}
+                      </dd>
+                    </div>
+                  ) : null}
+
+                  {hasValue(company.detail.foundedYear) ? (
+                    <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
+                      <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
+                        Fundación
+                      </dt>
+                      <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
+                        {company.detail.foundedYear}
+                      </dd>
+                    </div>
+                  ) : null}
+
+                  {hasValue(company.employeeRange) ? (
+                    <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
+                      <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
+                        Empleados
+                      </dt>
+                      <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
+                        {company.employeeRange}
+                      </dd>
+                    </div>
+                  ) : null}
+
+                  {company.detail.manufacturesForAutomotive !== null ? (
+                    <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
+                      <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
+                        Fabrica para automotriz
+                      </dt>
+                      <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
+                        {formatBoolean(company.detail.manufacturesForAutomotive)}
+                      </dd>
+                    </div>
+                  ) : null}
                 </dl>
               </SectionCard>
+
+                            {hasItems(company.detail.certifications) ? (
+                <section className="!rounded-[32px] !border !border-[#e5edf7] !bg-white !p-7 !shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
+                  <p className="!text-[12px] !font-bold !uppercase !tracking-[0.14em] !text-[#1181e5]">
+                    Certificaciones
+                  </p>
+
+                  <div className="!mt-5 !flex !flex-wrap !gap-2.5">
+                    {company.detail.certifications.map((certification) => (
+                      <span
+                        key={certification}
+                        className="!rounded-full !bg-[#e5effa] !px-3.5 !py-2 !text-[13px] !font-bold !text-[#213854]"
+                      >
+                        {certification}
+                      </span>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
 
               {hasItems(company.detail.productsAndServices) ? (
                 <SectionCard eyebrow="Oferta" title="Productos y servicios">
@@ -329,31 +401,28 @@ export default function EmpresaDetalle() {
                 </p>
 
                 <dl className="!mt-4">
-                  <InfoRow label="Sitio web" value={company.detail.website} />
-                  <InfoRow label="Categoría" value={company.categoryLabel} />
+                  {hasValue(company.detail.website) ? (
+                    <InfoRow label="Sitio web" value={company.detail.website} />
+                  ) : null}
+
+                  {hasValue(company.detail.email) ? (
+                    <InfoRow label="Correo" value={company.detail.email} />
+                  ) : null}
+
+                  {hasValue(company.detail.phone) ? (
+                    <InfoRow label="Teléfono" value={company.detail.phone} />
+                  ) : null}
+
+                  {hasValue(company.detail.membership) ? (
+                    <InfoRow label="Membresía" value={company.detail.membership} />
+                  ) : null}
+
+                  <InfoRow label="Rubro principal" value={company.categoryLabel} />
                   <InfoRow label="Tipo" value={company.tierLabel} />
                   <InfoRow label="Ubicación" value={`${company.city}, ${company.state}`} />
                 </dl>
+
               </section>
-
-              {hasItems(company.detail.certifications) ? (
-                <section className="!rounded-[32px] !border !border-[#e5edf7] !bg-white !p-7 !shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
-                  <p className="!text-[12px] !font-bold !uppercase !tracking-[0.14em] !text-[#1181e5]">
-                    Certificaciones
-                  </p>
-
-                  <div className="!mt-5 !flex !flex-wrap !gap-2.5">
-                    {company.detail.certifications.map((certification) => (
-                      <span
-                        key={certification}
-                        className="!rounded-full !bg-[#e5effa] !px-3.5 !py-2 !text-[13px] !font-bold !text-[#213854]"
-                      >
-                        {certification}
-                      </span>
-                    ))}
-                  </div>
-                </section>
-              ) : null}
 
               {hasItems(company.detail.industries) ? (
                 <section className="!rounded-[32px] !border !border-[#e5edf7] !bg-white !p-7 !shadow-[0_18px_50px_rgba(15,23,42,0.06)]">

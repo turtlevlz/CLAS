@@ -18,6 +18,12 @@ export type DirectoryContactPerson = {
 
 export type DirectoryCompanyDetail = {
   displayName?: string;
+  legalName: string;
+  rfc: string;
+  email: string;
+  phone: string;
+  membership: string;
+  manufacturesForAutomotive: boolean | null;
   address: string;
   businessLine: string;
   about: string;

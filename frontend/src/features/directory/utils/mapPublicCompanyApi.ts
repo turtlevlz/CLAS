@@ -33,6 +33,7 @@ function createCategoryId(label: string) {
 export function mapPublicCompanyApi(
   company: PublicCompanyApi,
 ): DirectoryCompany {
+  const membresia = company.Membresia ?? company.membresia
   const tipoOrganizacion =
     company.TipoOrganizacion ?? company.tipoOrganizacion;
   const rubros = company.Rubros ?? company.rubros ?? [];
@@ -59,6 +60,12 @@ export function mapPublicCompanyApi(
     logoUrl: company.logo ?? undefined,
     detail: {
       displayName: company.razon_social ?? company.nombre_comercial,
+      legalName: company.razon_social ?? '',
+      rfc: company.rfc ?? '',
+      email: company.correo_electronico ?? '',
+      phone: company.telefono ?? '',
+      membership: membresia?.nombre_membresia ?? '',
+      manufacturesForAutomotive: company.fabrica_para_automotriz ?? null,
       address: company.domicilio_completo ?? '',
       businessLine: company.giro ?? categoryLabel,
       about: company.descripcion ?? '',
