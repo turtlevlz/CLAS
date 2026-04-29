@@ -33,3 +33,15 @@ export async function getPublicCompanies(): Promise<PublicCompanyApi[]> {
 
   return data.data;
 }
+
+export async function getPublicCompanyById(
+  id: number,
+): Promise<PublicCompanyApi> {
+  const response = await fetch(`${API_BASE_URL}/empresas/public/${id}`);
+
+  if (!response.ok) {
+    throw new Error('No se pudo cargar el detalle de la empresa');
+  }
+
+  return (await response.json()) as PublicCompanyApi;
+}

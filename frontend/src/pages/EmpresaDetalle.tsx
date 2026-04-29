@@ -1,8 +1,11 @@
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
-import { mockCompanies } from '../features/directory/data/mockCompanies';
+import { getPublicCompanyById } from '../features/directory/api/directoryApi';
+import type { DirectoryCompany } from '../features/directory/types/directory';
+import { mapPublicCompanyApi } from '../features/directory/utils/mapPublicCompanyApi';
 
 function getCompanyInitials(name: string) {
   const cleanName = name.trim();
@@ -75,7 +78,54 @@ function InfoRow({
 export default function EmpresaDetalle() {
   const { id } = useParams();
   const companyId = Number(id);
-  const company = mockCompanies.find((currentCompany) => currentCompany.id === companyId);
+  const [company, setCompany] = useState<DirectoryCompany | undefined>();
+  const [isLoadingCompany, setIsLoadingCompany] = useState(true);
+  const [companyError, setCompanyError] = useState('');
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadCompany() {
+      if (!Number.isInteger(companyId) || companyId <= 0) {
+        setCompany(undefined);
+        setCompanyError('ID de empresa inválido.');
+        setIsLoadingCompany(false);
+        return;
+      }
+
+      try {
+        setIsLoadingCompany(true);
+        setCompanyError('');
+
+        const publicCompany = await getPublicCompanyById(companyId);
+        const mappedCompany = mapPublicCompanyApi(publicCompany);
+
+        if (!isMounted) {
+          return;
+        }
+
+        setCompany(mappedCompany);
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
+        setCompany(undefined);
+        setCompanyError('No se pudo cargar la empresa. Intenta de nuevo más tarde.');
+      } finally {
+        if (isMounted) {
+          setIsLoadingCompany(false);
+        }
+      }
+    }
+
+    loadCompany();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [companyId]);
+
 
   if (!company) {
     return (
@@ -93,15 +143,15 @@ export default function EmpresaDetalle() {
 
             <div className="!mt-10 !rounded-[36px] !border !border-[#e5edf7] !bg-white !p-9 !shadow-[0_22px_70px_rgba(15,23,42,0.08)]">
               <p className="!text-[12px] !font-bold !uppercase !tracking-[0.14em] !text-[#1181e5]">
-                Sin resultados
+                {isLoadingCompany ? 'Cargando' : 'Sin resultados'}
               </p>
 
               <h1 className="!mt-4 !text-[48px] !font-bold !leading-none !tracking-[-0.05em] !text-[#12284b]">
-                Empresa no encontrada
+                {isLoadingCompany ? 'Cargando empresa' : 'Empresa no encontrada'}
               </h1>
 
               <p className="!mt-5 !max-w-[620px] !text-[18px] !leading-[1.7] !text-[#64748b]">
-                Regresa al directorio para seleccionar otro miembro disponible.
+                {companyError || 'Regresa al directorio para seleccionar otro miembro disponible.'}
               </p>
             </div>
           </section>
@@ -127,6 +177,18 @@ export default function EmpresaDetalle() {
           >
             ← Directorio
           </Link>
+
+          {isLoadingCompany ? (
+            <p className="!mt-4 !text-[15px] !font-semibold !text-[#64748b]">
+              Cargando empresa...
+            </p>
+          ) : null}
+
+          {companyError ? (
+            <p className="!mt-4 !rounded-[16px] !border !border-[#fde68a] !bg-[#fffbeb] !px-4 !py-3 !text-[14px] !font-semibold !text-[#92400e]">
+              {companyError}
+            </p>
+          ) : null}
 
           <header className="!relative !mt-8 !rounded-[42px] !border !border-[#e5edf7] !bg-white/90 !p-8 !shadow-[0_28px_90px_rgba(15,23,42,0.09)] lg:!p-10">
             <div className="!absolute !right-8 !top-8 !hidden !rounded-full !bg-[#e5effa] !px-4 !py-2 !text-[12px] !font-bold !uppercase !tracking-[0.08em] !text-[#213854] sm:!inline-flex">
