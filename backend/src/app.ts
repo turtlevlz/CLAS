@@ -14,6 +14,7 @@ import userRoutes from "./routes/userRoutes";
 const app = express();
 
 app.use(cors({ origin: 'http://localhost:5173' }));
+
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -21,25 +22,15 @@ app.get("/", (req, res) => {
 });
 
 app.use("/auth", authRoutes)
-
 app.use("/empresas", empresaRoutes);
-
 app.use("/rubros", rubroRoutes);
-
 app.use("/certificaciones", certificacionRoutes);
-
 app.use("/membresias", membresiaRoutes);
-
 app.use("/organizaciones", tipoOrganizacionRoutes);
-
 app.use("/funciones", funcionContactoRoutes);
-
 app.use("/roles", roleRoutes);
-
 app.use("/contactos", contactoRoutes);
-
 app.use("/usuarios", userRoutes);
-
 app.use("/uploads", express.static("uploads"));
 
 export default app;

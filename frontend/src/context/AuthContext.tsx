@@ -15,7 +15,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } else {
         setUsuarioActual(decoded);
     }
-};
+  };
 
   const logout = () => {
     localStorage.removeItem('token_clas');
