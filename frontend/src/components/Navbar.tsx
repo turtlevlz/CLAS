@@ -1,7 +1,7 @@
 import { BuildingOffice2Icon, HomeIcon, MegaphoneIcon } from '@heroicons/react/20/solid';
-import { Link, NavLink } from 'react-router-dom';
-
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import claslogo from '../assets/img/clas-logo-name.png';
+import { useAuth } from '../context/AuthContext';
 
 const navItems = [
   {
@@ -22,6 +22,7 @@ const navItems = [
   },
 ];
 
+// Estilo del equipo conservado
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   [
     'font-body inline-flex min-w-[150px] items-center justify-center gap-2 rounded-[10px] px-4 py-1.5 text-xl font-normal no-underline transition-colors duration-200',
@@ -31,6 +32,14 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
   ].join(' ');
 
 export default function Navbar() {
+  const { usuarioActual, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
     <nav className="sticky top-0 z-[100] grid h-[90px] grid-cols-[1fr_auto_1fr] items-center bg-white px-10 shadow-[0px_2px_8px_rgba(0,0,0,0.08)] max-md:px-5">
       <Link to="/" className="flex items-center justify-self-start gap-3 no-underline">
@@ -50,14 +59,35 @@ export default function Navbar() {
             </li>
           );
         })}
+
+        {/* Lógica de Seguridad de Carlos */}
+        {usuarioActual && (
+          <li>
+            <NavLink to="/admin" className={linkClass}>
+              <span>Panel Admin</span>
+            </NavLink>
+          </li>
+        )}
       </ul>
 
-      <Link
-        to="/login"
-        className="justify-self-end bg-primary-dark font-body rounded-[15px] px-7 py-3 text-lg font-semibold text-white no-underline shadow-[0px_4px_4px_rgba(0,0,0,0.25)] transition-opacity duration-200 hover:opacity-90"
-      >
-        Iniciar Sesión
-      </Link>
+      <div className="justify-self-end">
+        {/* Botón dinámico con clases del equipo */}
+        {usuarioActual ? (
+          <button
+            onClick={handleLogout}
+            className="bg-red-600 font-body rounded-[15px] px-7 py-3 text-lg font-semibold text-white no-underline shadow-[0px_4px_4px_rgba(0,0,0,0.25)] transition-opacity duration-200 hover:opacity-90"
+          >
+            Cerrar Sesión
+          </button>
+        ) : (
+          <Link
+            to="/login"
+            className="bg-primary-dark font-body rounded-[15px] px-7 py-3 text-lg font-semibold text-white no-underline shadow-[0px_4px_4px_rgba(0,0,0,0.25)] transition-opacity duration-200 hover:opacity-90"
+          >
+            Iniciar Sesión
+          </Link>
+        )}
+      </div>
     </nav>
   );
 }
