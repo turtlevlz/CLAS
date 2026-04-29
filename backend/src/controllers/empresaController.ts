@@ -221,12 +221,18 @@ export const createEmpresa = async (req: Request, res: Response) => {
 
 
 export const getEmpresas = async (req: Request, res: Response) => {
-
     try {
 
         const baseUrl = `${req.protocol}://${req.get("host")}`;
 
-        const empresas = await Empresa.findAll({
+        // página (default 1)
+        const page = Number(req.query.page) || 1;
+
+        // límite fijo en 12
+        const limit = 12;
+        const offset = (page - 1) * limit;
+
+        const { count, rows } = await Empresa.findAndCountAll({
             attributes: [
                 "id_empresa",
                 "nombre_comercial",
@@ -244,10 +250,12 @@ export const getEmpresas = async (req: Request, res: Response) => {
                     attributes: ["id_tipo", "nombre_tipo"]
                 }
             ],
-            order: [["nombre_comercial", "ASC"]]
+            order: [["nombre_comercial", "ASC"]],
+            limit,
+            offset
         });
 
-        const result = empresas.map((e: any) => {
+        const result = rows.map((e: any) => {
             const emp = e.toJSON();
 
             return {
@@ -258,7 +266,13 @@ export const getEmpresas = async (req: Request, res: Response) => {
             };
         });
 
-        return res.json(result);
+        return res.json({
+            total: count,
+            page,
+            totalPages: Math.ceil(count / limit),
+            limit,
+            data: result
+        });
 
     } catch (error) {
 
@@ -267,7 +281,6 @@ export const getEmpresas = async (req: Request, res: Response) => {
         });
 
     }
-
 };
 
 

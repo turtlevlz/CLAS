@@ -54,3 +54,5 @@ export type DirectoryFilters = {
   search: string;
   categoryId: string;
 };
+
+export type DirectorySortDirection = 'asc' | 'desc';
