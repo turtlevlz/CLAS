@@ -9,8 +9,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = (token: string) => {
     localStorage.setItem('token_clas', token);
     const decoded: any = jwtDecode(token);
-    setUsuarioActual(decoded);
-  };
+
+    if (decoded.exp * 1000 < Date.now()) {
+        logout(); 
+    } else {
+        setUsuarioActual(decoded);
+    }
+};
 
   const logout = () => {
     localStorage.removeItem('token_clas');
