@@ -3,6 +3,7 @@ import type {
   DirectoryCompany,
   DirectoryCompanyTier,
 } from '../types/directory';
+import { createCategoryId } from './createCategoryId';
 
 function mapTierLabel(value?: string | null): DirectoryCompanyTier {
   if (value === 'Tier 1') {
@@ -18,16 +19,6 @@ function mapTierLabel(value?: string | null): DirectoryCompanyTier {
   }
 
   return 'Otro';
-}
-
-function createCategoryId(label: string) {
-  return label
-    .trim()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
 }
 
 export function mapPublicCompanyApi(

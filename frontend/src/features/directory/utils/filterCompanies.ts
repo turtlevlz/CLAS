@@ -1,4 +1,5 @@
 import type { DirectoryCompany, DirectoryFilters } from '../types/directory';
+import { createCategoryId } from './createCategoryId';
 
 export function filterCompanies(
   companies: DirectoryCompany[],
@@ -11,7 +12,10 @@ export function filterCompanies(
 
   return companies.filter((company) => {
     const matchesCategory = hasCategoryFilter
-      ? company.categoryId === filters.categoryId
+      ? company.categoryId === filters.categoryId ||
+        company.specialties.some(
+          (specialty) => createCategoryId(specialty) === filters.categoryId,
+        )
       : true;
 
     if (!matchesCategory) {

@@ -4,8 +4,8 @@ import CompanyCard from './components/CompanyCard';
 import DirectoryToolbar from './components/DirectoryToolbar';
 import EmptyState from './components/EmptyState';
 import ResultsSummary from './components/ResultsSummary';
-import { mockCategories } from './data/mockCategories';
 import type {
+  DirectoryCategory,
   DirectoryCompany,
   DirectoryFilters,
   DirectorySortDirection,
@@ -15,6 +15,7 @@ import { sortCompaniesByName } from './utils/sortCompaniesByName';
 import DirectoryPagination from './components/DirectoryPagination';
 import { getPublicCompanies } from './api/directoryApi';
 import { mapPublicCompanyApi } from './utils/mapPublicCompanyApi';
+import { createCategoryId } from './utils/createCategoryId';
 
 const initialFilters: DirectoryFilters = {
   search: '',
@@ -31,6 +32,39 @@ export default function DirectoryPublicPage() {
   const [companies, setCompanies] = useState<DirectoryCompany[]>([]);
   const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
   const [companiesError, setCompaniesError] = useState('');
+
+  const directoryCategories = useMemo<DirectoryCategory[]>(() => {
+    const categoryMap = new Map<string, string>();
+
+    companies.forEach((company) => {
+      company.specialties.forEach((specialty) => {
+        const categoryId = createCategoryId(specialty);
+
+        if (!categoryId) {
+          return;
+        }
+
+        categoryMap.set(categoryId, specialty);
+      });
+    });
+
+    const backendCategories = Array.from(categoryMap.entries())
+      .map(([id, label]) => ({
+        id,
+        label,
+      }))
+      .sort((firstCategory, secondCategory) =>
+        firstCategory.label.localeCompare(secondCategory.label, 'es'),
+      );
+
+    return [
+      {
+        id: 'all',
+        label: 'Todas las categorías',
+      },
+      ...backendCategories,
+    ];
+  }, [companies]);
 
   useEffect(() => {
     let isMounted = true;
@@ -149,7 +183,7 @@ export default function DirectoryPublicPage() {
             searchValue={filters.search}
             categoryValue={filters.categoryId}
             sortDirection={sortDirection}
-            categories={mockCategories}
+            categories={directoryCategories}
             onSearchChange={handleSearchChange}
             onCategoryChange={handleCategoryChange}
             onSortDirectionToggle={handleSortDirectionToggle}
