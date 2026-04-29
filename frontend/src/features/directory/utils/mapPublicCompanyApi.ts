@@ -33,37 +33,58 @@ function createCategoryId(label: string) {
 export function mapPublicCompanyApi(
   company: PublicCompanyApi,
 ): DirectoryCompany {
-  const categoryLabel =
-    company.TipoOrganizacion?.nombre_tipo ?? 'Sin categoría';
-  const specialties = company.Rubros?.map((rubro) => rubro.nombre_rubro) ?? [];
+  const membresia = company.Membresia ?? company.membresia;
+  const tipoOrganizacion =
+    company.TipoOrganizacion ?? company.tipoOrganizacion;
+  const rubros = company.Rubros ?? company.rubros ?? [];
+  const certificaciones =
+    company.Certificaciones ?? company.certificaciones ?? [];
+  const contactos = company.Contactos ?? company.contactos ?? [];
+
+  const categoryLabel = tipoOrganizacion?.nombre_tipo ?? 'Sin categoría';
+  const specialties = rubros.map((rubro) => rubro.nombre_rubro);
 
   return {
     id: company.id_empresa,
     name: company.nombre_comercial,
-    tierLabel: mapTierLabel(company.Membresia?.nombre_membresia),
+    tierLabel: mapTierLabel(membresia?.nombre_membresia),
     shortDescription: company.descripcion ?? '',
     city: company.ciudad ?? 'Sonora',
     state: 'Sonora',
     publicEmail: '',
     publicPhone: '',
     specialties,
-    employeeRange: '',
+    employeeRange: company.rango_empleados ?? '',
     categoryId: createCategoryId(categoryLabel),
     categoryLabel,
     logoUrl: company.logo ?? undefined,
     detail: {
-      displayName: company.nombre_comercial,
-      address: '',
-      businessLine: categoryLabel,
+      displayName: company.razon_social ?? company.nombre_comercial,
+      address: company.domicilio_completo ?? '',
+      businessLine: company.giro ?? categoryLabel,
       about: company.descripcion ?? '',
-      foundedYear: '',
-      website: '',
-      certifications: [],
+      foundedYear:
+        company.anio_fundacion !== undefined && company.anio_fundacion !== null
+          ? String(company.anio_fundacion)
+          : '',
+      website: company.sitio_web ?? '',
+      certifications: certificaciones.map(
+        (certification) => certification.nombre_certificacion,
+      ),
       industries: [],
       productsAndServices: [],
       manufacturingCapabilities: [],
       supplierNeeds: [],
-      contacts: [],
+      contacts: contactos.map((contact) => {
+        const contactFunction = contact.FuncionContacto ?? contact.funcion;
+
+        return {
+          name: contact.nombre_completo ?? '',
+          role: contact.puesto ?? contactFunction?.nombre_funcion ?? '',
+          email: contact.correo ?? '',
+          phone: contact.telefono_celular ?? '',
+        };
+      }),
     },
   };
 }

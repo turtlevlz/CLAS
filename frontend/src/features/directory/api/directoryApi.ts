@@ -1,47 +1,73 @@
-import { API_BASE_URL } from '../../../api/config';
+import { api } from '../../../api/http';
 
 export type PublicCompanyApi = {
   id_empresa: number;
   nombre_comercial: string;
+  razon_social?: string | null;
   ciudad?: string | null;
+  domicilio_completo?: string | null;
+  giro?: string | null;
+  fabrica_para_automotriz?: boolean | null;
   descripcion?: string | null;
+  anio_fundacion?: number | null;
+  rango_empleados?: string | null;
+  sitio_web?: string | null;
   logo?: string | null;
-  Membresia?: {
-    nombre_membresia: string;
-  } | null;
-  TipoOrganizacion?: {
-    nombre_tipo: string;
-  } | null;
-  Rubros?: {
-    nombre_rubro: string;
+
+  Membresia?: { nombre_membresia: string } | null;
+  membresia?: { nombre_membresia: string } | null;
+
+  TipoOrganizacion?: { nombre_tipo: string } | null;
+  tipoOrganizacion?: { nombre_tipo: string } | null;
+
+  Rubros?: { nombre_rubro: string }[];
+  rubros?: { nombre_rubro: string }[];
+
+  Certificaciones?: { nombre_certificacion: string }[];
+  certificaciones?: { nombre_certificacion: string }[];
+
+  Contactos?: {
+    nombre_completo?: string | null;
+    puesto?: string | null;
+    telefono_celular?: string | null;
+    correo?: string | null;
+    FuncionContacto?: { nombre_funcion: string } | null;
+    funcion?: { nombre_funcion: string } | null;
+  }[];
+
+  contactos?: {
+    nombre_completo?: string | null;
+    puesto?: string | null;
+    telefono_celular?: string | null;
+    correo?: string | null;
+    FuncionContacto?: { nombre_funcion: string } | null;
+    funcion?: { nombre_funcion: string } | null;
   }[];
 };
 
 type PublicCompaniesResponse = {
-  total: number;
   data: PublicCompanyApi[];
+  total: number;
 };
 
 export async function getPublicCompanies(): Promise<PublicCompanyApi[]> {
-  const response = await fetch(`${API_BASE_URL}/empresas/public`);
+  const response = await api.get<PublicCompaniesResponse>('/empresas/public');
 
-  if (!response.ok) {
-    throw new Error('No se pudo cargar el directorio de empresas');
-  }
-
-  const data = (await response.json()) as PublicCompaniesResponse;
-
-  return data.data;
+  return response.data.data;
 }
 
 export async function getPublicCompanyById(
   id: number,
 ): Promise<PublicCompanyApi> {
-  const response = await fetch(`${API_BASE_URL}/empresas/public/${id}`);
+  const response = await api.get<PublicCompanyApi>(`/empresas/public/${id}`);
 
-  if (!response.ok) {
-    throw new Error('No se pudo cargar el detalle de la empresa');
-  }
+  return response.data;
+}
 
-  return (await response.json()) as PublicCompanyApi;
+export async function getPrivateCompanyById(
+  id: number,
+): Promise<PublicCompanyApi> {
+  const response = await api.get<PublicCompanyApi>(`/empresas/${id}`);
+
+  return response.data;
 }

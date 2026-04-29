@@ -3,9 +3,13 @@ import { Link, useParams } from 'react-router-dom';
 
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
-import { getPublicCompanyById } from '../features/directory/api/directoryApi';
 import type { DirectoryCompany } from '../features/directory/types/directory';
 import { mapPublicCompanyApi } from '../features/directory/utils/mapPublicCompanyApi';
+import { useAuth } from '../context/AuthContext';
+import {
+  getPrivateCompanyById,
+  getPublicCompanyById,
+} from '../features/directory/api/directoryApi';
 
 function getCompanyInitials(name: string) {
   const cleanName = name.trim();
@@ -77,6 +81,7 @@ function InfoRow({
 
 export default function EmpresaDetalle() {
   const { id } = useParams();
+  const { usuarioActual } = useAuth();
   const companyId = Number(id);
   const [company, setCompany] = useState<DirectoryCompany | undefined>();
   const [isLoadingCompany, setIsLoadingCompany] = useState(true);
@@ -97,8 +102,11 @@ export default function EmpresaDetalle() {
         setIsLoadingCompany(true);
         setCompanyError('');
 
-        const publicCompany = await getPublicCompanyById(companyId);
-        const mappedCompany = mapPublicCompanyApi(publicCompany);
+        const apiCompany = usuarioActual
+          ? await getPrivateCompanyById(companyId)
+          : await getPublicCompanyById(companyId);
+
+        const mappedCompany = mapPublicCompanyApi(apiCompany)
 
         if (!isMounted) {
           return;
@@ -124,7 +132,7 @@ export default function EmpresaDetalle() {
     return () => {
       isMounted = false;
     };
-  }, [companyId]);
+  }, [companyId, usuarioActual]);
 
 
   if (!company) {
