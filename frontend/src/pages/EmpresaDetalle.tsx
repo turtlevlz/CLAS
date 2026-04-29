@@ -79,6 +79,14 @@ function InfoRow({
   );
 }
 
+function hasItems(items: string[]) {
+  return items.length > 0;
+}
+
+function hasContacts(contacts: DirectoryCompany['detail']['contacts']) {
+  return contacts.length > 0;
+}
+
 export default function EmpresaDetalle() {
   const { id } = useParams();
   const { usuarioActual } = useAuth();
@@ -293,19 +301,25 @@ export default function EmpresaDetalle() {
                 </dl>
               </SectionCard>
 
-              <SectionCard eyebrow="Oferta" title="Productos y servicios">
-                <DetailList items={company.detail.productsAndServices} />
-              </SectionCard>
+              {hasItems(company.detail.productsAndServices) ? (
+                <SectionCard eyebrow="Oferta" title="Productos y servicios">
+                  <DetailList items={company.detail.productsAndServices} />
+                </SectionCard>
+              ) : null}
 
-              <SectionCard eyebrow="Operación" title="Capacidades de manufactura">
-                <DetailList items={company.detail.manufacturingCapabilities} />
-              </SectionCard>
+              {hasItems(company.detail.manufacturingCapabilities) ? (
+                <SectionCard eyebrow="Operación" title="Capacidades de manufactura">
+                  <DetailList items={company.detail.manufacturingCapabilities} />
+                </SectionCard>
+              ) : null}
 
-              <SectionCard eyebrow="Proveeduría" title="Necesidades actuales">
-                <div className="!rounded-[26px] !border !border-[#b7d8ff] !bg-[#edf5ff] !p-5">
-                  <DetailList items={company.detail.supplierNeeds} />
-                </div>
-              </SectionCard>
+              {hasItems(company.detail.supplierNeeds) ? (
+                <SectionCard eyebrow="Proveeduría" title="Necesidades actuales">
+                  <div className="!rounded-[26px] !border !border-[#b7d8ff] !bg-[#edf5ff] !p-5">
+                    <DetailList items={company.detail.supplierNeeds} />
+                  </div>
+                </SectionCard>
+              ) : null}
             </div>
 
             <aside className="!space-y-6 lg:!sticky lg:!top-[112px] lg:!self-start">
@@ -322,67 +336,73 @@ export default function EmpresaDetalle() {
                 </dl>
               </section>
 
-              <section className="!rounded-[32px] !border !border-[#e5edf7] !bg-white !p-7 !shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
-                <p className="!text-[12px] !font-bold !uppercase !tracking-[0.14em] !text-[#1181e5]">
-                  Certificaciones
-                </p>
+              {hasItems(company.detail.certifications) ? (
+                <section className="!rounded-[32px] !border !border-[#e5edf7] !bg-white !p-7 !shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
+                  <p className="!text-[12px] !font-bold !uppercase !tracking-[0.14em] !text-[#1181e5]">
+                    Certificaciones
+                  </p>
 
-                <div className="!mt-5 !flex !flex-wrap !gap-2.5">
-                  {company.detail.certifications.map((certification) => (
-                    <span
-                      key={certification}
-                      className="!rounded-full !bg-[#e5effa] !px-3.5 !py-2 !text-[13px] !font-bold !text-[#213854]"
-                    >
-                      {certification}
-                    </span>
-                  ))}
-                </div>
-              </section>
+                  <div className="!mt-5 !flex !flex-wrap !gap-2.5">
+                    {company.detail.certifications.map((certification) => (
+                      <span
+                        key={certification}
+                        className="!rounded-full !bg-[#e5effa] !px-3.5 !py-2 !text-[13px] !font-bold !text-[#213854]"
+                      >
+                        {certification}
+                      </span>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
 
-              <section className="!rounded-[32px] !border !border-[#e5edf7] !bg-white !p-7 !shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
-                <p className="!text-[12px] !font-bold !uppercase !tracking-[0.14em] !text-[#1181e5]">
-                  Industrias
-                </p>
+              {hasItems(company.detail.industries) ? (
+                <section className="!rounded-[32px] !border !border-[#e5edf7] !bg-white !p-7 !shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
+                  <p className="!text-[12px] !font-bold !uppercase !tracking-[0.14em] !text-[#1181e5]">
+                    Industrias
+                  </p>
 
-                <div className="!mt-5 !flex !flex-wrap !gap-2.5">
-                  {company.detail.industries.map((industry) => (
-                    <span
-                      key={industry}
-                      className="!rounded-full !bg-[#f1f5f9] !px-3.5 !py-2 !text-[13px] !font-bold !text-[#475569]"
-                    >
-                      {industry}
-                    </span>
-                  ))}
-                </div>
-              </section>
+                  <div className="!mt-5 !flex !flex-wrap !gap-2.5">
+                    {company.detail.industries.map((industry) => (
+                      <span
+                        key={industry}
+                        className="!rounded-full !bg-[#f1f5f9] !px-3.5 !py-2 !text-[13px] !font-bold !text-[#475569]"
+                      >
+                        {industry}
+                      </span>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
 
-              <section className="!rounded-[32px] !border !border-[#b7d8ff] !bg-[#edf5ff] !p-7 !shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
-                <p className="!text-[12px] !font-bold !uppercase !tracking-[0.14em] !text-[#1181e5]">
-                  Contacto
-                </p>
+              {hasContacts(company.detail.contacts) ? (
+                <section className="!rounded-[32px] !border !border-[#b7d8ff] !bg-[#edf5ff] !p-7 !shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
+                  <p className="!text-[12px] !font-bold !uppercase !tracking-[0.14em] !text-[#1181e5]">
+                    Contacto
+                  </p>
 
-                <div className="!mt-5 !space-y-5">
-                  {company.detail.contacts.map((contact) => (
-                    <div
-                      key={`${contact.name}-${contact.role}`}
-                      className="!rounded-[22px] !bg-white !p-5 !shadow-[0_12px_30px_rgba(15,23,42,0.05)]"
-                    >
-                      <p className="!text-[16px] !font-bold !leading-[1.2] !text-[#12284b]">
-                        {contact.name}
-                      </p>
-                      <p className="!mt-1 !text-[13px] !font-semibold !text-[#64748b]">
-                        {contact.role}
-                      </p>
-                      <p className="!mt-4 !text-[14px] !font-semibold !text-[#334155]">
-                        {contact.email}
-                      </p>
-                      <p className="!mt-1 !text-[14px] !font-semibold !text-[#334155]">
-                        {contact.phone}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </section>
+                  <div className="!mt-5 !space-y-5">
+                    {company.detail.contacts.map((contact) => (
+                      <div
+                        key={`${contact.name}-${contact.role}`}
+                        className="!rounded-[22px] !bg-white !p-5 !shadow-[0_12px_30px_rgba(15,23,42,0.05)]"
+                      >
+                        <p className="!text-[16px] !font-bold !leading-[1.2] !text-[#12284b]">
+                          {contact.name}
+                        </p>
+                        <p className="!mt-1 !text-[13px] !font-semibold !text-[#64748b]">
+                          {contact.role}
+                        </p>
+                        <p className="!mt-4 !text-[14px] !font-semibold !text-[#334155]">
+                          {contact.email}
+                        </p>
+                        <p className="!mt-1 !text-[14px] !font-semibold !text-[#334155]">
+                          {contact.phone}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
             </aside>
           </div>
         </section>
