@@ -6,9 +6,7 @@ export type DirectoryCategory = {
 export type DirectoryCompanyTier =
   | 'Tier 1'
   | 'Tier 2'
-  | 'Tier 3'
   | 'OEM'
-  | 'Gobierno'
   | 'Otro';
 
 export type DirectoryContactPerson = {

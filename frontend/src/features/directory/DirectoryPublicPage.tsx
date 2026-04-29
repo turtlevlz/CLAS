@@ -1,18 +1,20 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import CompanyCard from './components/CompanyCard';
 import DirectoryToolbar from './components/DirectoryToolbar';
 import EmptyState from './components/EmptyState';
 import ResultsSummary from './components/ResultsSummary';
 import { mockCategories } from './data/mockCategories';
-import { mockCompanies } from './data/mockCompanies';
 import type {
+  DirectoryCompany,
   DirectoryFilters,
   DirectorySortDirection,
 } from './types/directory';
 import { filterCompanies } from './utils/filterCompanies';
 import { sortCompaniesByName } from './utils/sortCompaniesByName';
 import DirectoryPagination from './components/DirectoryPagination';
+import { getPublicCompanies } from './api/directoryApi';
+import { mapPublicCompanyApi } from './utils/mapPublicCompanyApi';
 
 const initialFilters: DirectoryFilters = {
   search: '',
@@ -26,12 +28,55 @@ export default function DirectoryPublicPage() {
   const [sortDirection, setSortDirection] =
     useState<DirectorySortDirection>('asc');
   const [currentPage, setCurrentPage] = useState(1);
+  const [companies, setCompanies] = useState<DirectoryCompany[]>([]);
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
+  const [companiesError, setCompaniesError] = useState('');
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadCompanies() {
+      try {
+        setIsLoadingCompanies(true);
+        setCompaniesError('');
+
+        const publicCompanies = await getPublicCompanies();
+        const mappedCompanies = publicCompanies.map(mapPublicCompanyApi);
+
+        if (!isMounted) {
+          return;
+        }
+
+        setCompanies(mappedCompanies);
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
+        setCompanies([]);
+        setCompaniesError(
+          'No se pudo conectar con el backend. Intenta de nuevo mas tarde.',
+        );
+      } finally {
+        if (isMounted) {
+          setIsLoadingCompanies(false);
+        }
+      }
+    }
+
+    loadCompanies();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
 
   const filteredCompanies = useMemo(() => {
-    const companiesMatchingFilters = filterCompanies(mockCompanies, filters);
+    const companiesMatchingFilters = filterCompanies(companies, filters);
 
     return sortCompaniesByName(companiesMatchingFilters, sortDirection);
-  }, [filters, sortDirection]);
+  }, [companies, filters, sortDirection]);
 
   const totalPages = Math.ceil(filteredCompanies.length / companiesPerPage);
 
@@ -43,7 +88,7 @@ export default function DirectoryPublicPage() {
   }, [currentPage, filteredCompanies]);
 
 
-  const totalCompanies = mockCompanies.length;
+  const totalCompanies = companies.length;
   const visibleCompanies = filteredCompanies.length;
   const hasCompanies = visibleCompanies > 0;
 
@@ -111,6 +156,18 @@ export default function DirectoryPublicPage() {
           />
         </section>
 
+        {isLoadingCompanies ? (
+          <p className="mt-4! text-[15px] font-semibold text-[#64748b]">
+            Cargando empresas...
+          </p>
+        ) : null}
+
+        {companiesError ? (
+          <p className="mt-4! rounded-[16px] border border-[#fde68a] bg-[#fffbeb] px-4! py-3! text-[14px] font-semibold text-[#92400e]">
+            {companiesError}
+          </p>
+        ) : null}
+
         <section className="mt-6.5!">
           <ResultsSummary
             visibleCount={visibleCompanies}
@@ -118,14 +175,16 @@ export default function DirectoryPublicPage() {
           />
         </section>
 
-        {!hasCompanies ? (
+        {!hasCompanies && !companiesError ? (
           <section className="mt-7!">
             <EmptyState
               title="No encontramos miembros con esos filtros"
               description="Ajusta la búsqueda o selecciona otra categoría para ver más resultados."
             />
           </section>
-        ) : (
+        ) : null}
+
+        {hasCompanies ? (
           <>
             <section className="mt-7! grid! grid-cols-1! gap-6! md:grid-cols-2! xl:grid-cols-3!">
               {paginatedCompanies.map((company) => (
@@ -139,7 +198,7 @@ export default function DirectoryPublicPage() {
               onPageChange={handlePageChange}
             />
           </>
-        )}
+        ) : null}
       </div>
     </main>
   );

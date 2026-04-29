@@ -225,7 +225,7 @@ export const mockCompanies: DirectoryCompany[] = [
   {
     id: 5,
     name: 'Schnellecke Logistics México',
-    tierLabel: 'Tier 3',
+    tierLabel: 'Tier 2',
     shortDescription:
       'Proveedor internacional de logística contractual, suministro a producción, almacén, distribución y servicios de valor agregado.',
     city: 'Hermosillo',
