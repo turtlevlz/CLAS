@@ -13,7 +13,8 @@ import type {
 import { filterCompanies } from './utils/filterCompanies';
 import { sortCompaniesByName } from './utils/sortCompaniesByName';
 import DirectoryPagination from './components/DirectoryPagination';
-import { getPublicCompanies } from './api/directoryApi';
+import { getPublicCompanies, getRubros } from './api/directoryApi';
+import type { RubroApi } from './api/directoryApi';
 import { mapPublicCompanyApi } from './utils/mapPublicCompanyApi';
 import { createCategoryId } from './utils/createCategoryId';
 
@@ -32,30 +33,16 @@ export default function DirectoryPublicPage() {
   const [companies, setCompanies] = useState<DirectoryCompany[]>([]);
   const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
   const [companiesError, setCompaniesError] = useState('');
+  const [rubros, setRubros] = useState<RubroApi[]>([]);
 
   const directoryCategories = useMemo<DirectoryCategory[]>(() => {
-    const categoryMap = new Map<string, string>();
-
-    companies.forEach((company) => {
-      company.specialties.forEach((specialty) => {
-        const categoryId = createCategoryId(specialty);
-
-        if (!categoryId) {
-          return;
-        }
-
-        categoryMap.set(categoryId, specialty);
-      });
-    });
-
-    const backendCategories = Array.from(categoryMap.entries())
-      .map(([id, label]) => ({
-        id,
-        label,
+    const backendCategories = rubros
+      .map((rubro) => ({
+        id: createCategoryId(rubro.nombre_rubro),
+        label: rubro.nombre_rubro,
       }))
-      .sort((firstCategory, secondCategory) =>
-        firstCategory.label.localeCompare(secondCategory.label, 'es'),
-      );
+      .filter((cat) => cat.id.length > 0)
+      .sort((a, b) => a.label.localeCompare(b.label, 'es'));
 
     return [
       {
@@ -64,7 +51,7 @@ export default function DirectoryPublicPage() {
       },
       ...backendCategories,
     ];
-  }, [companies]);
+  }, [rubros]);
 
   useEffect(() => {
     let isMounted = true;
@@ -105,6 +92,11 @@ export default function DirectoryPublicPage() {
     };
   }, []);
 
+  useEffect(() => {
+    getRubros()
+      .then(setRubros)
+      .catch(() => {});
+  }, []);
 
   const filteredCompanies = useMemo(() => {
     const companiesMatchingFilters = filterCompanies(companies, filters);

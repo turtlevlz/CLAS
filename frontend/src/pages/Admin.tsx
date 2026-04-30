@@ -5,20 +5,18 @@ import {
   TrashIcon,
   PencilSquareIcon,
 } from '@heroicons/react/24/outline';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext';
 import client from '../api/client';
+import { useToast } from '../components/Toast';
 
 function PanelUsuarios() {
   const { usuarioActual } = useAuth();
+  const { showToast } = useToast();
   const esAdminClas = usuarioActual?.rol_id === 1;
   const canManageUsers = esAdminClas;
-
-  if (![1, 2].includes(usuarioActual?.rol_id)) {
-    return null;
-  }
 
   const [usuarios, setUsuarios] = useState<any[]>([]);
   const [empresasLista, setEmpresasLista] = useState<any[]>([]);
@@ -28,6 +26,7 @@ function PanelUsuarios() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [usuarioAEliminar, setUsuarioAEliminar] = useState<any>(null);
 
   const [formData, setFormData] = useState({
     nombre_usuario: '',
@@ -67,17 +66,16 @@ function PanelUsuarios() {
     fetchEmpresas();
   }, [esAdminClas]);
 
-  const handleBorrar = async (id: string) => {
-    if (!canManageUsers) return;
-
-    if (!window.confirm("¿Borrar usuario?")) return;
+  const handleBorrar = async () => {
+    if (!canManageUsers || !usuarioAEliminar) return;
 
     try {
-      await client.delete(`/usuarios/${id}`);
-      setUsuarios(prev => prev.filter(u => u.id_usuario !== id));
-      alert("Eliminado correctamente");
+      await client.delete(`/usuarios/${usuarioAEliminar.id_usuario}`);
+      setUsuarios(prev => prev.filter(u => u.id_usuario !== usuarioAEliminar.id_usuario));
+      setUsuarioAEliminar(null);
+      showToast('Usuario eliminado correctamente', 'success');
     } catch (err: any) {
-      alert(`Error: ${err.response?.data?.message || 'Error al eliminar'}`);
+      showToast(err.response?.data?.message || 'Error al eliminar usuario');
     }
   };
 
@@ -111,9 +109,10 @@ function PanelUsuarios() {
       }
       await client.patch(`/usuarios/${selectedUser.id_usuario}`, payload);
       setShowEditModal(false);
+      showToast('Usuario actualizado correctamente', 'success');
       fetchUsuarios();
     } catch (err: any) {
-      alert(`Error: ${err.response?.data?.message || 'Error al actualizar'}`);
+      showToast(err.response?.data?.message || 'Error al actualizar usuario');
     }
   };
 
@@ -127,9 +126,10 @@ function PanelUsuarios() {
       };
       await client.post('/usuarios', payload);
       setShowCreateModal(false);
+      showToast('Usuario creado correctamente', 'success');
       fetchUsuarios();
     } catch (err: any) {
-      alert(`Error: ${err.response?.data?.message || 'Error al crear usuario'}`);
+      showToast(err.response?.data?.message || 'Error al crear usuario');
     }
   };
 
@@ -137,6 +137,8 @@ function PanelUsuarios() {
     u.nombre_usuario.toLowerCase().includes(busqueda.toLowerCase()) ||
     u.correo_electronico.toLowerCase().includes(busqueda.toLowerCase())
   );
+
+  if (![1, 2].includes(usuarioActual?.rol_id)) return null;
 
   return (
     <div className="relative">
@@ -175,15 +177,15 @@ function PanelUsuarios() {
           />
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-        <table className="w-full text-sm text-left">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto shadow-sm">
+        <table className="w-full text-sm text-left table-fixed">
           <thead className="bg-gray-50 text-gray-600 border-b">
             <tr>
-              <th className="px-6 py-4 font-medium">Correo Electrónico</th>
-              <th className="px-6 py-4 font-medium">Nombre</th>
-              <th className="px-6 py-4 font-medium">Rol</th>
+              <th className="px-6 py-4 font-medium w-2/5">Correo Electrónico</th>
+              <th className="px-6 py-4 font-medium w-1/4">Nombre</th>
+              <th className="px-6 py-4 font-medium w-1/4">Rol</th>
               {canManageUsers && (
-                <th className="px-6 py-4 font-medium">Acciones</th>
+                <th className="px-6 py-4 font-medium w-20">Acciones</th>
               )}
             </tr>
           </thead>
@@ -194,8 +196,8 @@ function PanelUsuarios() {
               <tr><td colSpan={canManageUsers ? 4 : 3} className="p-10 text-center text-gray-400">No hay usuarios registrados.</td></tr>
             ) : filtrados.map(u => (
               <tr key={u.id_usuario} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 text-gray-700">{u.correo_electronico}</td>
-                <td className="px-6 py-4 text-gray-700">{u.nombre_usuario}</td>
+                <td className="px-6 py-4 text-gray-700 truncate max-w-0">{u.correo_electronico}</td>
+                <td className="px-6 py-4 text-gray-700 truncate max-w-0">{u.nombre_usuario}</td>
                 <td className="px-6 py-4 text-gray-700">
                   <span className={`font-semibold px-2 py-1 rounded-md text-xs ${
                       u.rol_id === 1 ? 'bg-purple-100 text-purple-700' :
@@ -206,15 +208,17 @@ function PanelUsuarios() {
                   </span>
                 </td>
                 {canManageUsers && (
-                  <td className="px-6 py-4 flex gap-3">
-                    {u.id_usuario !== usuarioActual?.id_usuario && (
-                      <button onClick={() => handleBorrar(u.id_usuario)} className="text-red-500 hover:text-red-700">
-                        <TrashIcon className="w-5 h-5"/>
+                  <td className="px-6 py-4">
+                    <div className="flex gap-3">
+                      <button onClick={() => abrirEdicion(u)} className="text-orange-500 hover:text-orange-700">
+                        <PencilSquareIcon className="w-5 h-5"/>
                       </button>
-                    )}
-                    <button onClick={() => abrirEdicion(u)} className="text-orange-500 hover:text-orange-700">
-                      <PencilSquareIcon className="w-5 h-5"/>
-                    </button>
+                      {u.id_usuario !== usuarioActual?.id_usuario && (
+                        <button onClick={() => setUsuarioAEliminar(u)} className="text-red-500 hover:text-red-700">
+                          <TrashIcon className="w-5 h-5"/>
+                        </button>
+                      )}
+                    </div>
                   </td>
                 )}
               </tr>
@@ -222,6 +226,31 @@ function PanelUsuarios() {
           </tbody>
         </table>
       </div>
+
+      {usuarioAEliminar && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[200]">
+          <div className="bg-white p-8 rounded-2xl w-full max-w-sm shadow-2xl">
+            <h2 className="text-lg font-bold text-gray-800 mb-2">¿Eliminar usuario?</h2>
+            <p className="text-gray-500 text-sm mb-6">{usuarioAEliminar.nombre_usuario}</p>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setUsuarioAEliminar(null)}
+                className="px-5 py-2 rounded-xl bg-gray-100 font-semibold text-gray-600 hover:bg-gray-200"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleBorrar}
+                className="px-5 py-2 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600"
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {canManageUsers && (showCreateModal || showEditModal) && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[200]">
@@ -315,6 +344,7 @@ function PanelUsuarios() {
 
 function PanelEmpresas() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [empresas, setEmpresas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [empresaAEliminar, setEmpresaAEliminar] = useState<any>(null);
@@ -338,8 +368,9 @@ function PanelEmpresas() {
       await client.delete(`/empresas/${empresaAEliminar.id_empresa}`);
       setEmpresas(prev => prev.filter(e => e.id_empresa !== empresaAEliminar.id_empresa));
       setEmpresaAEliminar(null);
-    } catch (e) {
-      console.error(e);
+      showToast('Empresa eliminada correctamente', 'success');
+    } catch (e: any) {
+      showToast(e.response?.data?.message || 'Error al eliminar empresa');
     }
   };
 
@@ -355,15 +386,15 @@ function PanelEmpresas() {
         </Link>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-        <table className="w-full text-sm text-left">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto shadow-sm">
+        <table className="w-full text-sm text-left table-fixed">
           <thead className="bg-gray-50 text-gray-600 border-b">
             <tr>
-              <th className="px-6 py-4 font-medium">Nombre</th>
-              <th className="px-6 py-4 font-medium">Ciudad</th>
-              <th className="px-6 py-4 font-medium">Membresía</th>
-              <th className="px-6 py-4 font-medium">Tipo</th>
-              <th className="px-6 py-4 font-medium">Acciones</th>
+              <th className="px-6 py-4 font-medium w-2/5">Nombre</th>
+              <th className="px-6 py-4 font-medium w-1/5">Ciudad</th>
+              <th className="px-6 py-4 font-medium w-1/5">Membresía</th>
+              <th className="px-6 py-4 font-medium w-1/5">Tipo</th>
+              <th className="px-6 py-4 font-medium w-28">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -373,17 +404,19 @@ function PanelEmpresas() {
               <tr><td colSpan={5} className="p-10 text-center text-gray-400">No hay empresas registradas.</td></tr>
             ) : empresas.map(e => (
               <tr key={e.id_empresa} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 text-gray-700 font-medium">{e.nombre_comercial}</td>
-                <td className="px-6 py-4 text-gray-700">{e.ciudad}</td>
-                <td className="px-6 py-4 text-gray-700">{(e.Membresia || e.membresia)?.nombre_membresia ?? '—'}</td>
-                <td className="px-6 py-4 text-gray-700">{(e.TipoOrganizacion || e.tipoOrganizacion || e.tipo_organizacion)?.nombre_tipo ?? '—'}</td>
-                <td className="px-6 py-4 flex gap-3">
-                  <button onClick={() => navigate(`/admin/empresas/${e.id_empresa}/editar`)} className="text-orange-500 hover:text-orange-700">
-                    <PencilSquareIcon className="w-5 h-5" />
-                  </button>
-                  <button onClick={() => setEmpresaAEliminar(e)} className="text-red-500 hover:text-red-700">
-                    <TrashIcon className="w-5 h-5" />
-                  </button>
+                <td className="px-6 py-4 text-gray-700 font-medium truncate max-w-0">{e.nombre_comercial}</td>
+                <td className="px-6 py-4 text-gray-700 truncate max-w-0">{e.ciudad}</td>
+                <td className="px-6 py-4 text-gray-700 truncate max-w-0">{(e.Membresia || e.membresia)?.nombre_membresia ?? '—'}</td>
+                <td className="px-6 py-4 text-gray-700 truncate max-w-0">{(e.TipoOrganizacion || e.tipoOrganizacion || e.tipo_organizacion)?.nombre_tipo ?? '—'}</td>
+                <td className="px-6 py-4">
+                  <div className="flex gap-3">
+                    <button onClick={() => navigate(`/admin/empresas/${e.id_empresa}/editar`, { state: { fromTab: 'empresas' } })} className="text-orange-500 hover:text-orange-700">
+                      <PencilSquareIcon className="w-5 h-5" />
+                    </button>
+                    <button onClick={() => setEmpresaAEliminar(e)} className="text-red-500 hover:text-red-700">
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -447,6 +480,7 @@ function PanelCatalogo({ endpoint, labelKey, titulo }: { endpoint: string; label
   const [items, setItems] = useState<any[]>([]);
   const [nuevo, setNuevo] = useState('');
   const [loading, setLoading] = useState(true);
+  const [itemAEliminar, setItemAEliminar] = useState<any>(null);
 
   const fetchItems = async () => {
     try {
@@ -472,13 +506,14 @@ function PanelCatalogo({ endpoint, labelKey, titulo }: { endpoint: string; label
     }
   };
 
-  const handleEliminar = async (item: any) => {
-    if (!window.confirm(`¿Eliminar "${item[labelKey]}"?`)) return;
-    const idKey = Object.keys(item).find(k => k.startsWith('id_'));
+  const handleEliminar = async () => {
+    if (!itemAEliminar) return;
+    const idKey = Object.keys(itemAEliminar).find(k => k.startsWith('id_'));
     if (!idKey) return;
     try {
-      await client.delete(`${endpoint}/${item[idKey]}`);
-      setItems(prev => prev.filter(i => i[idKey] !== item[idKey]));
+      await client.delete(`${endpoint}/${itemAEliminar[idKey]}`);
+      setItems(prev => prev.filter(i => i[idKey] !== itemAEliminar[idKey]));
+      setItemAEliminar(null);
     } catch (e) {
       console.error(e);
     }
@@ -517,7 +552,7 @@ function PanelCatalogo({ endpoint, labelKey, titulo }: { endpoint: string; label
               <tr key={i} className="hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-3 text-gray-700">{item[labelKey]}</td>
                 <td className="px-6 py-3 text-right">
-                  <button onClick={() => handleEliminar(item)} className="text-red-500 hover:text-red-700">
+                  <button onClick={() => setItemAEliminar(item)} className="text-red-500 hover:text-red-700">
                     <TrashIcon className="w-4 h-4" />
                   </button>
                 </td>
@@ -526,6 +561,31 @@ function PanelCatalogo({ endpoint, labelKey, titulo }: { endpoint: string; label
           </tbody>
         </table>
       </div>
+
+      {itemAEliminar && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[200]">
+          <div className="bg-white p-8 rounded-2xl w-full max-w-sm shadow-2xl">
+            <h2 className="text-lg font-bold text-gray-800 mb-2">¿Eliminar registro?</h2>
+            <p className="text-gray-500 text-sm mb-6">{itemAEliminar[labelKey]}</p>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setItemAEliminar(null)}
+                className="px-5 py-2 rounded-xl bg-gray-100 font-semibold text-gray-600 hover:bg-gray-200"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleEliminar}
+                className="px-5 py-2 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600"
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -562,6 +622,7 @@ function PanelCatalogos() {
 
 export default function Admin() {
   const { usuarioActual } = useAuth();
+  const location = useLocation();
   const esAdminClas = usuarioActual?.rol_id === 1;
 
   const tabs = esAdminClas
@@ -575,7 +636,7 @@ export default function Admin() {
         { id: 'mi-empresa', label: 'Mi Empresa' },
       ];
 
-  const [activeTab, setActiveTab] = useState('usuarios');
+  const [activeTab, setActiveTab] = useState((location.state as any)?.tab || 'usuarios');
 
   useEffect(() => {
     const canUseActiveTab = tabs.some((tab) => tab.id === activeTab);

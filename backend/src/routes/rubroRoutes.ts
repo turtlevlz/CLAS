@@ -7,7 +7,7 @@ const router = Router();
 
 router.post("/", verifyToken, checkRole(1), createRubro);
 
-router.get("/",verifyToken, getRubros);
+router.get("/", getRubros);
 
 router.get("/:id", verifyToken, getRubroById);
 

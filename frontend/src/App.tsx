@@ -1,5 +1,7 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuth } from './context/AuthContext';
+import { ToastProvider } from './components/Toast';
 import Home from './pages/Home';
 import Directorio from './pages/Directorio';
 import Noticias from './pages/Noticias';
@@ -14,47 +16,40 @@ import ErrorPage from './pages/ErrorPage';
 import Membresias from './pages/Membresias';
 import MiCuenta from './pages/MiCuenta';
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
+
 const RutaAdmin = ({ children }: { children: any }) => {
-  const { usuarioActual } = useAuth();
-
-  if (!usuarioActual) {
-    return <Navigate to="/login" />;
-  }
-
-  if (![1, 2].includes(usuarioActual.rol_id)) {
-    return <Navigate to="/directorio" />;
-  }
-
+  const { usuarioActual, cargando } = useAuth();
+  if (cargando) return null;
+  if (!usuarioActual) return <Navigate to="/login" />;
+  if (![1, 2].includes(usuarioActual.rol_id)) return <Navigate to="/directorio" />;
   return children;
 };
 
 const RutaAdminClas = ({ children }: { children: any }) => {
-  const { usuarioActual } = useAuth();
-
-  if (!usuarioActual) {
-    return <Navigate to="/login" />;
-  }
-
-  if (usuarioActual.rol_id !== 1) {
-    return <Navigate to="/directorio" />;
-  }
-
+  const { usuarioActual, cargando } = useAuth();
+  if (cargando) return null;
+  if (!usuarioActual) return <Navigate to="/login" />;
+  if (usuarioActual.rol_id !== 1) return <Navigate to="/directorio" />;
   return children;
 };
 
 const RutaUsuario = ({ children }: { children: any }) => {
-  const { usuarioActual } = useAuth();
-
-  if (!usuarioActual) {
-    return <Navigate to="/login" />;
-  }
-
+  const { usuarioActual, cargando } = useAuth();
+  if (cargando) return null;
+  if (!usuarioActual) return <Navigate to="/login" />;
   return children;
 };
 
 export default function App() {
   return (
+    <ToastProvider>
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         {/* Rutas Públicas */}
         <Route path="/" element={<Home />} />
@@ -107,5 +102,6 @@ export default function App() {
         <Route path="*" element={<ErrorPage />} />
       </Routes>
     </BrowserRouter>
+    </ToastProvider>
   );
 }

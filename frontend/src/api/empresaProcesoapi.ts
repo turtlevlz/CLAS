@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import api from ".";
-=======
 import { api } from "./http";
->>>>>>> origin
 import { AxiosError } from "axios";
 import type { Empresa, Proceso, EmpresaProceso } from "types";
 

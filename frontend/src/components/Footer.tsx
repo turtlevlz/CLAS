@@ -1,4 +1,5 @@
 import { FaFacebook, FaInstagram, FaLinkedin } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import clasLogo from '../assets/img/clas-logo.png';
 
 export default function Footer() {
@@ -86,12 +87,12 @@ export default function Footer() {
             <p className="text-sm text-white/60 leading-relaxed mb-4">
               ¿Tu empresa forma parte del sector automotriz de Sonora? Únete a la red.
             </p>
-            <a
-              href="/membresias"
+            <Link
+              to="/membresias"
               className="inline-block bg-primary hover:opacity-90 transition-opacity text-white text-sm font-semibold px-4 py-2.5 rounded-lg no-underline"
             >
               Solicitar membresía
-            </a>
+            </Link>
           </div>
 
         </div>

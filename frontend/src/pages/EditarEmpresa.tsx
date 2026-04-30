@@ -1,12 +1,20 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import client from '../api/client';
+import { useToast } from '../components/Toast';
 import { useAuth } from '../context/AuthContext';
 import AdminSelect from '../features/directory/components/AdminSelect';
 
 type CatalogItem = Record<string, any>;
+
+// Estándares mexicanos SAT/LADA
+const RFC_REGEX    = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/i;
+const EMAIL_REGEX  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_REGEX  = /^[\d\s\-()+]{10,15}$/;
+const URL_REGEX    = /^(https?:\/\/)?(www\.)?[\w-]+(\.[\w-]+)+([/?#].*)?$/i;
+const CURRENT_YEAR = new Date().getFullYear();
 
 type CompanyForm = {
   nombre_comercial: string;
@@ -128,14 +136,16 @@ const normalizeList = (data: any, pascalKey: string, camelKey: string) =>
 export default function EditarEmpresa() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { showToast } = useToast();
   const { usuarioActual } = useAuth();
-  const empresaId = Number(id);
   const esAdminClas = usuarioActual?.rol_id === 1;
+  const empresaId = Number(id);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState('');
   const [formData, setFormData] = useState<CompanyForm>(emptyCompanyForm);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [logo, setLogo] = useState<File | null>(null);
   const [catalogs, setCatalogs] = useState<Record<string, CatalogItem[]>>({
     membresias: [],
@@ -162,14 +172,11 @@ export default function EditarEmpresa() {
   const [editingContactId, setEditingContactId] = useState<number | null>(null);
   const [editingProductForm, setEditingProductForm] = useState<ProductForm>(emptyProductForm);
   const [editingContactForm, setEditingContactForm] = useState<ContactForm>(emptyContactForm);
+  const [productoAEliminar, setProductoAEliminar] = useState<number | null>(null);
+  const [contactoAEliminar, setContactoAEliminar] = useState<number | null>(null);
 
   const loadData = async () => {
     if (!empresaId) return;
-
-    if (!esAdminClas && (usuarioActual?.rol_id !== 2 || Number(usuarioActual?.empresa_id) !== empresaId)) {
-      navigate('/admin');
-      return;
-    }
 
     const [
       empresaRes,
@@ -181,12 +188,6 @@ export default function EditarEmpresa() {
       industriasRes,
       necesidadesRes,
       funcionesRes,
-      rubrosAsignadosRes,
-      certificacionesAsignadasRes,
-      procesosAsignadosRes,
-      industriasAsignadasRes,
-      necesidadesAsignadasRes,
-      productosRes,
     ] = await Promise.all([
       client.get(`/empresas/${empresaId}`),
       client.get('/membresias'),
@@ -197,15 +198,7 @@ export default function EditarEmpresa() {
       client.get('/industrias'),
       client.get('/necesidades'),
       client.get('/funciones'),
-      client.get(`/empresa-rubros/empresa/${empresaId}`),
-      client.get(`/empresa-certificaciones/empresa/${empresaId}`),
-      client.get(`/empresa-procesos/empresa/${empresaId}`),
-      client.get(`/empresa-industrias/empresa/${empresaId}`),
-      client.get(`/empresa-necesidades/empresa/${empresaId}`),
-      client.get(`/productos/empresa/${empresaId}`),
     ]);
-
-
 
     const data = empresaRes.data;
 
@@ -240,15 +233,14 @@ export default function EditarEmpresa() {
     });
 
     setAssigned({
-      rubros: normalizeList(rubrosAsignadosRes.data.data, 'Rubros', 'rubros'),
-      certificaciones: normalizeList(certificacionesAsignadasRes.data.data, 'Certificaciones', 'certificaciones'),
-      procesos: normalizeList(procesosAsignadosRes.data.data, 'Procesos', 'procesos'),
-      industrias: normalizeList(industriasAsignadasRes.data.data, 'Industrias', 'industrias'),
-      necesidades: normalizeList(necesidadesAsignadasRes.data.data, 'Necesidades', 'necesidades'),
+      rubros: normalizeList(data, 'Rubros', 'rubros'),
+      certificaciones: normalizeList(data, 'Certificaciones', 'certificaciones'),
+      procesos: normalizeList(data, 'Procesos', 'procesos'),
+      industrias: normalizeList(data, 'Industrias', 'industrias'),
+      necesidades: normalizeList(data, 'Necesidades', 'necesidades'),
     });
 
-
-    setProducts(productosRes.data || []);
+    setProducts(normalizeList(data, 'ProductoFabricados', 'productosFabricados'));
     setContacts(normalizeList(data, 'Contactos', 'contactos'));
   };
 
@@ -256,40 +248,80 @@ export default function EditarEmpresa() {
     loadData()
       .catch((error) => {
         console.error(error);
-        alert(error.response?.data?.message || 'No se pudo cargar la empresa');
+        showToast(error.response?.data?.message || 'No se pudo cargar la empresa');
       })
       .finally(() => setLoading(false));
-  }, [empresaId, esAdminClas, usuarioActual?.empresa_id]);
+  }, [empresaId]);
 
   const updateField = (key: keyof CompanyForm, value: string | boolean) => {
     setFormData((current) => ({ ...current, [key]: value }));
+    if (fieldErrors[key]) setFieldErrors((prev) => ({ ...prev, [key]: '' }));
+  };
+
+  const validateField = (key: string, value: string): string => {
+    switch (key) {
+      case 'rfc':
+        if (value && !RFC_REGEX.test(value.trim()))
+          return 'RFC inválido. Ej: ABC123456DE1 (persona moral) o ABCD123456DE1 (persona física)';
+        break;
+      case 'correo_electronico':
+        if (value && !EMAIL_REGEX.test(value.trim())) return 'Correo electrónico inválido';
+        break;
+      case 'telefono':
+        if (value && !PHONE_REGEX.test(value.trim()))
+          return 'Teléfono inválido (incluye lada, ej: 6621234567)';
+        break;
+      case 'sitio_web':
+        if (value && !URL_REGEX.test(value.trim()))
+          return 'URL inválida. Ej: https://empresa.com';
+        break;
+      case 'anio_fundacion':
+        if (value) {
+          const year = Number(value);
+          if (isNaN(year) || year < 1800 || year > CURRENT_YEAR)
+            return `Año inválido (entre 1800 y ${CURRENT_YEAR})`;
+        }
+        break;
+    }
+    return '';
+  };
+
+  const handleBlur = (key: string, value: string) => {
+    const error = validateField(key, value);
+    if (error) setFieldErrors((prev) => ({ ...prev, [key]: error }));
+  };
+
+  const validateAll = (): boolean => {
+    const errors: Record<string, string> = {};
+    const fieldsToCheck = ['rfc', 'correo_electronico', 'telefono', 'sitio_web', 'anio_fundacion'];
+
+    fieldsToCheck.forEach((key) => {
+      const value = String(formData[key as keyof CompanyForm]);
+      const error = validateField(key, value);
+      if (error) errors[key] = error;
+    });
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateAll()) return;
     setSaving(true);
-    setSaveMessage('');
 
     const data = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
-      if (!esAdminClas && (key === 'membresia_id' || key === 'tipo_organizacion_id' || key === 'activo')) {
-        return;
-      }
-      if (key === 'activo') {
-        return;
-      }
       data.append(key, String(value));
     });
     if (logo) data.append('logo', logo);
 
     try {
       await client.patch(`/empresas/${empresaId}`, data);
-
       await loadData();
-
-      setSaveMessage('Datos generales guardados correctamente.');
+      showToast('Empresa actualizada correctamente', 'success');
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Error al actualizar empresa');
+      showToast(error.response?.data?.message || 'Error al actualizar empresa');
     } finally {
       setSaving(false);
     }
@@ -305,7 +337,7 @@ export default function EditarEmpresa() {
       });
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'No se pudo asignar el registro');
+      showToast(error.response?.data?.message || 'No se pudo asignar el registro');
     }
   };
 
@@ -314,7 +346,7 @@ export default function EditarEmpresa() {
       await client.delete(`${config.addEndpoint}/${empresaId}/${relatedId}`);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'No se pudo quitar el registro');
+      showToast(error.response?.data?.message || 'No se pudo quitar el registro');
     }
   };
 
@@ -329,7 +361,7 @@ export default function EditarEmpresa() {
       setProductForm(emptyProductForm);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'No se pudo agregar el producto');
+      showToast(error.response?.data?.message || 'No se pudo agregar el producto');
     }
   };
 
@@ -349,23 +381,33 @@ export default function EditarEmpresa() {
       setEditingProductForm(emptyProductForm);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'No se pudo actualizar el producto');
+      showToast(error.response?.data?.message || 'No se pudo actualizar el producto');
     }
   };
 
-  const handleDeleteProduct = async (productId: number) => {
-    if (!window.confirm('¿Eliminar producto o servicio?')) return;
+  const handleDeleteProduct = async () => {
+    if (productoAEliminar === null) return;
 
     try {
-      await client.delete(`/productos/${productId}`);
+      await client.delete(`/productos/${productoAEliminar}`);
+      setProductoAEliminar(null);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'No se pudo eliminar el producto');
+      showToast(error.response?.data?.message || 'No se pudo eliminar el producto');
     }
   };
 
   const handleAddContact = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (contactForm.correo && !EMAIL_REGEX.test(contactForm.correo.trim())) {
+      showToast('El correo del contacto no tiene un formato válido');
+      return;
+    }
+    if (contactForm.telefono_celular && !PHONE_REGEX.test(contactForm.telefono_celular.trim())) {
+      showToast('El teléfono del contacto debe tener entre 10 y 15 dígitos');
+      return;
+    }
 
     try {
       await client.post('/contactos', {
@@ -376,7 +418,7 @@ export default function EditarEmpresa() {
       setContactForm(emptyContactForm);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'No se pudo agregar el contacto');
+      showToast(error.response?.data?.message || 'No se pudo agregar el contacto');
     }
   };
 
@@ -401,30 +443,45 @@ export default function EditarEmpresa() {
       setEditingContactForm(emptyContactForm);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'No se pudo actualizar el contacto');
+      showToast(error.response?.data?.message || 'No se pudo actualizar el contacto');
     }
   };
 
-  const handleDeleteContact = async (contactId: number) => {
-    if (!window.confirm('¿Eliminar contacto?')) return;
+  const handleDeleteContact = async () => {
+    if (contactoAEliminar === null) return;
 
     try {
-      await client.delete(`/contactos/${contactId}`);
+      await client.delete(`/contactos/${contactoAEliminar}`);
+      setContactoAEliminar(null);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'No se pudo eliminar el contacto');
+      showToast(error.response?.data?.message || 'No se pudo eliminar el contacto');
     }
   };
 
-  const field = (label: string, key: keyof CompanyForm, type = 'text') => (
+  const inputCls = (key: string) =>
+    `w-full border rounded-lg p-2 mt-1 text-sm outline-none focus:ring-2 ${
+      fieldErrors[key]
+        ? 'border-red-400 bg-red-50 focus:ring-red-300'
+        : 'border-gray-300 focus:ring-primary'
+    }`;
+
+  const field = (label: string, key: keyof CompanyForm, type = 'text', required = false) => (
     <div>
-      <label className="block text-sm font-medium text-gray-700">{label}</label>
+      <label className="block text-sm font-medium text-gray-700">
+        {label}
+        {required && <span className="text-red-500 ml-0.5">*</span>}
+      </label>
       <input
         type={type}
         value={String(formData[key])}
         onChange={e => updateField(key, e.target.value)}
-        className="w-full border border-gray-300 rounded-lg p-2 mt-1 text-sm outline-none focus:ring-2 focus:ring-primary"
+        onBlur={e => handleBlur(String(key), e.target.value)}
+        className={inputCls(String(key))}
       />
+      {fieldErrors[String(key)] && (
+        <p className="text-xs text-red-500 mt-1">{fieldErrors[String(key)]}</p>
+      )}
     </div>
   );
 
@@ -453,25 +510,22 @@ export default function EditarEmpresa() {
                 <h1 className="text-3xl font-bold text-gray-900">Editar Empresa</h1>
                 <p className="text-sm text-gray-500 mt-1">Datos generales, perfil público, relaciones, productos y contactos.</p>
               </div>
-              <button type="button" onClick={() => navigate('/admin')} className="px-5 py-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-600">
+              <button type="button" onClick={() => navigate('/admin', { state: { tab: (location.state as any)?.fromTab } })} className="px-5 py-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-600">
                 Volver
               </button>
             </div>
 
-            {saveMessage ? (
-              <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-700">
-                {saveMessage}
-              </div>
-            ) : null}
-
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+              <p className="text-xs text-gray-400">
+                Los campos marcados con <span className="text-red-500 font-semibold">*</span> son obligatorios.
+              </p>
               <section>
                 <h2 className="text-lg font-bold text-gray-900 mb-4">Datos principales</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  {field('Nombre Comercial', 'nombre_comercial')}
+                  {field('Nombre Comercial', 'nombre_comercial', 'text', true)}
                   {field('Razón Social', 'razon_social')}
-                  {field('RFC', 'rfc')}
-                  {field('Correo Electrónico', 'correo_electronico', 'email')}
+                  {field('RFC', 'rfc', 'text', true)}
+                  {field('Correo Electrónico', 'correo_electronico', 'email', true)}
                   {field('Teléfono', 'telefono')}
                   {field('Sitio Web', 'sitio_web')}
                   {field('Ciudad', 'ciudad')}
@@ -531,14 +585,6 @@ export default function EditarEmpresa() {
               </section>
 
               <section className="grid grid-cols-1 md:grid-cols-2 gap-5 items-end">
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <input
-                    type="checkbox"
-                    checked={formData.fabrica_para_automotriz}
-                    onChange={e => updateField('fabrica_para_automotriz', e.target.checked)}
-                  />
-                  Fabrica para automotriz
-                </label>
                 <div className="md:col-span-2 rounded-xl border border-dashed border-blue-300 bg-blue-50 p-4">
                   <label className="block text-sm font-bold text-gray-800 mb-2">Logo</label>
                   <label className="inline-flex cursor-pointer items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-90">
@@ -581,17 +627,15 @@ export default function EditarEmpresa() {
                       label: item[config.labelKey],
                     }))}
                   />
-                  <div className="flex min-w-0 flex-wrap gap-2 overflow-hidden">
+                  <div className="mt-3 flex min-w-0 flex-wrap gap-2 overflow-hidden">
                     {(assigned[config.assignedKey] || []).map((item) => (
                       <button
                         key={item[config.idKey]}
                         type="button"
                         onClick={() => handleRemoveRelation(config, item[config.idKey])}
-                        className="max-w-full rounded-full bg-gray-100 px-3 py-1 text-left text-sm font-semibold text-gray-700 hover:bg-red-50 hover:text-red-600"
+                        className="max-w-full break-all rounded-full bg-gray-100 px-3 py-1 text-sm font-semibold text-gray-700 hover:bg-red-50 hover:text-red-600"
                       >
-                        <span className="inline-block max-w-full break-words [overflow-wrap:anywhere]">
-                          {item[config.labelKey]} ×
-                        </span>
+                        {item[config.labelKey]} ×
                       </button>
                     ))}
                     {(assigned[config.assignedKey] || []).length === 0 && (
@@ -606,31 +650,31 @@ export default function EditarEmpresa() {
           <section className="bg-white rounded-xl shadow-sm p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-4">Productos y servicios</h2>
             <form onSubmit={handleAddProduct} className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_150px_auto] gap-3 mb-5">
-              <input required placeholder="Producto o servicio" value={productForm.nombre_producto} onChange={e => setProductForm({ ...productForm, nombre_producto: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
+              <input required placeholder="Producto o servicio *" value={productForm.nombre_producto} onChange={e => setProductForm({ ...productForm, nombre_producto: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
               <input placeholder="Clientes" value={productForm.clientes} onChange={e => setProductForm({ ...productForm, clientes: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
               <input type="number" min="0" max="100" placeholder="% producción" value={productForm.porcentaje_produccion} onChange={e => setProductForm({ ...productForm, porcentaje_produccion: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
               <button className="bg-primary text-white rounded-lg px-4 py-2 text-sm font-semibold">Agregar</button>
             </form>
-            <div className="divide-y divide-gray-100 border border-gray-100 rounded-lg">
+            <div className="divide-y divide-gray-100 border border-gray-100 rounded-lg overflow-hidden">
               {products.map((product) => (
-                <div key={product.id_producto} className="p-3 text-sm min-w-0 overflow-hidden">
+                <div key={product.id_producto} className="p-3 text-sm w-full overflow-hidden">
                   {editingProductId === product.id_producto ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_140px_auto_auto] gap-3">
-                      <input value={editingProductForm.nombre_producto} onChange={e => setEditingProductForm({ ...editingProductForm, nombre_producto: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
-                      <input value={editingProductForm.clientes} onChange={e => setEditingProductForm({ ...editingProductForm, clientes: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
-                      <input type="number" min="0" max="100" value={editingProductForm.porcentaje_produccion} onChange={e => setEditingProductForm({ ...editingProductForm, porcentaje_produccion: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
-                      <button type="button" onClick={() => handleUpdateProduct(product.id_producto)} className="text-primary font-semibold">Guardar</button>
-                      <button type="button" onClick={() => setEditingProductId(null)} className="text-gray-500 font-semibold">Cancelar</button>
+                    <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_140px_auto_auto] gap-3 w-full">
+                      <input value={editingProductForm.nombre_producto} onChange={e => setEditingProductForm({ ...editingProductForm, nombre_producto: e.target.value })} className="min-w-0 w-full border border-gray-300 rounded-lg p-2 text-sm" />
+                      <input value={editingProductForm.clientes} onChange={e => setEditingProductForm({ ...editingProductForm, clientes: e.target.value })} className="min-w-0 w-full border border-gray-300 rounded-lg p-2 text-sm" />
+                      <input type="number" min="0" max="100" value={editingProductForm.porcentaje_produccion} onChange={e => setEditingProductForm({ ...editingProductForm, porcentaje_produccion: e.target.value })} className="min-w-0 w-full border border-gray-300 rounded-lg p-2 text-sm" />
+                      <button type="button" onClick={() => handleUpdateProduct(product.id_producto)} className="text-primary font-semibold whitespace-nowrap">Guardar</button>
+                      <button type="button" onClick={() => setEditingProductId(null)} className="text-gray-500 font-semibold whitespace-nowrap">Cancelar</button>
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                      <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-gray-800 break-words [overflow-wrap:anywhere]">{product.nombre_producto}</p>
-                        <p className="text-gray-500 break-words [overflow-wrap:anywhere]">{product.clientes || 'Sin clientes'} {product.porcentaje_produccion ? `- ${product.porcentaje_produccion}%` : ''}</p>
+                    <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between w-full overflow-hidden">
+                      <div className="min-w-0 flex-1 overflow-hidden">
+                        <p className="font-semibold text-gray-800 truncate">{product.nombre_producto}</p>
+                        <p className="text-gray-500 truncate">{product.clientes || 'Sin clientes'}{product.porcentaje_produccion ? ` — ${product.porcentaje_produccion}%` : ''}</p>
                       </div>
                       <div className="flex shrink-0 gap-3">
                         <button type="button" onClick={() => startEditProduct(product)} className="text-primary font-semibold">Editar</button>
-                        <button type="button" onClick={() => handleDeleteProduct(product.id_producto)} className="text-red-500 font-semibold">Eliminar</button>
+                        <button type="button" onClick={() => setProductoAEliminar(product.id_producto)} className="text-red-500 font-semibold">Eliminar</button>
                       </div>
                     </div>
                   )}
@@ -643,9 +687,9 @@ export default function EditarEmpresa() {
           <section className="bg-white rounded-xl shadow-sm p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-4">Contactos</h2>
             <form onSubmit={handleAddContact} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3 mb-5">
-              <input required placeholder="Nombre" value={contactForm.nombre_completo} onChange={e => setContactForm({ ...contactForm, nombre_completo: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
-              <input required placeholder="Puesto" value={contactForm.puesto} onChange={e => setContactForm({ ...contactForm, puesto: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
-              <input required placeholder="Teléfono" value={contactForm.telefono_celular} onChange={e => setContactForm({ ...contactForm, telefono_celular: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
+              <input required placeholder="Nombre *" value={contactForm.nombre_completo} onChange={e => setContactForm({ ...contactForm, nombre_completo: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
+              <input required placeholder="Puesto *" value={contactForm.puesto} onChange={e => setContactForm({ ...contactForm, puesto: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
+              <input required placeholder="Teléfono *" value={contactForm.telefono_celular} onChange={e => setContactForm({ ...contactForm, telefono_celular: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
               <input type="email" placeholder="Correo" value={contactForm.correo} onChange={e => setContactForm({ ...contactForm, correo: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
               <select required value={contactForm.funcion_id} onChange={e => setContactForm({ ...contactForm, funcion_id: e.target.value })} className="h-11 min-w-0 rounded-[16px] border border-[#dbe4ef] bg-white px-4 text-sm font-medium text-[#334155] shadow-none outline-none transition focus:outline-none focus:ring-4 focus:ring-sky-100">
                 <option value="">Función...</option>
@@ -685,7 +729,7 @@ export default function EditarEmpresa() {
                       </div>
                       <div className="flex shrink-0 gap-3 self-start">
                         <button type="button" onClick={() => startEditContact(contact)} className="text-primary font-semibold">Editar</button>
-                        <button type="button" onClick={() => handleDeleteContact(contact.id_contacto)} className="text-red-500 font-semibold">Eliminar</button>
+                        <button type="button" onClick={() => setContactoAEliminar(contact.id_contacto)} className="text-red-500 font-semibold">Eliminar</button>
                       </div>
                     </div>
                   )}
@@ -696,6 +740,59 @@ export default function EditarEmpresa() {
           </section>
         </div>
       </main>
+
+      {/* Modal: eliminar producto */}
+      {productoAEliminar !== null && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[200]">
+          <div className="bg-white p-8 rounded-2xl w-full max-w-sm shadow-2xl">
+            <h2 className="text-lg font-bold text-gray-800 mb-2">¿Eliminar producto?</h2>
+            <p className="text-gray-500 text-sm mb-6">Esta acción no se puede deshacer.</p>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setProductoAEliminar(null)}
+                className="px-5 py-2 rounded-xl bg-gray-100 font-semibold text-gray-600 hover:bg-gray-200"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteProduct}
+                className="px-5 py-2 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600"
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: eliminar contacto */}
+      {contactoAEliminar !== null && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[200]">
+          <div className="bg-white p-8 rounded-2xl w-full max-w-sm shadow-2xl">
+            <h2 className="text-lg font-bold text-gray-800 mb-2">¿Eliminar contacto?</h2>
+            <p className="text-gray-500 text-sm mb-6">Esta acción no se puede deshacer.</p>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setContactoAEliminar(null)}
+                className="px-5 py-2 rounded-xl bg-gray-100 font-semibold text-gray-600 hover:bg-gray-200"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteContact}
+                className="px-5 py-2 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600"
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </>
   );

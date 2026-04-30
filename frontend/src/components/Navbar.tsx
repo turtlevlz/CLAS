@@ -59,7 +59,7 @@ export default function Navbar() {
           <li>
             <NavLink to="/mi-cuenta" className={linkClass}>
               <UserIcon className="h-5 w-5 shrink-0" aria-hidden="true" />
-              Mi cuenta
+              <span className="max-w-[140px] truncate">{usuarioActual.nombre_usuario || 'Mi cuenta'}</span>
             </NavLink>
           </li>
         )}
@@ -67,15 +67,12 @@ export default function Navbar() {
 
       <div className="justify-self-end flex items-center gap-3">
         {usuarioActual ? (
-          <>
-            <span className="text-sm text-[#64748b] font-medium max-md:hidden">{usuarioActual.nombre_usuario}</span>
-            <button
-              onClick={handleLogout}
-              className="font-body text-sm font-semibold px-4 py-2 rounded-xl border border-red-200 text-red-500 hover:bg-red-600 hover:text-white hover:border-red-600 transition-colors"
-            >
-              Cerrar sesión
-            </button>
-          </>
+          <button
+            onClick={handleLogout}
+            className="font-body text-sm font-semibold px-4 py-2 rounded-xl border border-red-200 text-red-500 hover:bg-red-600 hover:text-white hover:border-red-600 transition-colors"
+          >
+            Cerrar sesión
+          </button>
         ) : (
           <Link
             to="/login"

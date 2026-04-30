@@ -176,9 +176,9 @@ export default function Noticias() {
             <input
               type="email"
               placeholder="tu@email.com"
-              className="flex-1 px-4 py-3 rounded-md text-black"
+              className="flex-1 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 outline-none focus:ring-2 focus:ring-white/40"
             />
-            <button className="bg-white text-black px-5 py-3 rounded-md font-semibold hover:bg-gray-100 transition">
+            <button className="bg-white text-[#0F4C81] px-6 py-3 rounded-xl font-semibold hover:bg-blue-50 transition">
               Suscribirme
             </button>
           </div>
