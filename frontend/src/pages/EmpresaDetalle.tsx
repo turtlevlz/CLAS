@@ -218,20 +218,22 @@ export default function EmpresaDetalle() {
             </p>
           ) : null}
 
-          <header className="!relative !mt-8 !rounded-[42px] !border !border-[#e5edf7] !bg-white/90 !p-8 !shadow-[0_28px_90px_rgba(15,23,42,0.09)] lg:!p-10">
-            <div className="!absolute !right-8 !top-8 !hidden !rounded-full !bg-[#e5effa] !px-4 !py-2 !text-[12px] !font-bold !uppercase !tracking-[0.08em] !text-[#213854] sm:!inline-flex">
-              {company.tierLabel}
+          <header className="!mt-8 !rounded-[42px] !border !border-[#e5edf7] !bg-white/90 !p-8 !shadow-[0_28px_90px_rgba(15,23,42,0.09)] lg:!p-10">
+            <div className="!flex !flex-wrap !items-start !justify-between !gap-3">
+              <div className="!inline-flex !max-w-full !rounded-full !bg-[#e5effa] !px-4 !py-2 !text-[12px] !font-bold !uppercase !tracking-[0.12em] !text-[#213854]">
+                <span className="!line-clamp-2 !leading-[1.35]">
+                  {company.categoryLabel}
+                </span>
+              </div>
+
+              <div className="!inline-flex !rounded-full !bg-[#e5effa] !px-4 !py-2 !text-[12px] !font-bold !uppercase !tracking-[0.08em] !text-[#213854]">
+                {company.tierLabel}
+              </div>
             </div>
 
-            <div className="!grid !gap-8 lg:!grid-cols-[minmax(0,1fr)_320px] lg:!items-center">
+            <div className="!mt-10 !grid !gap-8 lg:!grid-cols-[minmax(0,1fr)_320px] lg:!items-center">
               <div>
-                <div className="!inline-flex !max-w-full !rounded-full !bg-[#e5effa] !px-4 !py-2 !text-[12px] !font-bold !uppercase !tracking-[0.12em] !text-[#213854]">
-                  <span className="!line-clamp-2 !leading-[1.35]">
-                    {company.categoryLabel}
-                  </span>
-                </div>
-
-                <h1 className="!mt-6 !max-w-[760px] !text-[clamp(42px,5vw,72px)] !font-bold !leading-[0.96] !tracking-[-0.04em] !text-[#12284b]">
+                <h1 className="!max-w-[760px] !text-[clamp(42px,5vw,72px)] !font-bold !leading-[0.96] !tracking-[-0.04em] !text-[#12284b]">
                   {displayName}
                 </h1>
 
