@@ -46,7 +46,7 @@ export default function Navbar() {
           );
         })}
 
-        {usuarioActual && (
+        {[1, 2].includes(usuarioActual?.rol_id) && (
           <li>
             <NavLink to="/admin" className={linkClass}>
               <UserCircleIcon className="h-5 w-5 shrink-0" aria-hidden="true" />
