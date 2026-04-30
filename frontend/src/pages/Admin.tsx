@@ -288,7 +288,7 @@ function PanelEmpresas() {
   useEffect(() => {
     const fetchEmpresas = async () => {
       try {
-        const res = await client.get('/empresas?page=1');
+        const res = await client.get('/empresas?limit=500');
         setEmpresas(res.data.data || []);
       } catch (e) {
         console.error(e);

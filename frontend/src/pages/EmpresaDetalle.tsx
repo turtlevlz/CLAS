@@ -1,8 +1,10 @@
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
+import client from '../api/client';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
-import { mockCompanies } from '../features/directory/data/mockCompanies';
+import type { DirectoryCompany, DirectoryCompanyTier } from '../features/directory/types/directory';
 
 function getCompanyInitials(name: string) {
   const cleanName = name.trim();
@@ -14,10 +16,75 @@ function getCompanyInitials(name: string) {
   return cleanName.slice(0, 2).toUpperCase();
 }
 
+function asList<T = any>(data: any, pascalKey: string, camelKey: string): T[] {
+  return data?.[pascalKey] || data?.[camelKey] || [];
+}
+
+function textList(items: any[], key: string) {
+  return items.map((item) => item?.[key]).filter(Boolean);
+}
+
+function normalizeTier(value: string): DirectoryCompanyTier {
+  const allowed = ['Tier 1', 'Tier 2', 'Tier 3', 'OEM', 'Gobierno', 'Otro'];
+  return allowed.includes(value) ? (value as DirectoryCompanyTier) : 'Otro';
+}
+
+function mapEmpresaDetalle(data: any): DirectoryCompany {
+  const rubros = asList(data, 'Rubros', 'rubros');
+  const certificaciones = asList(data, 'Certificaciones', 'certificaciones');
+  const procesos = asList(data, 'Procesos', 'procesos');
+  const industrias = asList(data, 'Industrias', 'industrias');
+  const necesidades = asList(data, 'Necesidades', 'necesidades');
+  const productos = asList(data, 'ProductoFabricados', 'productosFabricados');
+  const contactos = asList(data, 'Contactos', 'contactos');
+
+  return {
+    id: data.id_empresa,
+    name: data.nombre_comercial || 'Empresa',
+    tierLabel: normalizeTier(data.Membresia?.nombre_membresia || data.membresia?.nombre_membresia || 'Otro'),
+    shortDescription: data.giro || '',
+    city: data.ciudad || '',
+    state: 'Sonora',
+    publicEmail: data.correo_electronico || '',
+    publicPhone: data.telefono || '',
+    specialties: textList(rubros, 'nombre_rubro'),
+    employeeRange: data.rango_empleados || 'No especificado',
+    categoryId: String(data.TipoOrganizacion?.id_tipo || data.tipoOrganizacion?.id_tipo || ''),
+    categoryLabel: data.TipoOrganizacion?.nombre_tipo || data.tipoOrganizacion?.nombre_tipo || 'Sin categoría',
+    logoUrl: data.logo || undefined,
+    detail: {
+      displayName: data.nombre_comercial || '',
+      address: data.domicilio_completo || 'No especificado',
+      businessLine: data.giro || 'No especificado',
+      about: data.descripcion || 'Sin descripción disponible.',
+      foundedYear: data.anio_fundacion ? String(data.anio_fundacion) : 'No especificado',
+      website: data.sitio_web || 'No especificado',
+      certifications: textList(certificaciones, 'nombre_certificacion'),
+      industries: textList(industrias, 'nombre_industria'),
+      productsAndServices: productos.map((product: any) => {
+        const details = [product.clientes, product.porcentaje_produccion ? `${product.porcentaje_produccion}% producción` : '']
+          .filter(Boolean)
+          .join(' · ');
+        return details ? `${product.nombre_producto} - ${details}` : product.nombre_producto;
+      }).filter(Boolean),
+      manufacturingCapabilities: textList(procesos, 'nombre_proceso'),
+      supplierNeeds: textList(necesidades, 'nombre_necesidad'),
+      contacts: contactos.map((contact: any) => ({
+        name: contact.nombre_completo || 'Contacto',
+        role: contact.puesto || contact.FuncionContacto?.nombre_funcion || '',
+        email: contact.correo || '',
+        phone: contact.telefono_celular || '',
+      })),
+    },
+  };
+}
+
 function DetailList({ items }: { items: string[] }) {
+  const visibleItems = items.length > 0 ? items : ['Sin registros disponibles'];
+
   return (
     <ul className="!grid !gap-3 sm:!grid-cols-2">
-      {items.map((item) => (
+      {visibleItems.map((item) => (
         <li
           key={item}
           className="!rounded-[18px] !border !border-[#e5edf7] !bg-white !px-4 !py-3 !text-[14px] !font-semibold !leading-[1.35] !text-[#334155] !shadow-[0_10px_28px_rgba(15,23,42,0.04)]"
@@ -72,44 +139,74 @@ function InfoRow({
   );
 }
 
+function NotFound() {
+  return (
+    <>
+      <Navbar />
+      <main className="!min-h-[70vh] !bg-[#f8fbff]">
+        <section className="!mx-auto !max-w-[980px] !px-6 !py-20">
+          <Link
+            to="/directorio"
+            className="!inline-flex !items-center !rounded-full !bg-white !px-5 !py-2.5 !text-[14px] !font-bold !text-[#12284b] !no-underline !shadow-[0_12px_30px_rgba(15,23,42,0.08)] focus:!outline-none focus:!ring-4 focus:!ring-sky-100"
+          >
+            ← Volver al directorio
+          </Link>
+          <div className="!mt-10 !rounded-[36px] !border !border-[#e5edf7] !bg-white !p-9 !shadow-[0_22px_70px_rgba(15,23,42,0.08)]">
+            <p className="!text-[12px] !font-bold !uppercase !tracking-[0.14em] !text-[#1181e5]">
+              Sin resultados
+            </p>
+            <h1 className="!mt-4 !text-[48px] !font-bold !leading-none !tracking-[-0.05em] !text-[#12284b]">
+              Empresa no encontrada
+            </h1>
+            <p className="!mt-5 !max-w-[620px] !text-[18px] !leading-[1.7] !text-[#64748b]">
+              Regresa al directorio para seleccionar otro miembro disponible.
+            </p>
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </>
+  );
+}
+
 export default function EmpresaDetalle() {
   const { id } = useParams();
-  const companyId = Number(id);
-  const company = mockCompanies.find((currentCompany) => currentCompany.id === companyId);
+  const [company, setCompany] = useState<DirectoryCompany | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  if (!company) {
+  useEffect(() => {
+    async function loadCompany() {
+      try {
+        setLoading(true);
+        setError(false);
+        const response = await client.get(`/empresas/${id}`);
+        setCompany(mapEmpresaDetalle(response.data));
+      } catch (loadError) {
+        setCompany(null);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadCompany();
+  }, [id]);
+
+  if (loading) {
     return (
       <>
         <Navbar />
-
-        <main className="!min-h-[70vh] !bg-[#f8fbff]">
-          <section className="!mx-auto !max-w-[980px] !px-6 !py-20">
-            <Link
-              to="/directorio"
-              className="!inline-flex !items-center !rounded-full !bg-white !px-5 !py-2.5 !text-[14px] !font-bold !text-[#12284b] !no-underline !shadow-[0_12px_30px_rgba(15,23,42,0.08)] focus:!outline-none focus:!ring-4 focus:!ring-sky-100"
-            >
-              ← Volver al directorio
-            </Link>
-
-            <div className="!mt-10 !rounded-[36px] !border !border-[#e5edf7] !bg-white !p-9 !shadow-[0_22px_70px_rgba(15,23,42,0.08)]">
-              <p className="!text-[12px] !font-bold !uppercase !tracking-[0.14em] !text-[#1181e5]">
-                Sin resultados
-              </p>
-
-              <h1 className="!mt-4 !text-[48px] !font-bold !leading-none !tracking-[-0.05em] !text-[#12284b]">
-                Empresa no encontrada
-              </h1>
-
-              <p className="!mt-5 !max-w-[620px] !text-[18px] !leading-[1.7] !text-[#64748b]">
-                Regresa al directorio para seleccionar otro miembro disponible.
-              </p>
-            </div>
-          </section>
+        <main className="!min-h-[70vh] !bg-[#f8fbff] !px-6 !py-20">
+          <p className="!text-center !text-[#64748b]">Cargando empresa...</p>
         </main>
-
         <Footer />
       </>
     );
+  }
+
+  if (error || !company) {
+    return <NotFound />;
   }
 
   const companyInitials = getCompanyInitials(company.name);
@@ -157,12 +254,8 @@ export default function EmpresaDetalle() {
                       className="!h-full !w-full !object-contain !p-6"
                       onError={(event) => {
                         const fallback = event.currentTarget.nextElementSibling as HTMLElement | null;
-
                         event.currentTarget.style.display = 'none';
-
-                        if (fallback) {
-                          fallback.style.display = 'flex';
-                        }
+                        if (fallback) fallback.style.display = 'flex';
                       }}
                     />
                   ) : null}
@@ -258,7 +351,7 @@ export default function EmpresaDetalle() {
                 </p>
 
                 <div className="!mt-5 !flex !flex-wrap !gap-2.5">
-                  {company.detail.certifications.map((certification) => (
+                  {(company.detail.certifications.length ? company.detail.certifications : ['Sin certificaciones']).map((certification) => (
                     <span
                       key={certification}
                       className="!rounded-full !bg-[#e5effa] !px-3.5 !py-2 !text-[13px] !font-bold !text-[#213854]"
@@ -275,7 +368,7 @@ export default function EmpresaDetalle() {
                 </p>
 
                 <div className="!mt-5 !flex !flex-wrap !gap-2.5">
-                  {company.detail.industries.map((industry) => (
+                  {(company.detail.industries.length ? company.detail.industries : ['Sin industrias']).map((industry) => (
                     <span
                       key={industry}
                       className="!rounded-full !bg-[#f1f5f9] !px-3.5 !py-2 !text-[13px] !font-bold !text-[#475569]"
@@ -292,7 +385,7 @@ export default function EmpresaDetalle() {
                 </p>
 
                 <div className="!mt-5 !space-y-5">
-                  {company.detail.contacts.map((contact) => (
+                  {(company.detail.contacts.length ? company.detail.contacts : [{ name: 'Sin contactos', role: '', email: '', phone: '' }]).map((contact) => (
                     <div
                       key={`${contact.name}-${contact.role}`}
                       className="!rounded-[22px] !bg-white !p-5 !shadow-[0_12px_30px_rgba(15,23,42,0.05)]"
@@ -300,15 +393,21 @@ export default function EmpresaDetalle() {
                       <p className="!text-[16px] !font-bold !leading-[1.2] !text-[#12284b]">
                         {contact.name}
                       </p>
-                      <p className="!mt-1 !text-[13px] !font-semibold !text-[#64748b]">
-                        {contact.role}
-                      </p>
-                      <p className="!mt-4 !text-[14px] !font-semibold !text-[#334155]">
-                        {contact.email}
-                      </p>
-                      <p className="!mt-1 !text-[14px] !font-semibold !text-[#334155]">
-                        {contact.phone}
-                      </p>
+                      {contact.role ? (
+                        <p className="!mt-1 !text-[13px] !font-semibold !text-[#64748b]">
+                          {contact.role}
+                        </p>
+                      ) : null}
+                      {contact.email ? (
+                        <p className="!mt-4 !text-[14px] !font-semibold !text-[#334155]">
+                          {contact.email}
+                        </p>
+                      ) : null}
+                      {contact.phone ? (
+                        <p className="!mt-1 !text-[14px] !font-semibold !text-[#334155]">
+                          {contact.phone}
+                        </p>
+                      ) : null}
                     </div>
                   ))}
                 </div>

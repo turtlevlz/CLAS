@@ -25,14 +25,14 @@ const TIER_MAP: Record<string, DirectoryCompanyTier> = {
 };
 
 function mapEmpresa(e: any): DirectoryCompany {
-  const specialties = e.giro
-    ? e.giro.split(/[,/]/).map((s: string) => s.trim()).filter(Boolean)
-    : [];
+  const rubros = e.Rubros || e.rubros || [];
+  const tipoOrganizacion = e.TipoOrganizacion || e.tipoOrganizacion || e.tipo_organizacion;
+  const specialties = rubros.map((r: any) => r.nombre_rubro).filter(Boolean);
 
   return {
     id: e.id_empresa,
     name: e.nombre_comercial,
-    tierLabel: TIER_MAP[e.membresia?.nombre_membresia] ?? 'Otro',
+    tierLabel: TIER_MAP[tipoOrganizacion?.nombre_tipo] ?? 'Otro',
     shortDescription: e.giro || '',
     city: e.ciudad || '',
     state: 'Sonora',
@@ -40,8 +40,8 @@ function mapEmpresa(e: any): DirectoryCompany {
     publicPhone: e.telefono || '',
     specialties,
     employeeRange: '',
-    categoryId: String(e.tipo_organizacion?.id_tipo ?? ''),
-    categoryLabel: e.tipo_organizacion?.nombre_tipo || '',
+    categoryId: String(tipoOrganizacion?.id_tipo || ''),
+    categoryLabel: tipoOrganizacion?.nombre_tipo || '',
     logoUrl: e.logo || e.logo_url || undefined,
     detail: {
       address: e.domicilio_completo || '',
