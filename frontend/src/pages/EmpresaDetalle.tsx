@@ -36,17 +36,17 @@ function mapEmpresaDetalle(data: any): DirectoryCompany {
   const industrias = asList(data, 'Industrias', 'industrias');
   const necesidades = asList(data, 'Necesidades', 'necesidades');
   const productos = asList(data, 'ProductoFabricados', 'productosFabricados');
-  const contactos = asList(data, 'Contactos', 'contactos');
+  const contactos: any[] = [];
 
   return {
     id: data.id_empresa,
     name: data.nombre_comercial || 'Empresa',
-    tierLabel: normalizeTier(data.Membresia?.nombre_membresia || data.membresia?.nombre_membresia || 'Otro'),
+    tierLabel: normalizeTier(data.TipoOrganizacion?.nombre_tipo || data.tipoOrganizacion?.nombre_tipo || 'Otro'),
     shortDescription: data.giro || '',
     city: data.ciudad || '',
     state: 'Sonora',
-    publicEmail: data.correo_electronico || '',
-    publicPhone: data.telefono || '',
+    publicEmail: '',
+    publicPhone: '',
     specialties: textList(rubros, 'nombre_rubro'),
     employeeRange: data.rango_empleados || 'No especificado',
     categoryId: String(data.TipoOrganizacion?.id_tipo || data.tipoOrganizacion?.id_tipo || ''),
@@ -62,10 +62,7 @@ function mapEmpresaDetalle(data: any): DirectoryCompany {
       certifications: textList(certificaciones, 'nombre_certificacion'),
       industries: textList(industrias, 'nombre_industria'),
       productsAndServices: productos.map((product: any) => {
-        const details = [product.clientes, product.porcentaje_produccion ? `${product.porcentaje_produccion}% producción` : '']
-          .filter(Boolean)
-          .join(' · ');
-        return details ? `${product.nombre_producto} - ${details}` : product.nombre_producto;
+        return product.nombre_producto;
       }).filter(Boolean),
       manufacturingCapabilities: textList(procesos, 'nombre_proceso'),
       supplierNeeds: textList(necesidades, 'nombre_necesidad'),
@@ -180,7 +177,7 @@ export default function EmpresaDetalle() {
       try {
         setLoading(true);
         setError(false);
-        const response = await client.get(`/empresas/${id}`);
+        const response = await client.get(`/empresas/public/${id}`);
         setCompany(mapEmpresaDetalle(response.data));
       } catch (loadError) {
         setCompany(null);

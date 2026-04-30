@@ -15,6 +15,10 @@ function PanelUsuarios() {
   const { usuarioActual } = useAuth();
   const esAdminClas = usuarioActual?.rol_id === 1;
 
+  if (![1, 2].includes(usuarioActual?.rol_id)) {
+    return null;
+  }
+
   const [usuarios, setUsuarios] = useState<any[]>([]);
   const [empresasLista, setEmpresasLista] = useState<any[]>([]);
   const [busqueda, setBusqueda] = useState('');
@@ -88,7 +92,15 @@ function PanelUsuarios() {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await client.patch(`/usuarios/${selectedUser.id_usuario}`, formData);
+      const payload: any = { ...formData };
+      if (!payload.contrasena) {
+        delete payload.contrasena;
+      }
+      if (!esAdminClas) {
+        payload.rol_id = selectedUser.rol_id;
+        payload.empresa_id = usuarioActual?.empresa_id;
+      }
+      await client.patch(`/usuarios/${selectedUser.id_usuario}`, payload);
       setShowEditModal(false);
       fetchUsuarios();
     } catch (err: any) {
@@ -99,7 +111,12 @@ function PanelUsuarios() {
   const handleCrear = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await client.post('/auth/register', formData);
+      const payload = {
+        ...formData,
+        rol_id: esAdminClas ? formData.rol_id : 3,
+        empresa_id: esAdminClas ? formData.empresa_id : usuarioActual?.empresa_id,
+      };
+      await client.post('/usuarios', payload);
       setShowCreateModal(false);
       fetchUsuarios();
     } catch (err: any) {
@@ -176,9 +193,11 @@ function PanelUsuarios() {
                   </span>
                 </td>
                 <td className="px-6 py-4 flex gap-3">
-                  <button onClick={() => handleBorrar(u.id_usuario)} className="text-red-500 hover:text-red-700">
-                    <TrashIcon className="w-5 h-5"/>
-                  </button>
+                  {u.id_usuario !== usuarioActual?.id_usuario && (
+                    <button onClick={() => handleBorrar(u.id_usuario)} className="text-red-500 hover:text-red-700">
+                      <TrashIcon className="w-5 h-5"/>
+                    </button>
+                  )}
                   <button onClick={() => abrirEdicion(u)} className="text-orange-500 hover:text-orange-700">
                     <PencilSquareIcon className="w-5 h-5"/>
                   </button>
@@ -379,116 +398,23 @@ function PanelEmpresas() {
 
 function PanelMiEmpresa() {
   const { usuarioActual } = useAuth();
-
-  const camposVacios = {
-    nombre_comercial: '',
-    correo_electronico: '',
-    telefono: '',
-    ciudad: '',
-    domicilio_completo: '',
-    giro: '',
-    sitio_web: '',
-  };
-
-  const [original, setOriginal] = useState(camposVacios);
-  const [formData, setFormData] = useState(camposVacios);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchEmpresa = async () => {
-      try {
-        const res = await client.get(`/empresas/${usuarioActual?.empresa_id}`);
-        const data = {
-          nombre_comercial:   res.data.nombre_comercial   || '',
-          correo_electronico: res.data.correo_electronico || '',
-          telefono:           res.data.telefono           || '',
-          ciudad:             res.data.ciudad             || '',
-          domicilio_completo: res.data.domicilio_completo || '',
-          giro:               res.data.giro               || '',
-          sitio_web:          res.data.sitio_web          || '',
-        };
-        setOriginal(data);
-        setFormData(data);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchEmpresa();
-  }, []);
-
-  const handleGuardar = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const cambios = Object.fromEntries(
-      Object.entries(formData).filter(([k, v]) => v !== original[k as keyof typeof original])
-    );
-    if (Object.keys(cambios).length === 0) return;
-    setSaving(true);
-    try {
-      await client.patch(`/empresas/${usuarioActual?.empresa_id}`, cambios);
-      setOriginal(formData);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setSaving(false);
+    if (usuarioActual?.rol_id !== 1 && usuarioActual?.empresa_id) {
+      navigate(`/admin/empresas/${usuarioActual.empresa_id}/editar`);
     }
-  };
+  }, [navigate, usuarioActual?.empresa_id, usuarioActual?.rol_id]);
 
   if (usuarioActual?.rol_id === 1) {
     return <p className="text-center py-20 text-gray-400">Esta sección es para administradores de empresa.</p>;
   }
 
-  if (loading) {
-    return <p className="text-center py-20 text-gray-400">Cargando...</p>;
+  if (!usuarioActual?.empresa_id) {
+    return <p className="text-center py-20 text-gray-400">Tu usuario no tiene una empresa asignada.</p>;
   }
 
-  const campo = (label: string, key: keyof typeof formData, type = 'text') => (
-    <div>
-      <label className="block text-sm font-medium text-gray-700">{label}</label>
-      <input
-        type={type}
-        value={formData[key]}
-        onChange={e => setFormData({ ...formData, [key]: e.target.value })}
-        className="w-full border border-gray-300 rounded-lg p-2 mt-1 text-sm outline-none focus:ring-2 focus:ring-primary"
-      />
-    </div>
-  );
-
-  return (
-    <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Mi Empresa</h1>
-      <p className="text-gray-500 text-sm mb-6">Información de tu organización registrada en CLAS.</p>
-
-      <form onSubmit={handleGuardar} className="space-y-6 max-w-2xl">
-        <div className="grid grid-cols-2 gap-6">
-          {campo('Nombre Comercial',  'nombre_comercial')}
-          {campo('Correo Electrónico','correo_electronico', 'email')}
-          {campo('Teléfono',          'telefono')}
-          {campo('Ciudad',            'ciudad')}
-          {campo('Sitio Web',         'sitio_web')}
-          {campo('Giro',              'giro')}
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Domicilio Completo</label>
-          <input
-            type="text"
-            value={formData.domicilio_completo}
-            onChange={e => setFormData({ ...formData, domicilio_completo: e.target.value })}
-            className="w-full border border-gray-300 rounded-lg p-2 mt-1 text-sm outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={saving}
-          className="bg-primary text-white font-semibold px-6 py-2 rounded-lg text-sm hover:opacity-90 transition-opacity"
-        >
-          {saving ? 'Guardando...' : 'Guardar cambios'}
-        </button>
-      </form>
-    </div>
-  );
+  return <p className="text-center py-20 text-gray-400">Abriendo editor de empresa...</p>;
 }
 
 const catalogos = [

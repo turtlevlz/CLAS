@@ -11,13 +11,31 @@ import ForgotPswd from './pages/ForgotPswd';
 import NuevaEmpresa from './pages/NuevaEmpresa';
 import EditarEmpresa from './pages/EditarEmpresa';
 
-const RutaProtegida = ({ children }: { children: any }) => {
+const RutaAdmin = ({ children }: { children: any }) => {
   const { usuarioActual } = useAuth();
-  
+
   if (!usuarioActual) {
     return <Navigate to="/login" />;
   }
-  
+
+  if (![1, 2].includes(usuarioActual.rol_id)) {
+    return <Navigate to="/directorio" />;
+  }
+
+  return children;
+};
+
+const RutaAdminClas = ({ children }: { children: any }) => {
+  const { usuarioActual } = useAuth();
+
+  if (!usuarioActual) {
+    return <Navigate to="/login" />;
+  }
+
+  if (usuarioActual.rol_id !== 1) {
+    return <Navigate to="/directorio" />;
+  }
+
   return children;
 };
 
@@ -38,27 +56,27 @@ export default function App() {
         <Route 
           path="/admin" 
           element={
-            <RutaProtegida>
+            <RutaAdmin>
               <Admin />
-            </RutaProtegida>
+            </RutaAdmin>
           } 
         />
 
         <Route
           path="/admin/nueva-empresa"
           element={
-            <RutaProtegida>
+            <RutaAdminClas>
               <NuevaEmpresa />
-            </RutaProtegida>
+            </RutaAdminClas>
           }
         />
 
         <Route
           path="/admin/empresas/:id/editar"
           element={
-            <RutaProtegida>
+            <RutaAdmin>
               <EditarEmpresa />
-            </RutaProtegida>
+            </RutaAdmin>
           }
         />
         

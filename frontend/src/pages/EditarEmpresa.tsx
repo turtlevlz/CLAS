@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import client from '../api/client';
+import { useAuth } from '../context/AuthContext';
 
 type CatalogItem = Record<string, any>;
 
@@ -126,7 +127,9 @@ const normalizeList = (data: any, pascalKey: string, camelKey: string) =>
 export default function EditarEmpresa() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { usuarioActual } = useAuth();
   const empresaId = Number(id);
+  const esAdminClas = usuarioActual?.rol_id === 1;
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -160,6 +163,11 @@ export default function EditarEmpresa() {
 
   const loadData = async () => {
     if (!empresaId) return;
+
+    if (!esAdminClas && (usuarioActual?.rol_id !== 2 || Number(usuarioActual?.empresa_id) !== empresaId)) {
+      navigate('/admin');
+      return;
+    }
 
     const [
       empresaRes,
@@ -234,7 +242,7 @@ export default function EditarEmpresa() {
         alert(error.response?.data?.message || 'No se pudo cargar la empresa');
       })
       .finally(() => setLoading(false));
-  }, [empresaId]);
+  }, [empresaId, esAdminClas, usuarioActual?.empresa_id]);
 
   const updateField = (key: keyof CompanyForm, value: string | boolean) => {
     setFormData((current) => ({ ...current, [key]: value }));
@@ -246,6 +254,12 @@ export default function EditarEmpresa() {
 
     const data = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
+      if (!esAdminClas && (key === 'membresia_id' || key === 'tipo_organizacion_id' || key === 'activo')) {
+        return;
+      }
+      if (key === 'activo') {
+        return;
+      }
       data.append(key, String(value));
     });
     if (logo) data.append('logo', logo);
@@ -443,7 +457,8 @@ export default function EditarEmpresa() {
                     <select
                       value={formData.membresia_id}
                       onChange={e => updateField('membresia_id', e.target.value)}
-                      className="w-full border border-gray-300 rounded-lg p-2 mt-1 text-sm bg-white"
+                      disabled={!esAdminClas}
+                      className="w-full border border-gray-300 rounded-lg p-2 mt-1 text-sm bg-white disabled:bg-gray-100 disabled:text-gray-500"
                     >
                       <option value="">Seleccionar...</option>
                       {catalogs.membresias.map((item) => (
@@ -457,7 +472,8 @@ export default function EditarEmpresa() {
                     <select
                       value={formData.tipo_organizacion_id}
                       onChange={e => updateField('tipo_organizacion_id', e.target.value)}
-                      className="w-full border border-gray-300 rounded-lg p-2 mt-1 text-sm bg-white"
+                      disabled={!esAdminClas}
+                      className="w-full border border-gray-300 rounded-lg p-2 mt-1 text-sm bg-white disabled:bg-gray-100 disabled:text-gray-500"
                     >
                       <option value="">Seleccionar...</option>
                       {catalogs.organizaciones.map((item) => (
@@ -497,14 +513,6 @@ export default function EditarEmpresa() {
                     onChange={e => updateField('fabrica_para_automotriz', e.target.checked)}
                   />
                   Fabrica para automotriz
-                </label>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <input
-                    type="checkbox"
-                    checked={formData.activo}
-                    onChange={e => updateField('activo', e.target.checked)}
-                  />
-                  Empresa activa
                 </label>
                 <div className="md:col-span-2 rounded-xl border border-dashed border-blue-300 bg-blue-50 p-4">
                   <label className="block text-sm font-bold text-gray-800 mb-2">Logo</label>

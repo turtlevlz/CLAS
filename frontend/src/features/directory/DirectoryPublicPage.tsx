@@ -36,8 +36,8 @@ function mapEmpresa(e: any): DirectoryCompany {
     shortDescription: e.giro || '',
     city: e.ciudad || '',
     state: 'Sonora',
-    publicEmail: e.correo_electronico || '',
-    publicPhone: e.telefono || '',
+    publicEmail: '',
+    publicPhone: '',
     specialties,
     employeeRange: '',
     categoryId: String(tipoOrganizacion?.id_tipo || ''),
@@ -80,19 +80,20 @@ export default function DirectoryPublicPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [resEmpresas, resOrgs] = await Promise.all([
-          client.get('/empresas?limit=500'),
-          client.get('/organizaciones'),
-        ]);
+        const resEmpresas = await client.get('/empresas/public');
 
         const empresasData = resEmpresas.data.data ?? resEmpresas.data;
-        setCompanies(empresasData.map(mapEmpresa));
+        const mappedCompanies = empresasData.map(mapEmpresa);
+        setCompanies(mappedCompanies);
 
-        const orgs: DirectoryCategory[] = resOrgs.data.map((o: any) => ({
-          id: String(o.id_tipo),
-          label: o.nombre_tipo,
-        }));
-        setCategories([{ id: 'all', label: 'Todas las categorías' }, ...orgs]);
+        const categoryMap = new Map<string, string>();
+        mappedCompanies.forEach((company: DirectoryCompany) => {
+          if (company.categoryId && company.categoryLabel) {
+            categoryMap.set(company.categoryId, company.categoryLabel);
+          }
+        });
+        const categoriesFromCompanies = Array.from(categoryMap.entries()).map(([id, label]) => ({ id, label }));
+        setCategories([{ id: 'all', label: 'Todas las categorías' }, ...categoriesFromCompanies]);
       } catch (e) {
         setError('No se pudo cargar el directorio. Intenta de nuevo más tarde.');
       } finally {

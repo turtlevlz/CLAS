@@ -61,7 +61,7 @@ export default function Navbar() {
         })}
 
         {/* Lógica de Seguridad de Carlos */}
-        {usuarioActual && (
+        {usuarioActual && [1, 2].includes(usuarioActual.rol_id) && (
           <li>
             <NavLink to="/admin" className={linkClass}>
               <span>Panel Admin</span>
