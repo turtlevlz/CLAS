@@ -9,12 +9,12 @@ router.post("/", verifyToken, checkRole(1), createUser);
 
 router.get("/", verifyToken, checkRole(1), getUsers);
 
-router.get("/:id", verifyToken, getUserById);
-
 router.get("/empresa/:empresa_id", verifyToken, checkRole(1, 2), getUsersByEmpresa);
+
+router.get("/:id", verifyToken, getUserById);
 
 router.patch("/:id", verifyToken, checkRole(1, 2, 3), updateUser);
 
-router.delete("/:id", verifyToken, checkRole(1, 2, 3), deleteUser);
+router.delete("/:id", verifyToken, checkRole(1), deleteUser);
 
 export default router;

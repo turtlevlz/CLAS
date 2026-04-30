@@ -2,9 +2,9 @@ import { Request, Response } from "express";
 import { User } from "../models/User";
 import { Empresa } from "../models/Empresa";
 import { Op } from "sequelize";
+import { z } from "zod";
 import bcrypt from "bcrypt";
 import { Role } from "../models/Role";
-
 
 export const createUser = async (req: Request, res: Response) => {
 
@@ -16,7 +16,7 @@ export const createUser = async (req: Request, res: Response) => {
             correo_electronico,
             rol_id,
             empresa_id
-        } = req.body
+        } = req.body;
 
         const rolId = Number(rol_id);
         const empresaId = empresa_id === undefined || empresa_id === null || empresa_id === "" ? null : Number(empresa_id);
@@ -46,7 +46,7 @@ export const createUser = async (req: Request, res: Response) => {
         }
 
         const nombreLimpio = String(nombre_usuario).trim();
-        const correoLimpio = String(correo_electronico).trim();
+        const correoLimpio = String(correo_electronico).trim().toLowerCase();
         const contrasenaLimpia = String(contrasena).trim();
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -185,12 +185,8 @@ export const getUsers = async (req: Request, res: Response) => {
 export const getUserById = async (req: Request, res: Response) => {
 
     try {
-        const id = Number(req.params.id);
-        if (isNaN(id)) {
-            return res.status(400).json({
-                message: "ID invalido"
-            })
-        }
+
+        const id = z.uuid().parse(req.params.id);
 
         const user = await User.findByPk(id, {
             attributes: [
@@ -233,6 +229,11 @@ export const getUserById = async (req: Request, res: Response) => {
         return res.json(user);
 
     } catch (error) {
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({
+                message: "ID de usuario inválido"
+            });
+        }
         return res.status(500).json({
             message: "Error al obtener usuario"
         });
@@ -307,13 +308,7 @@ export const getUsersByEmpresa = async (req: Request, res: Response) => {
 export const updateUser = async (req: Request, res: Response) => {
 
     try {
-        const idUser = Number(req.params.id);
-
-        if (isNaN(idUser)) {
-            return res.status(400).json({
-                message: "ID invalido"
-            });
-        }
+        const idUser = z.uuid().parse(req.params.id);
 
         const user = await User.findByPk(idUser);
 
@@ -365,7 +360,10 @@ export const updateUser = async (req: Request, res: Response) => {
                         message: "Formato de correo electrónico no válido"
                     });
                 }
-                updates[key] = valueLimpio;
+
+                updates[key] = key === "correo_electronico"
+                ? valueLimpio.toLowerCase()
+                : valueLimpio;
             }
         }
 
@@ -395,6 +393,11 @@ export const updateUser = async (req: Request, res: Response) => {
         });
 
     } catch (error) {
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({
+                message: "ID de usuario inválido"
+            });
+        }
         return res.status(500).json({
             message: "Error al actualizar usuario"
         });
@@ -405,13 +408,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 
     try {
 
-        const idUser = Number(req.params.id);
-
-        if (isNaN(idUser)) {
-            return res.status(400).json({
-                message: "ID inválido"
-            });
-        }
+        const idUser =z.uuid().parse(req.params.id);
 
         const user = await User.findByPk(idUser);
 
@@ -427,22 +424,6 @@ export const deleteUser = async (req: Request, res: Response) => {
             });
         }
 
-        const user_log = (req as any).user;
-
-        if (user_log.rol_id === 3) {
-            if (user_log.id_usuario !== idUser) {
-                return res.status(403).json({
-                    message: "No autorizado para eliminar a otro usuario"
-                });
-            }
-        } else if (user_log.rol_id === 2) {
-            if (user.empresa_id !== user_log.empresa_id) {
-                return res.status(403).json({
-                    message: "No autorizado para eliminar usuarios de otra empresa"
-                });
-            }
-        }
-
         await user.destroy();
 
         return res.json({
@@ -450,6 +431,11 @@ export const deleteUser = async (req: Request, res: Response) => {
         });
 
     } catch (error) {
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({
+                message: "ID de usuario inválido"
+            });
+        }
         console.error("Error al eliminar usuario: ", error);
         return res.status(500).json({
             message: "Error al eliminar usuario"

@@ -1,7 +1,8 @@
 /* Página de inicio de sesión */
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import client from '../api/client';
 import photo from '../assets/img/login-stock-photo.jpg';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -19,26 +20,14 @@ export default function Login() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3000/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          correo_electronico: email,
-          contrasena: password
-        })
+      const res = await client.post('/auth/login', {
+        correo_electronico: email,
+        contrasena: password
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Error al iniciar sesión');
-      }
-
-      login(data.token);
+      login(res.data.token);
       navigate('/directorio');
-
     } catch (err: any) {
-      setError(err.message);
+      setError(err.response?.data?.message || 'Error al iniciar sesión');
     }
   }
 
@@ -70,10 +59,10 @@ export default function Login() {
             )}
 
             <label className='block text-xs text-gray-500 mb-1'>Correo Electrónico</label>
-            <input 
-            type='email' 
-            placeholder='usuario@dominio.com' 
-            value={email} 
+            <input
+            type='email'
+            placeholder='usuario@dominio.com'
+            value={email}
             onChange={e => setEmail(e.target.value)}
             className='w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400'/>
 
@@ -96,9 +85,9 @@ export default function Login() {
 
               <p className='text-center text-xs text-gray-400 mt-3'>
                 ¿No tienes cuenta?{' '}
-                <a href="/" className='text-blue-500 hover:underline'>
-                Solicita tu membresía
-                </a>
+                <Link to="/membresias" className="text-blue-500 hover:underline">
+                  Solicita tu membresía
+                </Link>
               </p>
             </div>
 

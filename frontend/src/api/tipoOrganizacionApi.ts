@@ -1,4 +1,4 @@
-import api from ".";
+import { api } from "./http";
 import { AxiosError } from "axios";
 import type { TipoOrganizacion, NewTipoOrganizacionInput } from "types";
 
@@ -9,7 +9,7 @@ interface TipoOrganizacionWrapped {
 
 export const getAllTipoOrganizaciones = async (): Promise<TipoOrganizacion[]> => {
     try {
-        const res = await api.get<TipoOrganizacion[]>("/tipos-organizacion");
+        const res = await api.get<TipoOrganizacion[]>("/organizaciones");
         return res.data;
     } catch (error) {
         const err = error as AxiosError;
@@ -20,7 +20,7 @@ export const getAllTipoOrganizaciones = async (): Promise<TipoOrganizacion[]> =>
 
 export const getTipoOrganizacionById = async (id: number): Promise<TipoOrganizacion> => {
     try {
-        const res = await api.get<TipoOrganizacion>(`/tipos-organizacion/${id}`);
+        const res = await api.get<TipoOrganizacion>(`/organizaciones/${id}`);
         return res.data;
     } catch (error) {
         const err = error as AxiosError;
@@ -33,7 +33,7 @@ export const createTipoOrganizacion = async (
     data: NewTipoOrganizacionInput
 ): Promise<TipoOrganizacion> => {
     try {
-        const res = await api.post<TipoOrganizacionWrapped>("/tipos-organizacion", data);
+        const res = await api.post<TipoOrganizacionWrapped>("/organizaciones", data);
         return res.data.tipoOrganizacion;
     } catch (error) {
         const err = error as AxiosError;
@@ -47,7 +47,7 @@ export const updateTipoOrganizacion = async (
     data: NewTipoOrganizacionInput
 ): Promise<TipoOrganizacion> => {
     try {
-        const res = await api.patch<TipoOrganizacionWrapped>(`/tipos-organizacion/${id}`, data);
+        const res = await api.patch<TipoOrganizacionWrapped>(`/organizaciones/${id}`, data);
         return res.data.tipoOrganizacion;
     } catch (error) {
         const err = error as AxiosError;
@@ -58,7 +58,7 @@ export const updateTipoOrganizacion = async (
 
 export const deleteTipoOrganizacion = async (id: number): Promise<void> => {
     try {
-        await api.delete(`/tipos-organizacion/${id}`);
+        await api.delete(`/organizaciones/${id}`);
     } catch (error) {
         const err = error as AxiosError;
         console.error("Error deleting tipo de organizacion:", err.message);

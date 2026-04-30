@@ -1,4 +1,4 @@
-import api from ".";
+import { api } from "./http";
 import { AxiosError } from "axios";
 import type { Rubro, NewRubroInput } from "types";
 

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import api from ".";
+=======
+import { api } from "./http";
+>>>>>>> origin
 import { AxiosError } from "axios";
 import type { Certificacion, NewCertificacionInput } from "types";
 

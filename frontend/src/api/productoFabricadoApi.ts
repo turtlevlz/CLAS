@@ -1,4 +1,4 @@
-import api from ".";
+import { api } from "./http";
 import { AxiosError } from "axios";
 import type { ProductoFabricado, NewProductoFabricadoInput } from "types";
 
@@ -9,7 +9,7 @@ interface ProductoFabricadoWrapped {
 
 export const getProductosByEmpresa = async (empresaId: number): Promise<ProductoFabricado[]> => {
     try {
-        const res = await api.get<ProductoFabricado[]>(`/productos-fabricados/empresa/${empresaId}`);
+        const res = await api.get<ProductoFabricado[]>(`/productos/empresa/${empresaId}`);
         return res.data;
     } catch (error) {
         const err = error as AxiosError;
@@ -20,7 +20,7 @@ export const getProductosByEmpresa = async (empresaId: number): Promise<Producto
 
 export const getProductoFabricadoById = async (id: number): Promise<ProductoFabricado> => {
     try {
-        const res = await api.get<ProductoFabricado>(`/productos-fabricados/${id}`);
+        const res = await api.get<ProductoFabricado>(`/productos/${id}`);
         return res.data;
     } catch (error) {
         const err = error as AxiosError;
@@ -33,7 +33,7 @@ export const createProductoFabricado = async (
     data: NewProductoFabricadoInput
 ): Promise<ProductoFabricado> => {
     try {
-        const res = await api.post<ProductoFabricadoWrapped>("/productos-fabricados", data);
+        const res = await api.post<ProductoFabricadoWrapped>("/productos", data);
         return res.data.productoFabricado;
     } catch (error) {
         const err = error as AxiosError;
@@ -47,7 +47,7 @@ export const updateProductoFabricado = async (
     data: Partial<NewProductoFabricadoInput>
 ): Promise<ProductoFabricado> => {
     try {
-        const res = await api.patch<ProductoFabricadoWrapped>(`/productos-fabricados/${id}`, data);
+        const res = await api.patch<ProductoFabricadoWrapped>(`/productos/${id}`, data);
         return res.data.productoFabricado;
     } catch (error) {
         const err = error as AxiosError;
@@ -58,7 +58,7 @@ export const updateProductoFabricado = async (
 
 export const deleteProductoFabricado = async (id: number): Promise<void> => {
     try {
-        await api.delete(`/productos-fabricados/${id}`);
+        await api.delete(`/productos/${id}`);
     } catch (error) {
         const err = error as AxiosError;
         console.error("Error deleting producto fabricado:", err.message);

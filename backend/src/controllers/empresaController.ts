@@ -16,6 +16,145 @@ const deleteFile = (file?: Express.Multer.File) => {
     }
 };
 
+const getLogoUrl = (req: Request, logo?: string | null) => {
+    if (!logo) {
+        return null;
+    }
+
+    const baseUrl = `${req.protocol}://${req.get("host")}`;
+
+    return `${baseUrl}/uploads/logos/${logo}`;
+};
+
+const normalizePublicEmpresa = (req: Request, empresa: any) => {
+    const emp = empresa.toJSON ? empresa.toJSON() : empresa;
+    const membresia = emp.Membresia ?? emp.membresia ?? null;
+    const tipoOrganizacion = emp.TipoOrganizacion ?? emp.tipoOrganizacion ?? null;
+    const rubros = emp.Rubros ?? emp.rubros ?? [];
+
+    return {
+        id_empresa: emp.id_empresa,
+        nombre_comercial: emp.nombre_comercial,
+        ciudad: emp.ciudad,
+        descripcion: emp.descripcion,
+        logo: getLogoUrl(req, emp.logo),
+        Membresia: membresia
+            ? {
+                nombre_membresia: membresia.nombre_membresia
+            }
+            : null,
+        TipoOrganizacion: tipoOrganizacion
+            ? {
+                nombre_tipo: tipoOrganizacion.nombre_tipo
+            }
+            : null,
+        Rubros: rubros.map((rubro: any) => ({
+            nombre_rubro: rubro.nombre_rubro
+        }))
+    };
+};
+
+export const getEmpresasPublicas = async (req: Request, res: Response) => {
+    try {
+        const empresas = await Empresa.findAll({
+            attributes: [
+                "id_empresa",
+                "nombre_comercial",
+                "ciudad",
+                "descripcion",
+                "logo"
+            ],
+            where: {
+                activo: true
+            },
+            include: [
+                {
+                    model: Membresia,
+                    attributes: ["nombre_membresia"]
+                },
+                {
+                    model: TipoOrganizacion,
+                    attributes: ["nombre_tipo"]
+                },
+                {
+                    model: Rubro,
+                    attributes: ["nombre_rubro"],
+                    through: { attributes: [] }
+                }
+            ],
+            order: [["nombre_comercial", "ASC"]]
+        });
+
+        return res.json({
+            total: empresas.length,
+            data: empresas.map((empresa) => normalizePublicEmpresa(req, empresa))
+        });
+
+    } catch (error) {
+        console.error("Error al obtener empresas públicas:", error);
+
+        return res.status(500).json({
+            message: "Error al obtener empresas públicas"
+        });
+    }
+};
+
+export const getEmpresaPublicaById = async (req: Request, res: Response) => {
+    try {
+        const id = Number(req.params.id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                message: "ID inválido"
+            });
+        }
+
+        const empresa = await Empresa.findOne({
+            attributes: [
+                "id_empresa",
+                "nombre_comercial",
+                "ciudad",
+                "descripcion",
+                "logo"
+            ],
+            where: {
+                id_empresa: id,
+                activo: true
+            },
+            include: [
+                {
+                    model: Membresia,
+                    attributes: ["nombre_membresia"]
+                },
+                {
+                    model: TipoOrganizacion,
+                    attributes: ["nombre_tipo"]
+                },
+                {
+                    model: Rubro,
+                    attributes: ["nombre_rubro"],
+                    through: { attributes: [] }
+                }
+            ]
+        });
+
+        if (!empresa) {
+            return res.status(404).json({
+                message: "Empresa no encontrada"
+            });
+        }
+
+        return res.json(normalizePublicEmpresa(req, empresa));
+
+    } catch (error) {
+        console.error("Error al obtener empresa pública:", error);
+
+        return res.status(500).json({
+            message: "Error al obtener empresa pública"
+        });
+    }
+};
+
 export const createEmpresa = async (req: Request, res: Response) => {
     try {
         const {
@@ -491,12 +630,39 @@ export const updateEmpresa = async (req: Request, res: Response) => {
             updates.sitio_web = sitioWebLimpio;
         }
 
-        const fields = ["razon_social", "ciudad", "domicilio_completo", "giro"];
+        const fields = [
+            "razon_social",
+            "rfc",
+            "ciudad",
+            "domicilio_completo",
+            "giro",
+            "descripcion",
+            "rango_empleados"
+        ];
 
         for (const key of fields) {
             if (req.body[key] !== undefined) {
                 updates[key] = String(req.body[key]).trim();
             }
+        }
+
+        if (req.body.anio_fundacion !== undefined) {
+            const anioFundacion = Number(req.body.anio_fundacion);
+
+            if (!Number.isInteger(anioFundacion) || anioFundacion < 1800) {
+                deleteFile(req.file);
+                return res.status(400).json({
+                    message: "Año de fundación inválido"
+                });
+            }
+
+            updates.anio_fundacion = anioFundacion;
+        }
+
+        if (req.body.fabrica_para_automotriz !== undefined) {
+            updates.fabrica_para_automotriz =
+                req.body.fabrica_para_automotriz === true ||
+                req.body.fabrica_para_automotriz === "true";
         }
 
         const oldLogo = empresa.logo;

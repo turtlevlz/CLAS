@@ -11,7 +11,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const decoded: any = jwtDecode(token);
 
     if (decoded.exp * 1000 < Date.now()) {
-        logout(); 
+        logout();
     } else {
         setUsuarioActual(decoded);
     }
@@ -27,6 +27,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (tokenStored) {
       try {
         const decoded: any = jwtDecode(tokenStored);
+
+        if (decoded.exp * 1000 < Date.now()) {
+          logout();
+          return;
+        }
+
         setUsuarioActual(decoded);
       } catch (e) {
         logout();

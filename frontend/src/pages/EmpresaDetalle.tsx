@@ -1,8 +1,16 @@
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
-import { mockCompanies } from '../features/directory/data/mockCompanies';
+import type { DirectoryCompany } from '../features/directory/types/directory';
+import { mapPublicCompanyApi } from '../features/directory/utils/mapPublicCompanyApi';
+import { useAuth } from '../context/AuthContext';
+import {
+  getPrivateCompanyById,
+  getPublicCompanyById,
+} from '../features/directory/api/directoryApi';
+import { api } from '../api/http';
 
 function getCompanyInitials(name: string) {
   const cleanName = name.trim();
@@ -20,7 +28,7 @@ function DetailList({ items }: { items: string[] }) {
       {items.map((item) => (
         <li
           key={item}
-          className="!rounded-[18px] !border !border-[#e5edf7] !bg-white !px-4 !py-3 !text-[14px] !font-semibold !leading-[1.35] !text-[#334155] !shadow-[0_10px_28px_rgba(15,23,42,0.04)]"
+          className="!min-w-0 !break-words !rounded-[18px] !border !border-[#e5edf7] !bg-white !px-4 !py-3 !text-[14px] !font-semibold !leading-[1.35] !text-[#334155] !shadow-[0_10px_28px_rgba(15,23,42,0.04)] [overflow-wrap:anywhere]"
         >
           {item}
         </li>
@@ -39,7 +47,7 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="!rounded-[32px] !border !border-[#e5edf7] !bg-white !p-7 !shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
+    <section className="!min-w-0 !overflow-hidden !rounded-[32px] !border !border-[#e5edf7] !bg-white !p-7 !shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
       <p className="!text-[12px] !font-bold !uppercase !tracking-[0.14em] !text-[#1181e5]">
         {eyebrow}
       </p>
@@ -65,17 +73,127 @@ function InfoRow({
       <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
         {label}
       </dt>
-      <dd className="!mt-1 !text-[15px] !font-semibold !leading-[1.45] !text-[#1f3350]">
+      <dd className="!mt-1 !break-words !text-[15px] !font-semibold !leading-[1.45] !text-[#1f3350] [overflow-wrap:anywhere]">
         {value}
       </dd>
     </div>
   );
 }
 
+function hasValue(value: string) {
+  return value.trim().length > 0;
+}
+
+function formatBoolean(value: boolean | null) {
+  if (value === null) {
+    return '';
+  }
+
+  return value ? 'Sí' : 'No';
+}
+
+function hasItems(items: string[]) {
+  return items.length > 0;
+}
+
+function hasContacts(contacts: DirectoryCompany['detail']['contacts']) {
+  return contacts.length > 0;
+}
+
 export default function EmpresaDetalle() {
   const { id } = useParams();
+  const { usuarioActual } = useAuth();
   const companyId = Number(id);
-  const company = mockCompanies.find((currentCompany) => currentCompany.id === companyId);
+  const [company, setCompany] = useState<DirectoryCompany | undefined>();
+  const [isLoadingCompany, setIsLoadingCompany] = useState(true);
+  const [companyError, setCompanyError] = useState('');
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadCompany() {
+      if (!Number.isInteger(companyId) || companyId <= 0) {
+        setCompany(undefined);
+        setCompanyError('ID de empresa inválido.');
+        setIsLoadingCompany(false);
+        return;
+      }
+
+      try {
+        setIsLoadingCompany(true);
+        setCompanyError('');
+
+        const apiCompany = usuarioActual
+          ? await getPrivateCompanyById(companyId)
+          : await getPublicCompanyById(companyId);
+
+        const mappedCompany = mapPublicCompanyApi(apiCompany);
+
+        if (usuarioActual) {
+          const [
+            productosResult,
+            procesosResult,
+            industriasResult,
+            necesidadesResult,
+          ] = await Promise.allSettled([
+            api.get(`/productos/empresa/${companyId}`),
+            api.get(`/empresa-procesos/empresa/${companyId}`),
+            api.get(`/empresa-industrias/empresa/${companyId}`),
+            api.get(`/empresa-necesidades/empresa/${companyId}`),
+          ]);
+
+          if (productosResult.status === 'fulfilled') {
+            mappedCompany.detail.productsAndServices = productosResult.value.data.map((product: any) =>
+              product.clientes
+                ? `${product.nombre_producto} - Clientes: ${product.clientes}`
+                : product.nombre_producto
+            );
+          }
+
+          if (procesosResult.status === 'fulfilled') {
+            mappedCompany.detail.manufacturingCapabilities =
+              procesosResult.value.data.data.procesos?.map((proceso: any) => proceso.nombre_proceso) ?? [];
+          }
+
+          if (industriasResult.status === 'fulfilled') {
+            mappedCompany.detail.industries =
+              industriasResult.value.data.data.industrias?.map((industria: any) => industria.nombre_industria) ?? [];
+          }
+
+          if (necesidadesResult.status === 'fulfilled') {
+            mappedCompany.detail.supplierNeeds =
+              necesidadesResult.value.data.data.necesidades?.map((necesidad: any) => necesidad.nombre_necesidad) ?? [];
+          }
+        }
+
+
+
+        if (!isMounted) {
+          return;
+        }
+
+        setCompany(mappedCompany);
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
+        setCompany(undefined);
+        setCompanyError('No se pudo cargar la empresa. Intenta de nuevo más tarde.');
+      } finally {
+        if (isMounted) {
+          setIsLoadingCompany(false);
+        }
+      }
+    }
+
+    loadCompany();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [companyId, usuarioActual]);
+
 
   if (!company) {
     return (
@@ -93,15 +211,15 @@ export default function EmpresaDetalle() {
 
             <div className="!mt-10 !rounded-[36px] !border !border-[#e5edf7] !bg-white !p-9 !shadow-[0_22px_70px_rgba(15,23,42,0.08)]">
               <p className="!text-[12px] !font-bold !uppercase !tracking-[0.14em] !text-[#1181e5]">
-                Sin resultados
+                {isLoadingCompany ? 'Cargando' : 'Sin resultados'}
               </p>
 
               <h1 className="!mt-4 !text-[48px] !font-bold !leading-none !tracking-[-0.05em] !text-[#12284b]">
-                Empresa no encontrada
+                {isLoadingCompany ? 'Cargando empresa' : 'Empresa no encontrada'}
               </h1>
 
               <p className="!mt-5 !max-w-[620px] !text-[18px] !leading-[1.7] !text-[#64748b]">
-                Regresa al directorio para seleccionar otro miembro disponible.
+                {companyError || 'Regresa al directorio para seleccionar otro miembro disponible.'}
               </p>
             </div>
           </section>
@@ -128,22 +246,38 @@ export default function EmpresaDetalle() {
             ← Directorio
           </Link>
 
-          <header className="!relative !mt-8 !rounded-[42px] !border !border-[#e5edf7] !bg-white/90 !p-8 !shadow-[0_28px_90px_rgba(15,23,42,0.09)] lg:!p-10">
-            <div className="!absolute !right-8 !top-8 !hidden !rounded-full !bg-[#e5effa] !px-4 !py-2 !text-[12px] !font-bold !uppercase !tracking-[0.08em] !text-[#213854] sm:!inline-flex">
-              {company.tierLabel}
+          {isLoadingCompany ? (
+            <p className="!mt-4 !text-[15px] !font-semibold !text-[#64748b]">
+              Cargando empresa...
+            </p>
+          ) : null}
+
+          {companyError ? (
+            <p className="!mt-4 !rounded-[16px] !border !border-[#fde68a] !bg-[#fffbeb] !px-4 !py-3 !text-[14px] !font-semibold !text-[#92400e]">
+              {companyError}
+            </p>
+          ) : null}
+
+          <header className="!mt-8 !rounded-[42px] !border !border-[#e5edf7] !bg-white/90 !p-8 !shadow-[0_28px_90px_rgba(15,23,42,0.09)] lg:!p-10">
+            <div className="!flex !flex-wrap !items-start !justify-between !gap-3">
+              <div className="!inline-flex !max-w-full !rounded-full !bg-[#e5effa] !px-4 !py-2 !text-[12px] !font-bold !uppercase !tracking-[0.12em] !text-[#213854]">
+                <span className="!line-clamp-2 !leading-[1.35]">
+                  {company.categoryLabel}
+                </span>
+              </div>
+
+              <div className="!inline-flex !rounded-full !bg-[#e5effa] !px-4 !py-2 !text-[12px] !font-bold !uppercase !tracking-[0.08em] !text-[#213854]">
+                {company.tierLabel}
+              </div>
             </div>
 
-            <div className="!grid !gap-8 lg:!grid-cols-[minmax(0,1fr)_320px] lg:!items-center">
-              <div>
-                <div className="!inline-flex !rounded-full !bg-[#e5effa] !px-4 !py-2 !text-[12px] !font-bold !uppercase !tracking-[0.12em] !text-[#213854]">
-                  {company.categoryLabel}
-                </div>
-
-                <h1 className="!mt-6 !max-w-[760px] !text-[clamp(48px,6vw,86px)] !font-bold !leading-[0.9] !tracking-[-0.06em] !text-[#12284b]">
+            <div className="!mt-10 !grid !gap-8 lg:!grid-cols-[minmax(0,1fr)_320px] lg:!items-center">
+              <div className="!min-w-0">
+                <h1 className="!max-w-[760px] !break-words !text-[clamp(42px,5vw,72px)] !font-bold !leading-[0.96] !tracking-[-0.04em] !text-[#12284b] [overflow-wrap:anywhere]">
                   {displayName}
                 </h1>
 
-                <p className="!mt-6 !max-w-[780px] !text-[20px] !leading-[1.65] !text-[#64748b]">
+                <p className="!mt-6 !max-w-[780px] !break-words !text-[20px] !leading-[1.65] !text-[#64748b] [overflow-wrap:anywhere]">
                   {company.detail.about}
                 </p>
               </div>
@@ -185,57 +319,116 @@ export default function EmpresaDetalle() {
             <div className="!space-y-6">
               <SectionCard eyebrow="Perfil" title="Información general">
                 <dl className="!grid !gap-4 sm:!grid-cols-2">
-                  <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
-                    <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
-                      Dirección
-                    </dt>
-                    <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
-                      {company.detail.address}
-                    </dd>
-                  </div>
+                  {hasValue(company.detail.legalName) ? (
+                    <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
+                      <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
+                        Razón social
+                      </dt>
+                      <dd className="!mt-2 !break-words !text-[15px] !font-semibold !leading-[1.55] !text-[#334155] [overflow-wrap:anywhere]">
+                        {company.detail.legalName}
+                      </dd>
+                    </div>
+                  ) : null}
 
-                  <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
-                    <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
-                      Giro
-                    </dt>
-                    <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
-                      {company.detail.businessLine}
-                    </dd>
-                  </div>
+                  {hasValue(company.detail.rfc) ? (
+                    <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
+                      <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
+                        RFC
+                      </dt>
+                      <dd className="!mt-2 !break-words !text-[15px] !font-semibold !leading-[1.55] !text-[#334155] [overflow-wrap:anywhere]">
+                        {company.detail.rfc}
+                      </dd>
+                    </div>
+                  ) : null}
 
-                  <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
-                    <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
-                      Fundación
-                    </dt>
-                    <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
-                      {company.detail.foundedYear}
-                    </dd>
-                  </div>
+                  {hasValue(company.detail.address) ? (
+                    <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
+                      <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
+                        Dirección
+                      </dt>
+                      <dd className="!mt-2 !break-words !text-[15px] !font-semibold !leading-[1.55] !text-[#334155] [overflow-wrap:anywhere]">
+                        {company.detail.address}
+                      </dd>
+                    </div>
+                  ) : null}
 
-                  <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
-                    <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
-                      Empleados
-                    </dt>
-                    <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
-                      {company.employeeRange}
-                    </dd>
-                  </div>
+                  {hasValue(company.detail.businessLine) ? (
+                    <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
+                      <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
+                        Giro
+                      </dt>
+                      <dd className="!mt-2 !break-words !text-[15px] !font-semibold !leading-[1.55] !text-[#334155] [overflow-wrap:anywhere]">
+                        {company.detail.businessLine}
+                      </dd>
+                    </div>
+                  ) : null}
+
+                  {hasValue(company.detail.foundedYear) ? (
+                    <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
+                      <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
+                        Fundación
+                      </dt>
+                      <dd className="!mt-2 !break-words !text-[15px] !font-semibold !leading-[1.55] !text-[#334155] [overflow-wrap:anywhere]">
+                        {company.detail.foundedYear}
+                      </dd>
+                    </div>
+                  ) : null}
+
+                  {hasValue(company.employeeRange) ? (
+                    <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
+                      <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
+                        Empleados
+                      </dt>
+                      <dd className="!mt-2 !break-words !text-[15px] !font-semibold !leading-[1.55] !text-[#334155] [overflow-wrap:anywhere]">
+                        {company.employeeRange}
+                      </dd>
+                    </div>
+                  ) : null}
+
+                  {company.detail.manufacturesForAutomotive !== null ? (
+                    <div className="!rounded-[22px] !bg-[#f5f9ff] !p-5">
+                      <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
+                        Fabrica para automotriz
+                      </dt>
+                      <dd className="!mt-2 !break-words !text-[15px] !font-semibold !leading-[1.55] !text-[#334155] [overflow-wrap:anywhere]">
+                        {formatBoolean(company.detail.manufacturesForAutomotive)}
+                      </dd>
+                    </div>
+                  ) : null}
                 </dl>
               </SectionCard>
 
-              <SectionCard eyebrow="Oferta" title="Productos y servicios">
-                <DetailList items={company.detail.productsAndServices} />
-              </SectionCard>
+              {hasItems(company.specialties) ? (
+                <SectionCard eyebrow="Especialización" title="Rubros">
+                  <DetailList items={company.specialties} />
+                </SectionCard>
+              ) : null}
 
-              <SectionCard eyebrow="Operación" title="Capacidades de manufactura">
-                <DetailList items={company.detail.manufacturingCapabilities} />
-              </SectionCard>
+              {hasItems(company.detail.certifications) ? (
+                <SectionCard eyebrow="Validaciones" title="Certificaciones">
+                  <DetailList items={company.detail.certifications} />
+                </SectionCard>
+              ) : null}
 
-              <SectionCard eyebrow="Proveeduría" title="Necesidades actuales">
-                <div className="!rounded-[26px] !border !border-[#b7d8ff] !bg-[#edf5ff] !p-5">
-                  <DetailList items={company.detail.supplierNeeds} />
-                </div>
-              </SectionCard>
+              {hasItems(company.detail.productsAndServices) ? (
+                <SectionCard eyebrow="Oferta" title="Productos y servicios">
+                  <DetailList items={company.detail.productsAndServices} />
+                </SectionCard>
+              ) : null}
+
+              {hasItems(company.detail.manufacturingCapabilities) ? (
+                <SectionCard eyebrow="Operación" title="Capacidades de manufactura">
+                  <DetailList items={company.detail.manufacturingCapabilities} />
+                </SectionCard>
+              ) : null}
+
+              {hasItems(company.detail.supplierNeeds) ? (
+                <SectionCard eyebrow="Proveeduría" title="Necesidades actuales">
+                  <div className="!rounded-[26px] !border !border-[#b7d8ff] !bg-[#edf5ff] !p-5">
+                    <DetailList items={company.detail.supplierNeeds} />
+                  </div>
+                </SectionCard>
+              ) : null}
             </div>
 
             <aside className="!space-y-6 lg:!sticky lg:!top-[112px] lg:!self-start">
@@ -245,74 +438,63 @@ export default function EmpresaDetalle() {
                 </p>
 
                 <dl className="!mt-4">
-                  <InfoRow label="Sitio web" value={company.detail.website} />
-                  <InfoRow label="Categoría" value={company.categoryLabel} />
+                  {hasValue(company.detail.website) ? (
+                    <InfoRow label="Sitio web" value={company.detail.website} />
+                  ) : null}
+
+                  {hasValue(company.detail.email) ? (
+                    <InfoRow label="Correo" value={company.detail.email} />
+                  ) : null}
+
+                  {hasValue(company.detail.phone) ? (
+                    <InfoRow label="Teléfono" value={company.detail.phone} />
+                  ) : null}
+
+                  {hasValue(company.detail.membership) ? (
+                    <InfoRow label="Membresía" value={company.detail.membership} />
+                  ) : null}
+
                   <InfoRow label="Tipo" value={company.tierLabel} />
                   <InfoRow label="Ubicación" value={`${company.city}, ${company.state}`} />
                 </dl>
+
               </section>
 
-              <section className="!rounded-[32px] !border !border-[#e5edf7] !bg-white !p-7 !shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
-                <p className="!text-[12px] !font-bold !uppercase !tracking-[0.14em] !text-[#1181e5]">
-                  Certificaciones
-                </p>
+              {hasItems(company.detail.industries) ? (
+                <SectionCard eyebrow="Mercado" title="Industrias">
+                  <DetailList items={company.detail.industries} />
+                </SectionCard>
+              ) : null}
 
-                <div className="!mt-5 !flex !flex-wrap !gap-2.5">
-                  {company.detail.certifications.map((certification) => (
-                    <span
-                      key={certification}
-                      className="!rounded-full !bg-[#e5effa] !px-3.5 !py-2 !text-[13px] !font-bold !text-[#213854]"
-                    >
-                      {certification}
-                    </span>
-                  ))}
-                </div>
-              </section>
+              {hasContacts(company.detail.contacts) ? (
+                <section className="!min-w-0 !rounded-[32px] !border !border-[#b7d8ff] !bg-[#edf5ff] !p-7 !shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
+                  <p className="!text-[12px] !font-bold !uppercase !tracking-[0.14em] !text-[#1181e5]">
+                    Contacto
+                  </p>
 
-              <section className="!rounded-[32px] !border !border-[#e5edf7] !bg-white !p-7 !shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
-                <p className="!text-[12px] !font-bold !uppercase !tracking-[0.14em] !text-[#1181e5]">
-                  Industrias
-                </p>
-
-                <div className="!mt-5 !flex !flex-wrap !gap-2.5">
-                  {company.detail.industries.map((industry) => (
-                    <span
-                      key={industry}
-                      className="!rounded-full !bg-[#f1f5f9] !px-3.5 !py-2 !text-[13px] !font-bold !text-[#475569]"
-                    >
-                      {industry}
-                    </span>
-                  ))}
-                </div>
-              </section>
-
-              <section className="!rounded-[32px] !border !border-[#b7d8ff] !bg-[#edf5ff] !p-7 !shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
-                <p className="!text-[12px] !font-bold !uppercase !tracking-[0.14em] !text-[#1181e5]">
-                  Contacto
-                </p>
-
-                <div className="!mt-5 !space-y-5">
-                  {company.detail.contacts.map((contact) => (
-                    <div
-                      key={`${contact.name}-${contact.role}`}
-                      className="!rounded-[22px] !bg-white !p-5 !shadow-[0_12px_30px_rgba(15,23,42,0.05)]"
-                    >
-                      <p className="!text-[16px] !font-bold !leading-[1.2] !text-[#12284b]">
-                        {contact.name}
-                      </p>
-                      <p className="!mt-1 !text-[13px] !font-semibold !text-[#64748b]">
-                        {contact.role}
-                      </p>
-                      <p className="!mt-4 !text-[14px] !font-semibold !text-[#334155]">
-                        {contact.email}
-                      </p>
-                      <p className="!mt-1 !text-[14px] !font-semibold !text-[#334155]">
-                        {contact.phone}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </section>
+                  <div className="!mt-5 !min-w-0 !space-y-5">
+                    {company.detail.contacts.map((contact) => (
+                      <div
+                        key={`${contact.name}-${contact.role}`}
+                        className="!min-w-0 !overflow-hidden !rounded-[22px] !bg-white !p-5 !shadow-[0_12px_30px_rgba(15,23,42,0.05)]"
+                      >
+                        <p className="!break-words !text-[16px] !font-bold !leading-[1.2] !text-[#12284b] [overflow-wrap:anywhere]">
+                          {contact.name}
+                        </p>
+                        <p className="!mt-1 !break-words !text-[13px] !font-semibold !text-[#64748b] [overflow-wrap:anywhere]">
+                          {contact.role}
+                        </p>
+                        <p className="!mt-4 !break-words !text-[14px] !font-semibold !leading-[1.45] !text-[#334155] [overflow-wrap:anywhere]">
+                          {contact.email}
+                        </p>
+                        <p className="!mt-1 !break-words !text-[14px] !font-semibold !leading-[1.45] !text-[#334155] [overflow-wrap:anywhere]">
+                          {contact.phone}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
             </aside>
           </div>
         </section>

@@ -1,4 +1,4 @@
-import api from ".";
+import { api } from "./http";
 import { AxiosError } from "axios";
 import type { User, NewUserInput, UpdateUserInput } from "types";
 
@@ -17,7 +17,7 @@ interface MessageResponse {
 
 export const getAllUsers = async (): Promise<User[]> => {
     try {
-        const res = await api.get<User[]>("/users");
+        const res = await api.get<User[]>("/usuarios");
         return res.data;
     } catch (error) {
         const err = error as AxiosError;
@@ -28,7 +28,7 @@ export const getAllUsers = async (): Promise<User[]> => {
 
 export const getUserById = async (id: string): Promise<User> => {
     try {
-        const res = await api.get<User>(`/users/${id}`);
+        const res = await api.get<User>(`/usuarios/${id}`);
         return res.data;
     } catch (error) {
         const err = error as AxiosError;
@@ -39,7 +39,7 @@ export const getUserById = async (id: string): Promise<User> => {
 
 export const getUsersByEmpresa = async (empresaId: number): Promise<User[]> => {
     try {
-        const res = await api.get<User[]>(`/users/empresa/${empresaId}`);
+        const res = await api.get<User[]>(`/usuarios/empresa/${empresaId}`);
         return res.data;
     } catch (error) {
         const err = error as AxiosError;
@@ -50,7 +50,7 @@ export const getUsersByEmpresa = async (empresaId: number): Promise<User[]> => {
 
 export const createUser = async (data: NewUserInput): Promise<CreateUserResponse> => {
     try {
-        const res = await api.post<CreateUserResponse>("/users", data);
+        const res = await api.post<CreateUserResponse>("/usuarios", data);
         return res.data;
     } catch (error) {
         const err = error as AxiosError;
@@ -64,7 +64,7 @@ export const updateUser = async (
     data: UpdateUserInput
 ): Promise<MessageResponse> => {
     try {
-        const res = await api.patch<MessageResponse>(`/users/${id}`, data);
+        const res = await api.patch<MessageResponse>(`/usuarios/${id}`, data);
         return res.data;
     } catch (error) {
         const err = error as AxiosError;
@@ -75,7 +75,7 @@ export const updateUser = async (
 
 export const deleteUser = async (id: string): Promise<MessageResponse> => {
     try {
-        const res = await api.delete<MessageResponse>(`/users/${id}`);
+        const res = await api.delete<MessageResponse>(`/usuarios/${id}`);
         return res.data;
     } catch (error) {
         const err = error as AxiosError;
