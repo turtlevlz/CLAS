@@ -6,9 +6,7 @@ export type DirectoryCategory = {
 export type DirectoryCompanyTier =
   | 'Tier 1'
   | 'Tier 2'
-  | 'Tier 3'
   | 'OEM'
-  | 'Gobierno'
   | 'Otro';
 
 export type DirectoryContactPerson = {
@@ -20,6 +18,12 @@ export type DirectoryContactPerson = {
 
 export type DirectoryCompanyDetail = {
   displayName?: string;
+  legalName: string;
+  rfc: string;
+  email: string;
+  phone: string;
+  membership: string;
+  manufacturesForAutomotive: boolean | null;
   address: string;
   businessLine: string;
   about: string;

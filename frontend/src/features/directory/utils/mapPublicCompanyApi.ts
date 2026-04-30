@@ -1,0 +1,87 @@
+import type { PublicCompanyApi } from '../api/directoryApi';
+import type {
+  DirectoryCompany,
+  DirectoryCompanyTier,
+} from '../types/directory';
+import { createCategoryId } from './createCategoryId';
+
+function mapTierLabel(value?: string | null): DirectoryCompanyTier {
+  if (value === 'Tier 1') {
+    return 'Tier 1';
+  }
+
+  if (value === 'Tier 2') {
+    return 'Tier 2';
+  }
+
+  if (value === 'OEM') {
+    return 'OEM';
+  }
+
+  return 'Otro';
+}
+
+export function mapPublicCompanyApi(
+  company: PublicCompanyApi,
+): DirectoryCompany {
+  const membresia = company.Membresia ?? company.membresia
+  const tipoOrganizacion =
+    company.TipoOrganizacion ?? company.tipoOrganizacion;
+  const rubros = company.Rubros ?? company.rubros ?? [];
+  const certificaciones =
+    company.Certificaciones ?? company.certificaciones ?? [];
+  const contactos = company.Contactos ?? company.contactos ?? [];
+
+  const specialties = rubros.map((rubro) => rubro.nombre_rubro);
+  const categoryLabel = company.giro ?? specialties[0] ?? 'Sin categoría';
+
+  return {
+    id: company.id_empresa,
+    name: company.nombre_comercial,
+    tierLabel: mapTierLabel(tipoOrganizacion?.nombre_tipo),
+    shortDescription: company.descripcion ?? '',
+    city: company.ciudad ?? 'Sonora',
+    state: 'Sonora',
+    publicEmail: company.correo_electronico ?? '',
+    publicPhone: company.telefono ?? '',
+    specialties,
+    employeeRange: company.rango_empleados ?? '',
+    categoryId: createCategoryId(categoryLabel),
+    categoryLabel,
+    logoUrl: company.logo ?? undefined,
+    detail: {
+      displayName: company.razon_social ?? company.nombre_comercial,
+      legalName: company.razon_social ?? '',
+      rfc: company.rfc ?? '',
+      email: company.correo_electronico ?? '',
+      phone: company.telefono ?? '',
+      membership: membresia?.nombre_membresia ?? '',
+      manufacturesForAutomotive: company.fabrica_para_automotriz ?? null,
+      address: company.domicilio_completo ?? '',
+      businessLine: company.giro ?? categoryLabel,
+      about: company.descripcion ?? '',
+      foundedYear:
+        company.anio_fundacion !== undefined && company.anio_fundacion !== null
+          ? String(company.anio_fundacion)
+          : '',
+      website: company.sitio_web ?? '',
+      certifications: certificaciones.map(
+        (certification) => certification.nombre_certificacion,
+      ),
+      industries: [],
+      productsAndServices: [],
+      manufacturingCapabilities: [],
+      supplierNeeds: [],
+      contacts: contactos.map((contact) => {
+        const contactFunction = contact.FuncionContacto ?? contact.funcion;
+
+        return {
+          name: contact.nombre_completo ?? '',
+          role: contact.puesto ?? contactFunction?.nombre_funcion ?? '',
+          email: contact.correo ?? '',
+          phone: contact.telefono_celular ?? '',
+        };
+      }),
+    },
+  };
+}
