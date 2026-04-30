@@ -15,6 +15,6 @@ router.get("/:id", verifyToken, getUserById);
 
 router.patch("/:id", verifyToken, checkRole(1, 2, 3), updateUser);
 
-router.delete("/:id", verifyToken, checkRole(1, 2, 3), deleteUser);
+router.delete("/:id", verifyToken, checkRole(1), deleteUser);
 
 export default router;

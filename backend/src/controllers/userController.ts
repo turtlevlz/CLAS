@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { User } from "../models/User";
 import { Empresa } from "../models/Empresa";
 import { Op } from "sequelize";
-import { z } from "zod";    
+import { z } from "zod";
 import bcrypt from "bcrypt";
 import { Role } from "../models/Role";
 
@@ -361,8 +361,8 @@ export const updateUser = async (req: Request, res: Response) => {
                     });
                 }
 
-                updates[key] = key === "correo_electronico" 
-                ? valueLimpio.toLowerCase() 
+                updates[key] = key === "correo_electronico"
+                ? valueLimpio.toLowerCase()
                 : valueLimpio;
             }
         }
@@ -422,22 +422,6 @@ export const deleteUser = async (req: Request, res: Response) => {
             return res.status(403).json({
                 message: "No se puede eliminar un usuario admin cluster"
             });
-        }
-
-        const user_log = (req as any).user;
-
-        if (user_log.rol_id === 3) {
-            if (user_log.id_usuario !== idUser) {
-                return res.status(403).json({
-                    message: "No autorizado para eliminar a otro usuario"
-                });
-            }
-        } else if (user_log.rol_id === 2) {
-            if (user.empresa_id !== user_log.empresa_id) {
-                return res.status(403).json({
-                    message: "No autorizado para eliminar usuarios de otra empresa"
-                });
-            }
         }
 
         await user.destroy();
