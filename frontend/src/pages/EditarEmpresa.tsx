@@ -180,6 +180,8 @@ export default function EditarEmpresa() {
       industriasRes,
       necesidadesRes,
       funcionesRes,
+      rubrosAsignadosRes,
+      certificacionesAsignadasRes,
       procesosAsignadosRes,
       industriasAsignadasRes,
       necesidadesAsignadasRes,
@@ -194,11 +196,14 @@ export default function EditarEmpresa() {
       client.get('/industrias'),
       client.get('/necesidades'),
       client.get('/funciones'),
+      client.get(`/empresa-rubros/empresa/${empresaId}`),
+      client.get(`/empresa-certificaciones/empresa/${empresaId}`),
       client.get(`/empresa-procesos/empresa/${empresaId}`),
       client.get(`/empresa-industrias/empresa/${empresaId}`),
       client.get(`/empresa-necesidades/empresa/${empresaId}`),
       client.get(`/productos/empresa/${empresaId}`),
     ]);
+
 
 
     const data = empresaRes.data;
@@ -234,12 +239,13 @@ export default function EditarEmpresa() {
     });
 
     setAssigned({
-      rubros: normalizeList(data, 'Rubros', 'rubros'),
-      certificaciones: normalizeList(data, 'Certificaciones', 'certificaciones'),
+      rubros: normalizeList(rubrosAsignadosRes.data.data, 'Rubros', 'rubros'),
+      certificaciones: normalizeList(certificacionesAsignadasRes.data.data, 'Certificaciones', 'certificaciones'),
       procesos: normalizeList(procesosAsignadosRes.data.data, 'Procesos', 'procesos'),
       industrias: normalizeList(industriasAsignadasRes.data.data, 'Industrias', 'industrias'),
       necesidades: normalizeList(necesidadesAsignadasRes.data.data, 'Necesidades', 'necesidades'),
     });
+
 
     setProducts(productosRes.data || []);
     setContacts(normalizeList(data, 'Contactos', 'contactos'));
