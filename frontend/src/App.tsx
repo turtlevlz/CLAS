@@ -11,6 +11,7 @@ import ForgotPswd from './pages/ForgotPswd';
 import NuevaEmpresa from './pages/NuevaEmpresa';
 import EditarEmpresa from './pages/EditarEmpresa';
 import ErrorPage from './pages/ErrorPage';
+import Membresias from './pages/Membresias';
 
 const RutaProtegida = ({ children }: { children: any }) => {
   const { usuarioActual } = useAuth();
@@ -33,6 +34,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/empresa/:id" element={<EmpresaDetalle />} />
         <Route path="/contrasena_reset" element={<ForgotPswd />} />
+        <Route path="/membresias" element={<Membresias />} />
         <Route
           path="/admin"
           element={
