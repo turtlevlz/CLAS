@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import client from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import AdminSelect from '../features/directory/components/AdminSelect';
 
 type CatalogItem = Record<string, any>;
 
@@ -480,32 +481,30 @@ export default function EditarEmpresa() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Membresía</label>
-                    <select
+                    <AdminSelect
                       value={formData.membresia_id}
-                      onChange={e => updateField('membresia_id', e.target.value)}
                       disabled={!esAdminClas}
-                      className="w-full border border-gray-300 rounded-lg p-2 mt-1 text-sm bg-white disabled:bg-gray-100 disabled:text-gray-500"
-                    >
-                      <option value="">Seleccionar...</option>
-                      {catalogs.membresias.map((item) => (
-                        <option key={item.id_membresia} value={item.id_membresia}>{item.nombre_membresia}</option>
-                      ))}
-                    </select>
+                      placeholder="Seleccionar..."
+                      onChange={(value) => updateField('membresia_id', String(value))}
+                      options={catalogs.membresias.map((item) => ({
+                        value: item.id_membresia,
+                        label: item.nombre_membresia,
+                      }))}
+                    />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Tipo de Organización</label>
-                    <select
+                    <AdminSelect
                       value={formData.tipo_organizacion_id}
-                      onChange={e => updateField('tipo_organizacion_id', e.target.value)}
                       disabled={!esAdminClas}
-                      className="w-full border border-gray-300 rounded-lg p-2 mt-1 text-sm bg-white disabled:bg-gray-100 disabled:text-gray-500"
-                    >
-                      <option value="">Seleccionar...</option>
-                      {catalogs.organizaciones.map((item) => (
-                        <option key={item.id_tipo} value={item.id_tipo}>{item.nombre_tipo}</option>
-                      ))}
-                    </select>
+                      placeholder="Seleccionar..."
+                      onChange={(value) => updateField('tipo_organizacion_id', String(value))}
+                      options={catalogs.organizaciones.map((item) => ({
+                        value: item.id_tipo,
+                        label: item.nombre_tipo,
+                      }))}
+                    />
                   </div>
                 </div>
               </section>
@@ -573,16 +572,15 @@ export default function EditarEmpresa() {
               return (
                 <section key={config.assignedKey} className={`bg-white rounded-xl shadow-sm p-6 ${config.assignedKey === 'necesidades' ? 'lg:col-span-2' : ''}`}>
                   <h2 className="text-lg font-bold text-gray-900 mb-4">{config.title}</h2>
-                  <select
+                  <AdminSelect
                     value=""
-                    onChange={e => handleAddRelation(config, e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg p-2 text-sm bg-white mb-4"
-                  >
-                    <option value="">Agregar...</option>
-                    {available.map((item) => (
-                      <option key={item[config.idKey]} value={item[config.idKey]}>{item[config.labelKey]}</option>
-                    ))}
-                  </select>
+                    placeholder="Agregar..."
+                    onChange={(value) => handleAddRelation(config, String(value))}
+                    options={available.map((item) => ({
+                      value: item[config.idKey],
+                      label: item[config.labelKey],
+                    }))}
+                  />
                   <div className="flex min-w-0 flex-wrap gap-2 overflow-hidden">
                     {(assigned[config.assignedKey] || []).map((item) => (
                       <button
@@ -649,7 +647,7 @@ export default function EditarEmpresa() {
               <input required placeholder="Puesto" value={contactForm.puesto} onChange={e => setContactForm({ ...contactForm, puesto: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
               <input required placeholder="Teléfono" value={contactForm.telefono_celular} onChange={e => setContactForm({ ...contactForm, telefono_celular: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
               <input type="email" placeholder="Correo" value={contactForm.correo} onChange={e => setContactForm({ ...contactForm, correo: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
-              <select required value={contactForm.funcion_id} onChange={e => setContactForm({ ...contactForm, funcion_id: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm bg-white">
+              <select required value={contactForm.funcion_id} onChange={e => setContactForm({ ...contactForm, funcion_id: e.target.value })} className="h-11 min-w-0 rounded-[16px] border border-[#dbe4ef] bg-white px-4 text-sm font-medium text-[#334155] shadow-none outline-none transition focus:outline-none focus:ring-4 focus:ring-sky-100">
                 <option value="">Función...</option>
                 {catalogs.funciones.map((item) => (
                   <option key={item.id_funcion} value={item.id_funcion}>{item.nombre_funcion}</option>
@@ -666,7 +664,7 @@ export default function EditarEmpresa() {
                       <input value={editingContactForm.puesto} onChange={e => setEditingContactForm({ ...editingContactForm, puesto: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
                       <input value={editingContactForm.telefono_celular} onChange={e => setEditingContactForm({ ...editingContactForm, telefono_celular: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
                       <input type="email" value={editingContactForm.correo} onChange={e => setEditingContactForm({ ...editingContactForm, correo: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
-                      <select value={editingContactForm.funcion_id} onChange={e => setEditingContactForm({ ...editingContactForm, funcion_id: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm bg-white">
+                      <select value={editingContactForm.funcion_id} onChange={e => setEditingContactForm({ ...editingContactForm, funcion_id: e.target.value })} className="h-11 min-w-0 rounded-[16px] border border-[#dbe4ef] bg-white px-4 text-sm font-medium text-[#334155] shadow-none outline-none transition focus:outline-none focus:ring-4 focus:ring-sky-100">
                         <option value="">Función...</option>
                         {catalogs.funciones.map((item) => (
                           <option key={item.id_funcion} value={item.id_funcion}>{item.nombre_funcion}</option>

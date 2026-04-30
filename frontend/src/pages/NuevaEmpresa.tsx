@@ -124,7 +124,7 @@ export default function NuevaEmpresa() {
                     required
                     value={formData.membresia_id}
                     onChange={e => updateField('membresia_id', e.target.value)}
-                    className="w-full min-w-0 border border-gray-300 rounded-lg p-2 mt-1 text-sm bg-white outline-none focus:ring-2 focus:ring-primary"
+                    className="mt-1 h-11 w-full min-w-0 rounded-[16px] border border-[#dbe4ef] bg-white px-4 text-sm font-medium text-[#334155] shadow-none outline-none transition focus:outline-none focus:ring-4 focus:ring-sky-100"
                   >
                     <option value="">Seleccionar...</option>
                     {membresias.map((m) => (
