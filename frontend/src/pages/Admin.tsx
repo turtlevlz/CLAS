@@ -14,6 +14,7 @@ import client from '../api/client';
 function PanelUsuarios() {
   const { usuarioActual } = useAuth();
   const esAdminClas = usuarioActual?.rol_id === 1;
+  const canManageUsers = esAdminClas;
 
   if (![1, 2].includes(usuarioActual?.rol_id)) {
     return null;
@@ -67,7 +68,10 @@ function PanelUsuarios() {
   }, [esAdminClas]);
 
   const handleBorrar = async (id: string) => {
+    if (!canManageUsers) return;
+
     if (!window.confirm("¿Borrar usuario?")) return;
+
     try {
       await client.delete(`/usuarios/${id}`);
       setUsuarios(prev => prev.filter(u => u.id_usuario !== id));
@@ -78,6 +82,8 @@ function PanelUsuarios() {
   };
 
   const abrirEdicion = (usuario: any) => {
+    if (!canManageUsers) return;
+
     setSelectedUser(usuario);
     setFormData({
       nombre_usuario: usuario.nombre_usuario,
@@ -91,6 +97,9 @@ function PanelUsuarios() {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!canManageUsers) return;
+
     try {
       const payload: any = { ...formData };
       if (!payload.contrasena) {
@@ -136,21 +145,23 @@ function PanelUsuarios() {
            <h1 className="text-2xl font-bold text-gray-900 mb-1">Panel de administrador</h1>
            <p className="text-gray-500 text-sm">Gestión de Perfiles Socio de CLAS.</p>
         </div>
-        <button
-          onClick={() => {
-            setFormData({
-              nombre_usuario: '',
-              correo_electronico: '',
-              contrasena: '',
-              rol_id: 3,
-              empresa_id: usuarioActual?.empresa_id || null
-            });
-            setShowCreateModal(true);
-          }}
-          className="bg-[#10b981] text-white px-4 py-2 rounded-lg flex items-center gap-2 font-semibold"
-        >
-          <PlusIcon className="w-5 h-5" /> Agregar Usuario
-        </button>
+        {canManageUsers && (
+          <button
+            onClick={() => {
+              setFormData({
+                nombre_usuario: '',
+                correo_electronico: '',
+                contrasena: '',
+                rol_id: 3,
+                empresa_id: usuarioActual?.empresa_id || null
+              });
+              setShowCreateModal(true);
+            }}
+            className="bg-[#10b981] text-white px-4 py-2 rounded-lg flex items-center gap-2 font-semibold"
+          >
+            <PlusIcon className="w-5 h-5" /> Agregar Usuario
+          </button>
+        )}
       </div>
 
       <div className="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-2 w-72 mb-6 bg-white">
@@ -171,14 +182,16 @@ function PanelUsuarios() {
               <th className="px-6 py-4 font-medium">Correo Electrónico</th>
               <th className="px-6 py-4 font-medium">Nombre</th>
               <th className="px-6 py-4 font-medium">Rol</th>
-              <th className="px-6 py-4 font-medium">Acciones</th>
+              {canManageUsers && (
+                <th className="px-6 py-4 font-medium">Acciones</th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {loading ? (
-              <tr><td colSpan={4} className="p-10 text-center text-gray-400">Cargando...</td></tr>
+              <tr><td colSpan={canManageUsers ? 4 : 3} className="p-10 text-center text-gray-400">Cargando...</td></tr>
             ) : filtrados.length === 0 ? (
-              <tr><td colSpan={4} className="p-10 text-center text-gray-400">No hay usuarios registrados.</td></tr>
+              <tr><td colSpan={canManageUsers ? 4 : 3} className="p-10 text-center text-gray-400">No hay usuarios registrados.</td></tr>
             ) : filtrados.map(u => (
               <tr key={u.id_usuario} className="hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-4 text-gray-700">{u.correo_electronico}</td>
@@ -192,23 +205,25 @@ function PanelUsuarios() {
                       {u.rol_id === 1 ? 'Admin CLAS' : u.rol_id === 2 ? 'Admin Empresa' : 'Usuario Empresa'}
                   </span>
                 </td>
-                <td className="px-6 py-4 flex gap-3">
-                  {u.id_usuario !== usuarioActual?.id_usuario && (
-                    <button onClick={() => handleBorrar(u.id_usuario)} className="text-red-500 hover:text-red-700">
-                      <TrashIcon className="w-5 h-5"/>
+                {canManageUsers && (
+                  <td className="px-6 py-4 flex gap-3">
+                    {u.id_usuario !== usuarioActual?.id_usuario && (
+                      <button onClick={() => handleBorrar(u.id_usuario)} className="text-red-500 hover:text-red-700">
+                        <TrashIcon className="w-5 h-5"/>
+                      </button>
+                    )}
+                    <button onClick={() => abrirEdicion(u)} className="text-orange-500 hover:text-orange-700">
+                      <PencilSquareIcon className="w-5 h-5"/>
                     </button>
-                  )}
-                  <button onClick={() => abrirEdicion(u)} className="text-orange-500 hover:text-orange-700">
-                    <PencilSquareIcon className="w-5 h-5"/>
-                  </button>
-                </td>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      {(showCreateModal || showEditModal) && (
+      {canManageUsers && (showCreateModal || showEditModal) && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[200]">
           <div className="bg-white p-8 rounded-2xl w-full max-w-md shadow-2xl">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">
