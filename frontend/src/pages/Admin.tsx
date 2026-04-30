@@ -341,8 +341,8 @@ function PanelEmpresas() {
               <tr key={e.id_empresa} className="hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-4 text-gray-700 font-medium">{e.nombre_comercial}</td>
                 <td className="px-6 py-4 text-gray-700">{e.ciudad}</td>
-                <td className="px-6 py-4 text-gray-700">{e.Membresia?.nombre_membresia ?? '—'}</td>
-                <td className="px-6 py-4 text-gray-700">{e.TipoOrganizacion?.nombre_tipo ?? '—'}</td>
+                <td className="px-6 py-4 text-gray-700">{(e.Membresia || e.membresia)?.nombre_membresia ?? '—'}</td>
+                <td className="px-6 py-4 text-gray-700">{(e.TipoOrganizacion || e.tipoOrganizacion || e.tipo_organizacion)?.nombre_tipo ?? '—'}</td>
                 <td className="px-6 py-4 flex gap-3">
                   <button onClick={() => navigate(`/admin/empresas/${e.id_empresa}/editar`)} className="text-orange-500 hover:text-orange-700">
                     <PencilSquareIcon className="w-5 h-5" />
