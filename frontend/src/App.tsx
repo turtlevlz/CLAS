@@ -8,14 +8,16 @@ import Login from './pages/Login';
 import EmpresaDetalle from './pages/EmpresaDetalle';
 import Admin from './pages/Admin';
 import ForgotPswd from './pages/ForgotPswd';
+import NuevaEmpresa from './pages/NuevaEmpresa';
+import EditarEmpresa from './pages/EditarEmpresa';
 
 const RutaProtegida = ({ children }: { children: any }) => {
   const { usuarioActual } = useAuth();
-  
+
   if (!usuarioActual) {
     return <Navigate to="/login" />;
   }
-  
+
   return children;
 };
 
@@ -30,13 +32,30 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/empresa/:id" element={<EmpresaDetalle />} />
         <Route path="/contrasena_reset" element={<ForgotPswd />} />
-        <Route 
-          path="/admin" 
+        <Route
+          path="/admin"
           element={
             <RutaProtegida>
               <Admin />
             </RutaProtegida>
-          } 
+          }
+        />
+        <Route
+          path="/admin/nueva-empresa"
+          element={
+            <RutaProtegida>
+              <NuevaEmpresa />
+            </RutaProtegida>
+          }
+        />
+
+        <Route
+          path="/admin/empresas/:id/editar"
+          element={
+            <RutaProtegida>
+              <EditarEmpresa />
+            </RutaProtegida>
+          }
         />
       </Routes>
     </BrowserRouter>
