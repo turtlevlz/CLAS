@@ -1,12 +1,28 @@
 import { useState } from "react";
+import api from "../api/index";
 import claslogo from "../assets/img/clas-logo.png"
 import Footer from "../components/Footer";
 
 export default function ForgotPswd() {
     const [email, setEmail] = useState('');
+    const [message, setMessage] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    const handleSubmit = () => {
-        console.log({ email });
+    const handleSubmit = async () => {
+        if (!email) return;
+        setError("");
+        setMessage("");
+        setLoading(true)
+       
+        try {
+            await api.post("auth/forgot-password", { correo_electronico: email });
+            setMessage("Revisa tu correo. Recibiras un correo con instrucciones sobre como recuperar tu contraseña");
+        } catch {
+            setError("Ocurrio un error, intenta de nuevo");
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
@@ -25,6 +41,9 @@ export default function ForgotPswd() {
                                 <p className="text-center text-xl pb-5">Herramienta de recuperación de contraseña</p>
                                 <p className="text-center text-l pb-5">Ingrese su correo electrónico y se enviará un correo con instrucciones para recuperar su contraseña</p>
 
+                                {message && <p className="text-green-600 text-sm mt-2 text-center">{message}</p>}
+                                {error && <p className="text-red-500 text-sm mt-2 text-center">{error}</p>}
+
                                 <label className='block text-sm text-gray-500 mb-1'>Correo Electrónico</label>
                                 <input 
                                 type='email' 
@@ -33,8 +52,8 @@ export default function ForgotPswd() {
                                 onChange={e => setEmail(e.target.value)}
                                 className='w-full px-3 py-2 text-m border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400'/>
 
-                                <button onClick={handleSubmit} className='mb-15 w-full mt-4 bg-gray-900 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors'>
-                                    Enviar correo de recuperación
+                                <button onClick={handleSubmit} disabled={loading} className='mb-15 w-full mt-4 bg-gray-900 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors'>
+                                    {loading ? "Enviando..." : "Enviar correo de recuperación"}
                                 </button>
                             </div>
 

@@ -71,6 +71,18 @@ export class User extends Model {
     })
     correo_electronico!: string;
 
+    @Column({
+        type: DataType.STRING,
+        allowNull: true
+    })
+    reset_token?: string;
+
+    @Column({
+        type: DataType.DATE,
+        allowNull: true
+    })
+    reset_token_expire?: Date;
+
     //Relaciones
     @BelongsTo(() => Empresa)
     empresa!: Empresa;

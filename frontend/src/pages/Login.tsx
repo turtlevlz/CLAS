@@ -79,7 +79,7 @@ export default function Login() {
 
             <div className='flex justify-between items-center mt-3 mb-1'>
               <label className='text-xs text-gray-500'>Contraseña</label>
-              <a href="/contrasena_reset" className='text-xs text-blue-500 hover:underline'>
+              <a href="/contrasena_olvidar" className='text-xs text-blue-500 hover:underline'>
                 ¿Olvidaste tu contraseña?
               </a>
             </div>
