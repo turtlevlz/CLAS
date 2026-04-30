@@ -131,32 +131,41 @@ export default function EmpresaDetalle() {
 
         if (usuarioActual) {
           const [
-            productosRes,
-            procesosRes,
-            industriasRes,
-            necesidadesRes,
-          ] = await Promise.all([
+            productosResult,
+            procesosResult,
+            industriasResult,
+            necesidadesResult,
+          ] = await Promise.allSettled([
             api.get(`/productos/empresa/${companyId}`),
             api.get(`/empresa-procesos/empresa/${companyId}`),
             api.get(`/empresa-industrias/empresa/${companyId}`),
             api.get(`/empresa-necesidades/empresa/${companyId}`),
           ]);
 
-          mappedCompany.detail.productsAndServices = productosRes.data.map((product: any) =>
-            product.clientes
-              ? `${product.nombre_producto} - Clientes: ${product.clientes}`
-              : product.nombre_producto
-          );
+          if (productosResult.status === 'fulfilled') {
+            mappedCompany.detail.productsAndServices = productosResult.value.data.map((product: any) =>
+              product.clientes
+                ? `${product.nombre_producto} - Clientes: ${product.clientes}`
+                : product.nombre_producto
+            );
+          }
 
-          mappedCompany.detail.manufacturingCapabilities =
-            procesosRes.data.data.procesos?.map((proceso: any) => proceso.nombre_proceso) ?? [];
+          if (procesosResult.status === 'fulfilled') {
+            mappedCompany.detail.manufacturingCapabilities =
+              procesosResult.value.data.data.procesos?.map((proceso: any) => proceso.nombre_proceso) ?? [];
+          }
 
-          mappedCompany.detail.industries =
-            industriasRes.data.data.industrias?.map((industria: any) => industria.nombre_industria) ?? [];
+          if (industriasResult.status === 'fulfilled') {
+            mappedCompany.detail.industries =
+              industriasResult.value.data.data.industrias?.map((industria: any) => industria.nombre_industria) ?? [];
+          }
 
-          mappedCompany.detail.supplierNeeds =
-            necesidadesRes.data.data.necesidades?.map((necesidad: any) => necesidad.nombre_necesidad) ?? [];
+          if (necesidadesResult.status === 'fulfilled') {
+            mappedCompany.detail.supplierNeeds =
+              necesidadesResult.value.data.data.necesidades?.map((necesidad: any) => necesidad.nombre_necesidad) ?? [];
+          }
         }
+
 
 
         if (!isMounted) {
