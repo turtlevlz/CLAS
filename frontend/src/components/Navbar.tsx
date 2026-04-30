@@ -59,7 +59,7 @@ export default function Navbar() {
           <li>
             <NavLink to="/mi-cuenta" className={linkClass}>
               <UserIcon className="h-5 w-5 shrink-0" aria-hidden="true" />
-              Mi cuenta
+              {usuarioActual.nombre_usuario || 'Mi cuenta'}
             </NavLink>
           </li>
         )}

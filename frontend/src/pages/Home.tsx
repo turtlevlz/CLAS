@@ -325,9 +325,9 @@ export default function Home() {
                 ${ctaVisible ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0'}
               `}
             >
-              <button className="bg-white text-[#004a99] px-14 py-5 rounded-2xl font-black text-xl shadow-2xl hover:scale-105 transition-transform duration-300">
+              <Link to="/membresias" className="inline-block bg-white text-[#004a99] px-14 py-5 rounded-2xl font-black text-xl shadow-2xl hover:scale-105 transition-transform duration-300 no-underline">
                 Solicitar membresía
-              </button>
+              </Link>
             </div>
 
           </div>

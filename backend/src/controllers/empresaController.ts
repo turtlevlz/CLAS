@@ -238,7 +238,7 @@ export const createEmpresa = async (req: Request, res: Response) => {
         }
 
         if (telefonoLimpio) {
-            const phoneRegex = /^[0-9]{10,15}$/;
+            const phoneRegex = /^[\d\s\-()+]{10,15}$/;
             if (!phoneRegex.test(telefonoLimpio)) {
                 deleteFile(req.file);
                 return res.status(400).json({
@@ -631,7 +631,7 @@ export const updateEmpresa = async (req: Request, res: Response) => {
             const telefonoLimpio = String(req.body.telefono).trim();
 
             if (telefonoLimpio) {
-                const phoneRegex = /^[0-9]{10,15}$/;
+                const phoneRegex = /^[\d\s\-()+]{10,15}$/;
                 if (!phoneRegex.test(telefonoLimpio)) {
                     deleteFile(req.file);
                     return res.status(400).json({

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import client from '../api/client';
+import { useToast } from '../components/Toast';
 
 type OptionItem = Record<string, any>;
 
@@ -15,6 +16,7 @@ const CURRENT_YEAR = new Date().getFullYear();
 
 export default function NuevaEmpresa() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const [membresias, setMembresias]       = useState<OptionItem[]>([]);
   const [organizaciones, setOrganizaciones] = useState<OptionItem[]>([]);
@@ -131,7 +133,7 @@ export default function NuevaEmpresa() {
       await client.post('/empresas', data);
       navigate('/admin');
     } catch (err: any) {
-      alert(`Error: ${err.response?.data?.message || 'Error al crear empresa'}`);
+      showToast(err.response?.data?.message || 'Error al crear empresa');
     } finally {
       setLoading(false);
     }

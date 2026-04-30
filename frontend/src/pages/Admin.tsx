@@ -10,15 +10,13 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext';
 import client from '../api/client';
+import { useToast } from '../components/Toast';
 
 function PanelUsuarios() {
   const { usuarioActual } = useAuth();
+  const { showToast } = useToast();
   const esAdminClas = usuarioActual?.rol_id === 1;
   const canManageUsers = esAdminClas;
-
-  if (![1, 2].includes(usuarioActual?.rol_id)) {
-    return null;
-  }
 
   const [usuarios, setUsuarios] = useState<any[]>([]);
   const [empresasLista, setEmpresasLista] = useState<any[]>([]);
@@ -75,9 +73,9 @@ function PanelUsuarios() {
     try {
       await client.delete(`/usuarios/${id}`);
       setUsuarios(prev => prev.filter(u => u.id_usuario !== id));
-      alert("Eliminado correctamente");
+      showToast('Usuario eliminado correctamente', 'success');
     } catch (err: any) {
-      alert(`Error: ${err.response?.data?.message || 'Error al eliminar'}`);
+      showToast(err.response?.data?.message || 'Error al eliminar usuario');
     }
   };
 
@@ -111,9 +109,10 @@ function PanelUsuarios() {
       }
       await client.patch(`/usuarios/${selectedUser.id_usuario}`, payload);
       setShowEditModal(false);
+      showToast('Usuario actualizado correctamente', 'success');
       fetchUsuarios();
     } catch (err: any) {
-      alert(`Error: ${err.response?.data?.message || 'Error al actualizar'}`);
+      showToast(err.response?.data?.message || 'Error al actualizar usuario');
     }
   };
 
@@ -127,9 +126,10 @@ function PanelUsuarios() {
       };
       await client.post('/usuarios', payload);
       setShowCreateModal(false);
+      showToast('Usuario creado correctamente', 'success');
       fetchUsuarios();
     } catch (err: any) {
-      alert(`Error: ${err.response?.data?.message || 'Error al crear usuario'}`);
+      showToast(err.response?.data?.message || 'Error al crear usuario');
     }
   };
 
@@ -137,6 +137,8 @@ function PanelUsuarios() {
     u.nombre_usuario.toLowerCase().includes(busqueda.toLowerCase()) ||
     u.correo_electronico.toLowerCase().includes(busqueda.toLowerCase())
   );
+
+  if (![1, 2].includes(usuarioActual?.rol_id)) return null;
 
   return (
     <div className="relative">
@@ -175,15 +177,15 @@ function PanelUsuarios() {
           />
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-        <table className="w-full text-sm text-left">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto shadow-sm">
+        <table className="w-full text-sm text-left table-fixed">
           <thead className="bg-gray-50 text-gray-600 border-b">
             <tr>
-              <th className="px-6 py-4 font-medium">Correo Electrónico</th>
-              <th className="px-6 py-4 font-medium">Nombre</th>
-              <th className="px-6 py-4 font-medium">Rol</th>
+              <th className="px-6 py-4 font-medium w-2/5">Correo Electrónico</th>
+              <th className="px-6 py-4 font-medium w-1/4">Nombre</th>
+              <th className="px-6 py-4 font-medium w-1/4">Rol</th>
               {canManageUsers && (
-                <th className="px-6 py-4 font-medium">Acciones</th>
+                <th className="px-6 py-4 font-medium w-20">Acciones</th>
               )}
             </tr>
           </thead>
@@ -194,8 +196,8 @@ function PanelUsuarios() {
               <tr><td colSpan={canManageUsers ? 4 : 3} className="p-10 text-center text-gray-400">No hay usuarios registrados.</td></tr>
             ) : filtrados.map(u => (
               <tr key={u.id_usuario} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 text-gray-700">{u.correo_electronico}</td>
-                <td className="px-6 py-4 text-gray-700">{u.nombre_usuario}</td>
+                <td className="px-6 py-4 text-gray-700 truncate max-w-0">{u.correo_electronico}</td>
+                <td className="px-6 py-4 text-gray-700 truncate max-w-0">{u.nombre_usuario}</td>
                 <td className="px-6 py-4 text-gray-700">
                   <span className={`font-semibold px-2 py-1 rounded-md text-xs ${
                       u.rol_id === 1 ? 'bg-purple-100 text-purple-700' :
@@ -206,15 +208,17 @@ function PanelUsuarios() {
                   </span>
                 </td>
                 {canManageUsers && (
-                  <td className="px-6 py-4 flex gap-3">
-                    {u.id_usuario !== usuarioActual?.id_usuario && (
-                      <button onClick={() => handleBorrar(u.id_usuario)} className="text-red-500 hover:text-red-700">
-                        <TrashIcon className="w-5 h-5"/>
+                  <td className="px-6 py-4">
+                    <div className="flex gap-3">
+                      {u.id_usuario !== usuarioActual?.id_usuario && (
+                        <button onClick={() => handleBorrar(u.id_usuario)} className="text-red-500 hover:text-red-700">
+                          <TrashIcon className="w-5 h-5"/>
+                        </button>
+                      )}
+                      <button onClick={() => abrirEdicion(u)} className="text-orange-500 hover:text-orange-700">
+                        <PencilSquareIcon className="w-5 h-5"/>
                       </button>
-                    )}
-                    <button onClick={() => abrirEdicion(u)} className="text-orange-500 hover:text-orange-700">
-                      <PencilSquareIcon className="w-5 h-5"/>
-                    </button>
+                    </div>
                   </td>
                 )}
               </tr>
@@ -315,6 +319,7 @@ function PanelUsuarios() {
 
 function PanelEmpresas() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [empresas, setEmpresas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [empresaAEliminar, setEmpresaAEliminar] = useState<any>(null);
@@ -338,8 +343,9 @@ function PanelEmpresas() {
       await client.delete(`/empresas/${empresaAEliminar.id_empresa}`);
       setEmpresas(prev => prev.filter(e => e.id_empresa !== empresaAEliminar.id_empresa));
       setEmpresaAEliminar(null);
-    } catch (e) {
-      console.error(e);
+      showToast('Empresa eliminada correctamente', 'success');
+    } catch (e: any) {
+      showToast(e.response?.data?.message || 'Error al eliminar empresa');
     }
   };
 
@@ -355,15 +361,15 @@ function PanelEmpresas() {
         </Link>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-        <table className="w-full text-sm text-left">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto shadow-sm">
+        <table className="w-full text-sm text-left table-fixed">
           <thead className="bg-gray-50 text-gray-600 border-b">
             <tr>
-              <th className="px-6 py-4 font-medium">Nombre</th>
-              <th className="px-6 py-4 font-medium">Ciudad</th>
-              <th className="px-6 py-4 font-medium">Membresía</th>
-              <th className="px-6 py-4 font-medium">Tipo</th>
-              <th className="px-6 py-4 font-medium">Acciones</th>
+              <th className="px-6 py-4 font-medium w-2/5">Nombre</th>
+              <th className="px-6 py-4 font-medium w-1/5">Ciudad</th>
+              <th className="px-6 py-4 font-medium w-1/5">Membresía</th>
+              <th className="px-6 py-4 font-medium w-1/5">Tipo</th>
+              <th className="px-6 py-4 font-medium w-20">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -373,17 +379,19 @@ function PanelEmpresas() {
               <tr><td colSpan={5} className="p-10 text-center text-gray-400">No hay empresas registradas.</td></tr>
             ) : empresas.map(e => (
               <tr key={e.id_empresa} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 text-gray-700 font-medium">{e.nombre_comercial}</td>
-                <td className="px-6 py-4 text-gray-700">{e.ciudad}</td>
-                <td className="px-6 py-4 text-gray-700">{(e.Membresia || e.membresia)?.nombre_membresia ?? '—'}</td>
-                <td className="px-6 py-4 text-gray-700">{(e.TipoOrganizacion || e.tipoOrganizacion || e.tipo_organizacion)?.nombre_tipo ?? '—'}</td>
-                <td className="px-6 py-4 flex gap-3">
-                  <button onClick={() => navigate(`/admin/empresas/${e.id_empresa}/editar`)} className="text-orange-500 hover:text-orange-700">
-                    <PencilSquareIcon className="w-5 h-5" />
-                  </button>
-                  <button onClick={() => setEmpresaAEliminar(e)} className="text-red-500 hover:text-red-700">
-                    <TrashIcon className="w-5 h-5" />
-                  </button>
+                <td className="px-6 py-4 text-gray-700 font-medium truncate max-w-0">{e.nombre_comercial}</td>
+                <td className="px-6 py-4 text-gray-700 truncate max-w-0">{e.ciudad}</td>
+                <td className="px-6 py-4 text-gray-700 truncate max-w-0">{(e.Membresia || e.membresia)?.nombre_membresia ?? '—'}</td>
+                <td className="px-6 py-4 text-gray-700 truncate max-w-0">{(e.TipoOrganizacion || e.tipoOrganizacion || e.tipo_organizacion)?.nombre_tipo ?? '—'}</td>
+                <td className="px-6 py-4">
+                  <div className="flex gap-3">
+                    <button onClick={() => navigate(`/admin/empresas/${e.id_empresa}/editar`)} className="text-orange-500 hover:text-orange-700">
+                      <PencilSquareIcon className="w-5 h-5" />
+                    </button>
+                    <button onClick={() => setEmpresaAEliminar(e)} className="text-red-500 hover:text-red-700">
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

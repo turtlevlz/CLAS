@@ -25,6 +25,9 @@ export default function Login() {
         correo_electronico: email,
         contrasena: password
       });
+      if (res.data.nombre_usuario) {
+        localStorage.setItem('nombre_clas', res.data.nombre_usuario);
+      }
       login(res.data.token);
       navigate('/directorio');
     } catch (err: any) {

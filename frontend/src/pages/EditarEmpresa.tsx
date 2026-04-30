@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import client from '../api/client';
+import { useToast } from '../components/Toast';
 
 type CatalogItem = Record<string, any>;
 
@@ -133,6 +134,7 @@ const normalizeList = (data: any, pascalKey: string, camelKey: string) =>
 export default function EditarEmpresa() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const empresaId = Number(id);
 
   const [loading, setLoading] = useState(true);
@@ -239,7 +241,7 @@ export default function EditarEmpresa() {
     loadData()
       .catch((error) => {
         console.error(error);
-        alert(error.response?.data?.message || 'No se pudo cargar la empresa');
+        showToast(error.response?.data?.message || 'No se pudo cargar la empresa');
       })
       .finally(() => setLoading(false));
   }, [empresaId]);
@@ -311,7 +313,7 @@ export default function EditarEmpresa() {
       await client.patch(`/empresas/${empresaId}`, data);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Error al actualizar empresa');
+      showToast(error.response?.data?.message || 'Error al actualizar empresa');
     } finally {
       setSaving(false);
     }
@@ -327,7 +329,7 @@ export default function EditarEmpresa() {
       });
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'No se pudo asignar el registro');
+      showToast(error.response?.data?.message || 'No se pudo asignar el registro');
     }
   };
 
@@ -336,7 +338,7 @@ export default function EditarEmpresa() {
       await client.delete(`${config.addEndpoint}/${empresaId}/${relatedId}`);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'No se pudo quitar el registro');
+      showToast(error.response?.data?.message || 'No se pudo quitar el registro');
     }
   };
 
@@ -351,7 +353,7 @@ export default function EditarEmpresa() {
       setProductForm(emptyProductForm);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'No se pudo agregar el producto');
+      showToast(error.response?.data?.message || 'No se pudo agregar el producto');
     }
   };
 
@@ -371,7 +373,7 @@ export default function EditarEmpresa() {
       setEditingProductForm(emptyProductForm);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'No se pudo actualizar el producto');
+      showToast(error.response?.data?.message || 'No se pudo actualizar el producto');
     }
   };
 
@@ -382,7 +384,7 @@ export default function EditarEmpresa() {
       await client.delete(`/productos/${productId}`);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'No se pudo eliminar el producto');
+      showToast(error.response?.data?.message || 'No se pudo eliminar el producto');
     }
   };
 
@@ -390,11 +392,11 @@ export default function EditarEmpresa() {
     e.preventDefault();
 
     if (contactForm.correo && !EMAIL_REGEX.test(contactForm.correo.trim())) {
-      alert('El correo del contacto no tiene un formato válido');
+      showToast('El correo del contacto no tiene un formato válido');
       return;
     }
     if (contactForm.telefono_celular && !PHONE_REGEX.test(contactForm.telefono_celular.trim())) {
-      alert('El teléfono del contacto debe tener entre 10 y 15 dígitos');
+      showToast('El teléfono del contacto debe tener entre 10 y 15 dígitos');
       return;
     }
 
@@ -407,7 +409,7 @@ export default function EditarEmpresa() {
       setContactForm(emptyContactForm);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'No se pudo agregar el contacto');
+      showToast(error.response?.data?.message || 'No se pudo agregar el contacto');
     }
   };
 
@@ -432,7 +434,7 @@ export default function EditarEmpresa() {
       setEditingContactForm(emptyContactForm);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'No se pudo actualizar el contacto');
+      showToast(error.response?.data?.message || 'No se pudo actualizar el contacto');
     }
   };
 
@@ -443,7 +445,7 @@ export default function EditarEmpresa() {
       await client.delete(`/contactos/${contactId}`);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'No se pudo eliminar el contacto');
+      showToast(error.response?.data?.message || 'No se pudo eliminar el contacto');
     }
   };
 

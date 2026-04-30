@@ -33,6 +33,7 @@ export const login = async (req: Request, res: Response) => {
         const token = jwt.sign(
             {
                 id_usuario: user.id_usuario,
+                nombre_usuario: user.nombre_usuario,
                 rol_id: user.rol_id,
                 empresa_id: user.empresa_id
             },
@@ -42,7 +43,8 @@ export const login = async (req: Request, res: Response) => {
 
         return res.json({
             message: "Login exitoso",
-            token
+            token,
+            nombre_usuario: user.nombre_usuario
         });
 
     } catch (error) {
