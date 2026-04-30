@@ -550,10 +550,25 @@ export default function Admin() {
   const esAdminClas = usuarioActual?.rol_id === 1;
 
   const tabs = esAdminClas
-    ? [{ id: 'usuarios', label: 'Usuarios' }, { id: 'empresas', label: 'Empresas' }, { id: 'catalogos', label: 'Catálogos' }]
-    : [{ id: 'usuarios', label: 'Usuarios' }, { id: 'mi-empresa', label: 'Mi Empresa' }];
+    ? [
+        { id: 'usuarios', label: 'Usuarios' },
+        { id: 'empresas', label: 'Empresas' },
+        { id: 'catalogos', label: 'Catálogos' },
+      ]
+    : [
+        { id: 'usuarios', label: 'Usuarios' },
+        { id: 'mi-empresa', label: 'Mi Empresa' },
+      ];
 
-  const [activeTab, setActiveTab] = useState(tabs[0].id);
+  const [activeTab, setActiveTab] = useState('usuarios');
+
+  useEffect(() => {
+    const canUseActiveTab = tabs.some((tab) => tab.id === activeTab);
+
+    if (!canUseActiveTab) {
+      setActiveTab('usuarios');
+    }
+  }, [activeTab, tabs]);
 
   return (
     <>
@@ -574,9 +589,9 @@ export default function Admin() {
 
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
             {activeTab === 'usuarios' && <PanelUsuarios />}
-            {activeTab === 'empresas' && <PanelEmpresas />}
-            {activeTab === 'mi-empresa' && <PanelMiEmpresa />}
-            {activeTab === 'catalogos' && <PanelCatalogos />}
+            {esAdminClas && activeTab === 'empresas' && <PanelEmpresas />}
+            {!esAdminClas && activeTab === 'mi-empresa' && <PanelMiEmpresa />}
+            {esAdminClas && activeTab === 'catalogos' && <PanelCatalogos />}
           </div>
         </div>
       </main>
