@@ -182,6 +182,7 @@ export default function EditarEmpresa() {
       procesosAsignadosRes,
       industriasAsignadasRes,
       necesidadesAsignadasRes,
+      productosRes,
     ] = await Promise.all([
       client.get(`/empresas/${empresaId}`),
       client.get('/membresias'),
@@ -195,6 +196,7 @@ export default function EditarEmpresa() {
       client.get(`/empresa-procesos/empresa/${empresaId}`),
       client.get(`/empresa-industrias/empresa/${empresaId}`),
       client.get(`/empresa-necesidades/empresa/${empresaId}`),
+      client.get(`/productos/empresa/${empresaId}`),
     ]);
 
 
@@ -238,7 +240,7 @@ export default function EditarEmpresa() {
       necesidades: normalizeList(necesidadesAsignadasRes.data.data, 'Necesidades', 'necesidades'),
     });
 
-    setProducts(normalizeList(data, 'ProductoFabricados', 'productosFabricados'));
+    setProducts(productosRes.data || []);
     setContacts(normalizeList(data, 'Contactos', 'contactos'));
   };
 
