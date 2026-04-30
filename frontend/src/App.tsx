@@ -10,6 +10,7 @@ import Admin from './pages/Admin';
 import ForgotPswd from './pages/ForgotPswd';
 import NuevaEmpresa from './pages/NuevaEmpresa';
 import EditarEmpresa from './pages/EditarEmpresa';
+import ErrorPage from './pages/ErrorPage';
 
 const RutaProtegida = ({ children }: { children: any }) => {
   const { usuarioActual } = useAuth();
@@ -57,6 +58,7 @@ export default function App() {
             </RutaProtegida>
           }
         />
+        <Route path="*" element={<ErrorPage />} />
       </Routes>
     </BrowserRouter>
   );
