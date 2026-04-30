@@ -8,7 +8,8 @@ import Login from './pages/Login';
 import EmpresaDetalle from './pages/EmpresaDetalle';
 import Admin from './pages/Admin';
 import ForgotPswd from './pages/ForgotPswd';
-import NuevaEmpresa from './pages/NuevaEmpresa'; 
+import NuevaEmpresa from './pages/NuevaEmpresa';
+import EditarEmpresa from './pages/EditarEmpresa';
 
 const RutaProtegida = ({ children }: { children: any }) => {
   const { usuarioActual } = useAuth();
@@ -43,13 +44,22 @@ export default function App() {
           } 
         />
 
-        <Route 
-          path="/admin/nueva-empresa" 
+        <Route
+          path="/admin/nueva-empresa"
           element={
             <RutaProtegida>
               <NuevaEmpresa />
             </RutaProtegida>
-          } 
+          }
+        />
+
+        <Route
+          path="/admin/empresas/:id/editar"
+          element={
+            <RutaProtegida>
+              <EditarEmpresa />
+            </RutaProtegida>
+          }
         />
         
       </Routes>

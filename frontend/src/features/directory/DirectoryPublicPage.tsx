@@ -1,18 +1,63 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
+import client from '../../api/client';
 import CompanyCard from './components/CompanyCard';
+import DirectoryPagination from './components/DirectoryPagination';
 import DirectoryToolbar from './components/DirectoryToolbar';
 import EmptyState from './components/EmptyState';
 import ResultsSummary from './components/ResultsSummary';
-import { mockCategories } from './data/mockCategories';
-import { mockCompanies } from './data/mockCompanies';
 import type {
+  DirectoryCategory,
+  DirectoryCompany,
+  DirectoryCompanyTier,
   DirectoryFilters,
   DirectorySortDirection,
 } from './types/directory';
 import { filterCompanies } from './utils/filterCompanies';
 import { sortCompaniesByName } from './utils/sortCompaniesByName';
-import DirectoryPagination from './components/DirectoryPagination';
+
+const TIER_MAP: Record<string, DirectoryCompanyTier> = {
+  'OEM': 'OEM',
+  'Tier 1': 'Tier 1',
+  'Tier 2': 'Tier 2',
+  'Tier 3': 'Tier 3',
+  'Gobierno': 'Gobierno',
+};
+
+function mapEmpresa(e: any): DirectoryCompany {
+  const specialties = e.giro
+    ? e.giro.split(/[,/]/).map((s: string) => s.trim()).filter(Boolean)
+    : [];
+
+  return {
+    id: e.id_empresa,
+    name: e.nombre_comercial,
+    tierLabel: TIER_MAP[e.membresia?.nombre_membresia] ?? 'Otro',
+    shortDescription: e.giro || '',
+    city: e.ciudad || '',
+    state: 'Sonora',
+    publicEmail: e.correo_electronico || '',
+    publicPhone: e.telefono || '',
+    specialties,
+    employeeRange: '',
+    categoryId: String(e.tipo_organizacion?.id_tipo ?? ''),
+    categoryLabel: e.tipo_organizacion?.nombre_tipo || '',
+    logoUrl: e.logo || e.logo_url || undefined,
+    detail: {
+      address: e.domicilio_completo || '',
+      businessLine: e.giro || '',
+      about: '',
+      foundedYear: '',
+      website: e.sitio_web || '',
+      certifications: [],
+      industries: [],
+      productsAndServices: [],
+      manufacturingCapabilities: [],
+      supplierNeeds: [],
+      contacts: [],
+    },
+  };
+}
 
 const initialFilters: DirectoryFilters = {
   search: '',
@@ -22,28 +67,55 @@ const initialFilters: DirectoryFilters = {
 const companiesPerPage = 9;
 
 export default function DirectoryPublicPage() {
+  const [companies, setCompanies] = useState<DirectoryCompany[]>([]);
+  const [categories, setCategories] = useState<DirectoryCategory[]>([
+    { id: 'all', label: 'Todas las categorías' },
+  ]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [filters, setFilters] = useState<DirectoryFilters>(initialFilters);
-  const [sortDirection, setSortDirection] =
-    useState<DirectorySortDirection>('asc');
+  const [sortDirection, setSortDirection] = useState<DirectorySortDirection>('asc');
   const [currentPage, setCurrentPage] = useState(1);
 
-  const filteredCompanies = useMemo(() => {
-    const companiesMatchingFilters = filterCompanies(mockCompanies, filters);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [resEmpresas, resOrgs] = await Promise.all([
+          client.get('/empresas?limit=500'),
+          client.get('/organizaciones'),
+        ]);
 
+        const empresasData = resEmpresas.data.data ?? resEmpresas.data;
+        setCompanies(empresasData.map(mapEmpresa));
+
+        const orgs: DirectoryCategory[] = resOrgs.data.map((o: any) => ({
+          id: String(o.id_tipo),
+          label: o.nombre_tipo,
+        }));
+        setCategories([{ id: 'all', label: 'Todas las categorías' }, ...orgs]);
+      } catch (e) {
+        setError('No se pudo cargar el directorio. Intenta de nuevo más tarde.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const filteredCompanies = useMemo(() => {
+    const companiesMatchingFilters = filterCompanies(companies, filters);
     return sortCompaniesByName(companiesMatchingFilters, sortDirection);
-  }, [filters, sortDirection]);
+  }, [companies, filters, sortDirection]);
 
   const totalPages = Math.ceil(filteredCompanies.length / companiesPerPage);
 
   const paginatedCompanies = useMemo(() => {
     const startIndex = (currentPage - 1) * companiesPerPage;
     const endIndex = startIndex + companiesPerPage;
-
     return filteredCompanies.slice(startIndex, endIndex);
   }, [currentPage, filteredCompanies]);
 
-
-  const totalCompanies = mockCompanies.length;
+  const totalCompanies = companies.length;
   const visibleCompanies = filteredCompanies.length;
   const hasCompanies = visibleCompanies > 0;
 
@@ -68,15 +140,33 @@ export default function DirectoryPublicPage() {
       if (currentDirection === 'asc') {
         return 'desc';
       }
-
       return 'asc';
     });
-
     setCurrentPage(1);
   }
 
   function handlePageChange(page: number) {
     setCurrentPage(page);
+  }
+
+  if (loading) {
+    return (
+      <main className="overflow-x-clip bg-[radial-gradient(circle_at_top_right,rgba(17,129,229,0.14),transparent_38%),#ffffff]">
+        <div className="relative mx-auto w-[min(1180px,calc(100%-48px))] pb-24 pt-6">
+          <p className="mt-20 text-center text-gray-400">Cargando directorio...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="overflow-x-clip bg-[radial-gradient(circle_at_top_right,rgba(17,129,229,0.14),transparent_38%),#ffffff]">
+        <div className="relative mx-auto w-[min(1180px,calc(100%-48px))] pb-24 pt-6">
+          <p className="mt-20 text-center text-red-400">{error}</p>
+        </div>
+      </main>
+    );
   }
 
   return (
@@ -104,7 +194,7 @@ export default function DirectoryPublicPage() {
             searchValue={filters.search}
             categoryValue={filters.categoryId}
             sortDirection={sortDirection}
-            categories={mockCategories}
+            categories={categories}
             onSearchChange={handleSearchChange}
             onCategoryChange={handleCategoryChange}
             onSortDirectionToggle={handleSortDirectionToggle}

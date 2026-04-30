@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import client from '../api/client';
 
 export default function NuevaEmpresa() {
   const navigate = useNavigate();
-  const token = localStorage.getItem('token_clas');
 
   const [membresias, setMembresias] = useState([]);
   const [organizaciones, setOrganizaciones] = useState([]);
@@ -26,17 +26,19 @@ export default function NuevaEmpresa() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const resMem = await fetch('http://localhost:3000/membresias', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const resOrg = await fetch('http://localhost:3000/organizaciones', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (resMem.ok) setMembresias(await resMem.json());
-      if (resOrg.ok) setOrganizaciones(await resOrg.json());
+      try {
+        const [resMem, resOrg] = await Promise.all([
+          client.get('/membresias'),
+          client.get('/organizaciones'),
+        ]);
+        setMembresias(resMem.data);
+        setOrganizaciones(resOrg.data);
+      } catch (e) {
+        console.error(e);
+      }
     };
     fetchData();
-  }, [token]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,21 +51,11 @@ export default function NuevaEmpresa() {
     if (logo) data.append('logo', logo);
 
     try {
-      const res = await fetch('http://localhost:3000/empresas', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: data
-      });
-
-      if (res.ok) {
-        alert("Empresa creada exitosamente");
-        navigate('/admin');
-      } else {
-        const err = await res.json();
-        alert(`Error: ${err.message}`);
-      }
-    } catch (error) {
-      alert("Error de conexión");
+      await client.post('/empresas', data);
+      alert("Empresa creada exitosamente");
+      navigate('/admin');
+    } catch (err: any) {
+      alert(`Error: ${err.response?.data?.message || 'Error al crear empresa'}`);
     } finally {
       setLoading(false);
     }

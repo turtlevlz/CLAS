@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import client from '../api/client';
 import photo from '../assets/img/login-stock-photo.jpg';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -20,26 +21,14 @@ export default function Login() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3000/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          correo_electronico: email,
-          contrasena: password
-        })
+      const res = await client.post('/auth/login', {
+        correo_electronico: email,
+        contrasena: password
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Error al iniciar sesión');
-      }
-
-      login(data.token);
+      login(res.data.token);
       navigate('/directorio');
-
     } catch (err: any) {
-      setError(err.message);
+      setError(err.response?.data?.message || 'Error al iniciar sesión');
     }
   }
 
