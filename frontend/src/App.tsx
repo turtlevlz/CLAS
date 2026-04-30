@@ -10,40 +10,11 @@ import Admin from './pages/Admin';
 import ForgotPswd from './pages/ForgotPswd';
 import NuevaEmpresa from './pages/NuevaEmpresa';
 import EditarEmpresa from './pages/EditarEmpresa';
-import ErrorPage from './pages/ErrorPage';
-import Membresias from './pages/Membresias';
-import MiCuenta from './pages/MiCuenta';
 
-const RutaAdmin = ({ children }: { children: any }) => {
-  const { usuarioActual } = useAuth();
+const RutaProtegida = ({ children }: { children: any }) => {
+  const { usuarioActual, cargando } = useAuth();
 
-  if (!usuarioActual) {
-    return <Navigate to="/login" />;
-  }
-
-  if (![1, 2].includes(usuarioActual.rol_id)) {
-    return <Navigate to="/directorio" />;
-  }
-
-  return children;
-};
-
-const RutaAdminClas = ({ children }: { children: any }) => {
-  const { usuarioActual } = useAuth();
-
-  if (!usuarioActual) {
-    return <Navigate to="/login" />;
-  }
-
-  if (usuarioActual.rol_id !== 1) {
-    return <Navigate to="/directorio" />;
-  }
-
-  return children;
-};
-
-const RutaUsuario = ({ children }: { children: any }) => {
-  const { usuarioActual } = useAuth();
+  if (cargando) return null;
 
   if (!usuarioActual) {
     return <Navigate to="/login" />;
@@ -66,45 +37,33 @@ export default function App() {
         <Route path="/contrasena_reset" element={<ForgotPswd />} />
 
         {/* Rutas Protegidas (Requieren Login) */}
-        <Route
-          path="/admin"
+        <Route 
+          path="/admin" 
           element={
-            <RutaAdmin>
+            <RutaProtegida>
               <Admin />
-            </RutaAdmin>
-          }
+            </RutaProtegida>
+          } 
         />
 
         <Route
           path="/admin/nueva-empresa"
           element={
-            <RutaAdminClas>
+            <RutaProtegida>
               <NuevaEmpresa />
-            </RutaAdminClas>
+            </RutaProtegida>
           }
         />
 
         <Route
           path="/admin/empresas/:id/editar"
           element={
-            <RutaAdmin>
+            <RutaProtegida>
               <EditarEmpresa />
-            </RutaAdmin>
+            </RutaProtegida>
           }
         />
-
-        <Route path="/membresias" element={<Membresias />} />
-
-        <Route
-          path="/mi-cuenta"
-          element={
-            <RutaUsuario>
-              <MiCuenta />
-            </RutaUsuario>
-          }
-        />
-
-        <Route path="*" element={<ErrorPage />} />
+        
       </Routes>
     </BrowserRouter>
   );
