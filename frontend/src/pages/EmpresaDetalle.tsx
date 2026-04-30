@@ -446,27 +446,27 @@ export default function EmpresaDetalle() {
               ) : null}
 
               {hasContacts(company.detail.contacts) ? (
-                <section className="!rounded-[32px] !border !border-[#b7d8ff] !bg-[#edf5ff] !p-7 !shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
+                <section className="!min-w-0 !rounded-[32px] !border !border-[#b7d8ff] !bg-[#edf5ff] !p-7 !shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
                   <p className="!text-[12px] !font-bold !uppercase !tracking-[0.14em] !text-[#1181e5]">
                     Contacto
                   </p>
 
-                  <div className="!mt-5 !space-y-5">
+                  <div className="!mt-5 !min-w-0 !space-y-5">
                     {company.detail.contacts.map((contact) => (
                       <div
                         key={`${contact.name}-${contact.role}`}
-                        className="!rounded-[22px] !bg-white !p-5 !shadow-[0_12px_30px_rgba(15,23,42,0.05)]"
+                        className="!min-w-0 !overflow-hidden !rounded-[22px] !bg-white !p-5 !shadow-[0_12px_30px_rgba(15,23,42,0.05)]"
                       >
-                        <p className="!text-[16px] !font-bold !leading-[1.2] !text-[#12284b]">
+                        <p className="!break-words !text-[16px] !font-bold !leading-[1.2] !text-[#12284b] [overflow-wrap:anywhere]">
                           {contact.name}
                         </p>
-                        <p className="!mt-1 !text-[13px] !font-semibold !text-[#64748b]">
+                        <p className="!mt-1 !break-words !text-[13px] !font-semibold !text-[#64748b] [overflow-wrap:anywhere]">
                           {contact.role}
                         </p>
-                        <p className="!mt-4 !text-[14px] !font-semibold !text-[#334155]">
+                        <p className="!mt-4 !break-words !text-[14px] !font-semibold !leading-[1.45] !text-[#334155] [overflow-wrap:anywhere]">
                           {contact.email}
                         </p>
-                        <p className="!mt-1 !text-[14px] !font-semibold !text-[#334155]">
+                        <p className="!mt-1 !break-words !text-[14px] !font-semibold !leading-[1.45] !text-[#334155] [overflow-wrap:anywhere]">
                           {contact.phone}
                         </p>
                       </div>
