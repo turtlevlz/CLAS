@@ -1,4 +1,4 @@
-import { BuildingOffice2Icon, HomeIcon, MegaphoneIcon, UserCircleIcon } from '@heroicons/react/24/solid';
+import { BuildingOffice2Icon, HomeIcon, MegaphoneIcon, UserCircleIcon, UserIcon } from '@heroicons/react/24/solid';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import claslogo from '../assets/img/clas-logo-name.png';
 import { useAuth } from '../context/AuthContext';
@@ -51,6 +51,15 @@ export default function Navbar() {
             <NavLink to="/admin" className={linkClass}>
               <UserCircleIcon className="h-5 w-5 shrink-0" aria-hidden="true" />
               Panel Admin
+            </NavLink>
+          </li>
+        )}
+
+        {usuarioActual && (
+          <li>
+            <NavLink to="/mi-cuenta" className={linkClass}>
+              <UserIcon className="h-5 w-5 shrink-0" aria-hidden="true" />
+              Mi cuenta
             </NavLink>
           </li>
         )}

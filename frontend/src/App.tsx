@@ -12,7 +12,7 @@ import NuevaEmpresa from './pages/NuevaEmpresa';
 import EditarEmpresa from './pages/EditarEmpresa';
 import ErrorPage from './pages/ErrorPage';
 import Membresias from './pages/Membresias';
-
+import MiCuenta from './pages/MiCuenta';
 
 const RutaAdmin = ({ children }: { children: any }) => {
   const { usuarioActual } = useAuth();
@@ -37,6 +37,16 @@ const RutaAdminClas = ({ children }: { children: any }) => {
 
   if (usuarioActual.rol_id !== 1) {
     return <Navigate to="/directorio" />;
+  }
+
+  return children;
+};
+
+const RutaUsuario = ({ children }: { children: any }) => {
+  const { usuarioActual } = useAuth();
+
+  if (!usuarioActual) {
+    return <Navigate to="/login" />;
   }
 
   return children;
@@ -84,6 +94,16 @@ export default function App() {
         />
 
         <Route path="/membresias" element={<Membresias />} />
+
+        <Route
+          path="/mi-cuenta"
+          element={
+            <RutaUsuario>
+              <MiCuenta />
+            </RutaUsuario>
+          }
+        />
+
         <Route path="*" element={<ErrorPage />} />
       </Routes>
     </BrowserRouter>
