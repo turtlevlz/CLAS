@@ -12,12 +12,14 @@ import NuevaEmpresa from './pages/NuevaEmpresa';
 import EditarEmpresa from './pages/EditarEmpresa';
 
 const RutaProtegida = ({ children }: { children: any }) => {
-  const { usuarioActual } = useAuth();
-  
+  const { usuarioActual, cargando } = useAuth();
+
+  if (cargando) return null;
+
   if (!usuarioActual) {
     return <Navigate to="/login" />;
   }
-  
+
   return children;
 };
 

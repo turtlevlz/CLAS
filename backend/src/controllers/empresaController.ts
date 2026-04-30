@@ -6,6 +6,10 @@ import { Rubro } from "../models/Rubro";
 import { Certificacion } from "../models/Certificacion";
 import { Contacto } from "../models/Contacto";
 import { FuncionContacto } from "../models/FuncionContacto";
+import { Proceso } from "../models/Proceso";
+import { Industria } from "../models/Industria";
+import { Necesidad } from "../models/Necesidad";
+import { ProductoFabricado } from "../models/ProductoFabricado";
 import { Op } from "sequelize";
 
 const fs = require("fs");
@@ -300,21 +304,45 @@ export const getEmpresaById = async (req: Request, res: Response) => {
             include: [
                 {
                     model: Membresia,
-                    attributes: ["nombre_membresia"]
+                    attributes: ["id_membresia", "nombre_membresia"]
                 },
                 {
                     model: TipoOrganizacion,
-                    attributes: ["nombre_tipo"]
+                    attributes: ["id_tipo", "nombre_tipo"]
                 },
                 {
                     model: Rubro,
-                    attributes: ["nombre_rubro"],
+                    attributes: ["id_rubro", "nombre_rubro"],
                     through: { attributes: [] }
                 },
                 {
                     model: Certificacion,
-                    attributes: ["nombre_certificacion"],
+                    attributes: ["id_certificacion", "nombre_certificacion"],
                     through: { attributes: [] }
+                },
+                {
+                    model: Proceso,
+                    attributes: ["id_proceso", "nombre_proceso"],
+                    through: { attributes: [] }
+                },
+                {
+                    model: Industria,
+                    attributes: ["id_industria", "nombre_industria"],
+                    through: { attributes: [] }
+                },
+                {
+                    model: Necesidad,
+                    attributes: ["id_necesidad", "nombre_necesidad"],
+                    through: { attributes: [] }
+                },
+                {
+                    model: ProductoFabricado,
+                    attributes: [
+                        "id_producto",
+                        "nombre_producto",
+                        "clientes",
+                        "porcentaje_produccion"
+                    ]
                 },
                 {
                     model: Contacto,
@@ -323,12 +351,13 @@ export const getEmpresaById = async (req: Request, res: Response) => {
                         "nombre_completo",
                         "puesto",
                         "telefono_celular",
-                        "correo"
+                        "correo",
+                        "funcion_id"
                     ],
                     include: [
                         {
                             model: FuncionContacto,
-                            attributes: ["nombre_funcion"]
+                            attributes: ["id_funcion", "nombre_funcion"]
                         }
                     ]
                 }
@@ -470,9 +499,10 @@ export const updateEmpresa = async (req: Request, res: Response) => {
                         message: "Teléfono inválido"
                     });
                 }
+                updates.telefono = telefonoLimpio;
+            } else {
+                updates.telefono = null;
             }
-
-            updates.telefono = telefonoLimpio;
         }
 
         if (req.body.sitio_web !== undefined) {
@@ -486,9 +516,10 @@ export const updateEmpresa = async (req: Request, res: Response) => {
                         message: "URL de sitio web no válida"
                     });
                 }
+                updates.sitio_web = sitioWebLimpio;
+            } else {
+                updates.sitio_web = null;
             }
-
-            updates.sitio_web = sitioWebLimpio;
         }
 
         const fields = ["razon_social", "ciudad", "domicilio_completo", "giro"];

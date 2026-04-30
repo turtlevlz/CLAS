@@ -5,13 +5,14 @@ const AuthContext = createContext<any>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [usuarioActual, setUsuarioActual] = useState<any>(null);
+  const [cargando, setCargando] = useState(true);
 
   const login = (token: string) => {
     localStorage.setItem('token_clas', token);
     const decoded: any = jwtDecode(token);
 
     if (decoded.exp * 1000 < Date.now()) {
-        logout(); 
+        logout();
     } else {
         setUsuarioActual(decoded);
     }
@@ -27,15 +28,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (tokenStored) {
       try {
         const decoded: any = jwtDecode(tokenStored);
-        setUsuarioActual(decoded);
+        if (decoded.exp * 1000 < Date.now()) {
+          localStorage.removeItem('token_clas');
+        } else {
+          setUsuarioActual(decoded);
+        }
       } catch (e) {
-        logout();
+        localStorage.removeItem('token_clas');
       }
     }
+    setCargando(false);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ usuarioActual, login, logout }}>
+    <AuthContext.Provider value={{ usuarioActual, cargando, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

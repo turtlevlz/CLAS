@@ -87,7 +87,7 @@ function DetailList({ items }: { items: string[] }) {
       {visibleItems.map((item) => (
         <li
           key={item}
-          className="!rounded-[18px] !border !border-[#e5edf7] !bg-white !px-4 !py-3 !text-[14px] !font-semibold !leading-[1.35] !text-[#334155] !shadow-[0_10px_28px_rgba(15,23,42,0.04)]"
+          className="!rounded-[18px] !border !border-[#e5edf7] !bg-white !px-4 !py-3 !text-[14px] !font-semibold !leading-[1.35] !text-[#334155] !shadow-[0_10px_28px_rgba(15,23,42,0.04)] !overflow-hidden !break-words ![overflow-wrap:anywhere]"
         >
           {item}
         </li>
