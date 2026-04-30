@@ -79,7 +79,7 @@ export default function CompanyCard({ company }: CompanyCardProps) {
           Especialidades
         </p>
 
-        <div className="!mt-3.5 !flex !flex-wrap !justify-center !gap-2.5">
+        <div className="!mt-3.5 !flex !min-w-0 !flex-wrap !justify-center !gap-2.5 !overflow-hidden">
           {visibleSpecialties.map((specialty) => (
             <SpecialtyChip key={specialty} label={specialty} />
           ))}
