@@ -284,20 +284,7 @@ export default function EditarEmpresa() {
     try {
       await client.patch(`/empresas/${empresaId}`, data);
 
-      const currentDescription = formData.descripcion;
-      const currentFoundedYear = formData.anio_fundacion;
-      const currentEmployeeRange = formData.rango_empleados;
-      const currentManufacturesForAutomotive = formData.fabrica_para_automotriz;
-
       await loadData();
-
-      setFormData((current) => ({
-        ...current,
-        descripcion: currentDescription,
-        anio_fundacion: currentFoundedYear,
-        rango_empleados: currentEmployeeRange,
-        fabrica_para_automotriz: currentManufacturesForAutomotive,
-      }));
 
       setSaveMessage('Datos generales guardados correctamente.');
     } catch (error: any) {

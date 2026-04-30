@@ -630,12 +630,39 @@ export const updateEmpresa = async (req: Request, res: Response) => {
             updates.sitio_web = sitioWebLimpio;
         }
 
-        const fields = ["razon_social", "ciudad", "domicilio_completo", "giro"];
+        const fields = [
+            "razon_social",
+            "rfc",
+            "ciudad",
+            "domicilio_completo",
+            "giro",
+            "descripcion",
+            "rango_empleados"
+        ];
 
         for (const key of fields) {
             if (req.body[key] !== undefined) {
                 updates[key] = String(req.body[key]).trim();
             }
+        }
+
+        if (req.body.anio_fundacion !== undefined) {
+            const anioFundacion = Number(req.body.anio_fundacion);
+
+            if (!Number.isInteger(anioFundacion) || anioFundacion < 1800) {
+                deleteFile(req.file);
+                return res.status(400).json({
+                    message: "Año de fundación inválido"
+                });
+            }
+
+            updates.anio_fundacion = anioFundacion;
+        }
+
+        if (req.body.fabrica_para_automotriz !== undefined) {
+            updates.fabrica_para_automotriz =
+                req.body.fabrica_para_automotriz === true ||
+                req.body.fabrica_para_automotriz === "true";
         }
 
         const oldLogo = empresa.logo;
