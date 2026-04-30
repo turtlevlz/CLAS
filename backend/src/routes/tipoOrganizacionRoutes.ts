@@ -13,9 +13,9 @@ const router = Router();
 
 router.post("/", verifyToken, checkRole(1), createTipoOrganizacion);
 
-router.get("/", verifyToken, getTipoOrganizaciones);
+router.get("/", getTipoOrganizaciones);
 
-router.get("/:id", verifyToken, getTipoOrganizacionById);
+router.get("/:id", getTipoOrganizacionById);
 
 router.patch("/:id", verifyToken, checkRole(1), updateTipoOrganizacion);
 

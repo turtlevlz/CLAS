@@ -21,9 +21,9 @@ router.post(
     createEmpresa
 );
 
-router.get("/", verifyToken, getEmpresas);
+router.get("/", getEmpresas);
 
-router.get("/:id", verifyToken, getEmpresaById);
+router.get("/:id", getEmpresaById);
 
 router.patch(
     "/:id",
