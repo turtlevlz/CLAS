@@ -232,12 +232,12 @@ export default function EmpresaDetalle() {
             </div>
 
             <div className="!mt-10 !grid !gap-8 lg:!grid-cols-[minmax(0,1fr)_320px] lg:!items-center">
-              <div>
-                <h1 className="!max-w-[760px] !text-[clamp(42px,5vw,72px)] !font-bold !leading-[0.96] !tracking-[-0.04em] !text-[#12284b]">
+              <div className="!min-w-0">
+                <h1 className="!max-w-[760px] !break-words !text-[clamp(42px,5vw,72px)] !font-bold !leading-[0.96] !tracking-[-0.04em] !text-[#12284b] [overflow-wrap:anywhere]">
                   {displayName}
                 </h1>
 
-                <p className="!mt-6 !max-w-[780px] !text-[20px] !leading-[1.65] !text-[#64748b]">
+                <p className="!mt-6 !max-w-[780px] !break-words !text-[20px] !leading-[1.65] !text-[#64748b] [overflow-wrap:anywhere]">
                   {company.detail.about}
                 </p>
               </div>
