@@ -88,7 +88,13 @@ function PanelUsuarios() {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await client.patch(`/usuarios/${selectedUser.id_usuario}`, formData);
+      const payload: Partial<typeof formData> = { ...formData };
+
+      if (!payload.contrasena?.trim()) {
+        delete payload.contrasena;
+      }
+
+      await client.patch(`/usuarios/${selectedUser.id_usuario}`, payload);
       setShowEditModal(false);
       fetchUsuarios();
     } catch (err: any) {
