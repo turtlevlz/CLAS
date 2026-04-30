@@ -1,4 +1,4 @@
-import { BuildingOffice2Icon, HomeIcon, MegaphoneIcon } from '@heroicons/react/20/solid';
+import { BuildingOffice2Icon, HomeIcon, MegaphoneIcon, ComputerDesktopIcon} from '@heroicons/react/20/solid';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import claslogo from '../assets/img/clas-logo-name.png';
 import { useAuth } from '../context/AuthContext';
@@ -20,6 +20,7 @@ const navItems = [
     to: '/noticias',
     icon: MegaphoneIcon,
   },
+  
 ];
 
 // Estilo del equipo conservado
@@ -64,6 +65,7 @@ export default function Navbar() {
         {usuarioActual && (
           <li>
             <NavLink to="/admin" className={linkClass}>
+              <ComputerDesktopIcon aria-hidden= "true" className="h-5 w-5 shrink-0"/>
               <span>Panel Admin</span>
             </NavLink>
           </li>

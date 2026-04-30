@@ -96,7 +96,7 @@ export default function Login() {
 
               <p className='text-center text-xs text-gray-400 mt-3'>
                 ¿No tienes cuenta?{' '}
-                <a href="/" className='text-blue-500 hover:underline'>
+                <a href="/membresias" className='text-blue-500 hover:underline'>
                 Solicita tu membresía
                 </a>
               </p>
