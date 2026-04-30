@@ -10,6 +10,7 @@ import {
   getPrivateCompanyById,
   getPublicCompanyById,
 } from '../features/directory/api/directoryApi';
+import { api } from '../api/http';
 
 function getCompanyInitials(name: string) {
   const cleanName = name.trim();
@@ -27,7 +28,7 @@ function DetailList({ items }: { items: string[] }) {
       {items.map((item) => (
         <li
           key={item}
-          className="!rounded-[18px] !border !border-[#e5edf7] !bg-white !px-4 !py-3 !text-[14px] !font-semibold !leading-[1.35] !text-[#334155] !shadow-[0_10px_28px_rgba(15,23,42,0.04)]"
+          className="!min-w-0 !break-words !rounded-[18px] !border !border-[#e5edf7] !bg-white !px-4 !py-3 !text-[14px] !font-semibold !leading-[1.35] !text-[#334155] !shadow-[0_10px_28px_rgba(15,23,42,0.04)] [overflow-wrap:anywhere]"
         >
           {item}
         </li>
@@ -126,7 +127,37 @@ export default function EmpresaDetalle() {
           ? await getPrivateCompanyById(companyId)
           : await getPublicCompanyById(companyId);
 
-        const mappedCompany = mapPublicCompanyApi(apiCompany)
+        const mappedCompany = mapPublicCompanyApi(apiCompany);
+
+        if (usuarioActual) {
+          const [
+            productosRes,
+            procesosRes,
+            industriasRes,
+            necesidadesRes,
+          ] = await Promise.all([
+            api.get(`/productos/empresa/${companyId}`),
+            api.get(`/empresa-procesos/empresa/${companyId}`),
+            api.get(`/empresa-industrias/empresa/${companyId}`),
+            api.get(`/empresa-necesidades/empresa/${companyId}`),
+          ]);
+
+          mappedCompany.detail.productsAndServices = productosRes.data.map((product: any) =>
+            product.clientes
+              ? `${product.nombre_producto} - Clientes: ${product.clientes}`
+              : product.nombre_producto
+          );
+
+          mappedCompany.detail.manufacturingCapabilities =
+            procesosRes.data.data.procesos?.map((proceso: any) => proceso.nombre_proceso) ?? [];
+
+          mappedCompany.detail.industries =
+            industriasRes.data.data.industrias?.map((industria: any) => industria.nombre_industria) ?? [];
+
+          mappedCompany.detail.supplierNeeds =
+            necesidadesRes.data.data.necesidades?.map((necesidad: any) => necesidad.nombre_necesidad) ?? [];
+        }
+
 
         if (!isMounted) {
           return;
@@ -421,7 +452,6 @@ export default function EmpresaDetalle() {
                     <InfoRow label="Membresía" value={company.detail.membership} />
                   ) : null}
 
-                  <InfoRow label="Rubro principal" value={company.categoryLabel} />
                   <InfoRow label="Tipo" value={company.tierLabel} />
                   <InfoRow label="Ubicación" value={`${company.city}, ${company.state}`} />
                 </dl>
