@@ -87,7 +87,7 @@ export default function Footer() {
               ¿Tu empresa forma parte del sector automotriz de Sonora? Únete a la red.
             </p>
             <a
-              href="/login"
+              href="/membresias"
               className="inline-block bg-primary hover:opacity-90 transition-opacity text-white text-sm font-semibold px-4 py-2.5 rounded-lg no-underline"
             >
               Solicitar membresía
