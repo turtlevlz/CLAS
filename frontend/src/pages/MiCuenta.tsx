@@ -5,13 +5,13 @@ import client from '../api/client';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../components/Toast';
 
 export default function MiCuenta() {
   const { usuarioActual } = useAuth();
+  const { showToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     nombre_usuario: '',
     correo_electronico: '',
@@ -26,7 +26,6 @@ export default function MiCuenta() {
 
       try {
         setLoading(true);
-        setError('');
         const response = await client.get(`/usuarios/${usuarioActual.id_usuario}`);
         setFormData({
           nombre_usuario: response.data.nombre_usuario || '',
@@ -34,7 +33,7 @@ export default function MiCuenta() {
           contrasena: '',
         });
       } catch (loadError: any) {
-        setError(loadError.response?.data?.message || 'No se pudo cargar tu cuenta');
+        showToast(loadError.response?.data?.message || 'No se pudo cargar tu cuenta');
       } finally {
         setLoading(false);
       }
@@ -50,8 +49,6 @@ export default function MiCuenta() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setSaving(true);
-    setMessage('');
-    setError('');
 
     const payload: Record<string, string> = {
       nombre_usuario: formData.nombre_usuario,
@@ -65,9 +62,9 @@ export default function MiCuenta() {
     try {
       await client.patch(`/usuarios/${usuarioActual.id_usuario}`, payload);
       setFormData((current) => ({ ...current, contrasena: '' }));
-      setMessage('Cuenta actualizada correctamente');
+      showToast('Cuenta actualizada correctamente', 'success');
     } catch (saveError: any) {
-      setError(saveError.response?.data?.message || 'No se pudo actualizar tu cuenta');
+      showToast(saveError.response?.data?.message || 'No se pudo actualizar tu cuenta');
     } finally {
       setSaving(false);
     }
@@ -87,18 +84,6 @@ export default function MiCuenta() {
             <p className="mt-8 text-sm text-gray-400">Cargando...</p>
           ) : (
             <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-              {message ? (
-                <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-700">
-                  {message}
-                </div>
-              ) : null}
-
-              {error ? (
-                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
-                  {error}
-                </div>
-              ) : null}
-
               <div>
                 <label className="block text-sm font-medium text-gray-700">Nombre</label>
                 <input

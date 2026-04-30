@@ -78,3 +78,13 @@ export async function getPrivateCompanyById(
 
   return response.data;
 }
+
+export type RubroApi = {
+  id_rubro: number;
+  nombre_rubro: string;
+};
+
+export async function getRubros(): Promise<RubroApi[]> {
+  const response = await api.get<RubroApi[]>('/rubros');
+  return response.data;
+}

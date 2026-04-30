@@ -131,7 +131,7 @@ export default function NuevaEmpresa() {
 
     try {
       await client.post('/empresas', data);
-      navigate('/admin');
+      navigate('/admin', { state: { tab: 'empresas' } });
     } catch (err: any) {
       showToast(err.response?.data?.message || 'Error al crear empresa');
     } finally {
@@ -180,7 +180,7 @@ export default function NuevaEmpresa() {
               <h1 className="text-3xl font-bold text-gray-900">Registrar Empresa</h1>
               <p className="mt-1 text-sm text-gray-500">Completa los datos obligatorios para crear la ficha de empresa.</p>
             </div>
-            <button type="button" onClick={() => navigate('/admin')} className="px-5 py-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-600">
+            <button type="button" onClick={() => navigate('/admin', { state: { tab: 'empresas' } })} className="px-5 py-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-600">
               Volver
             </button>
           </div>
@@ -283,7 +283,7 @@ export default function NuevaEmpresa() {
             </section>
 
             <div className="flex flex-col sm:flex-row justify-end gap-3">
-              <button type="button" onClick={() => navigate('/admin')} className="px-6 py-2 bg-gray-200 rounded-lg font-semibold text-gray-700">
+              <button type="button" onClick={() => navigate('/admin', { state: { tab: 'empresas' } })} className="px-6 py-2 bg-gray-200 rounded-lg font-semibold text-gray-700">
                 Cancelar
               </button>
               <button type="submit" disabled={loading} className="px-6 py-2 bg-primary text-white rounded-lg font-semibold disabled:opacity-60">

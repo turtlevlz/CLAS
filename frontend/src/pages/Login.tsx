@@ -70,11 +70,8 @@ export default function Login() {
             onChange={e => setEmail(e.target.value)}
             className='w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400'/>
 
-            <div className='flex justify-between items-center mt-3 mb-1'>
+            <div className='mt-3 mb-1'>
               <label className='text-xs text-gray-500'>Contraseña</label>
-              <a href="/contrasena_reset" className='text-xs text-blue-500 hover:underline'>
-                ¿Olvidaste tu contraseña?
-              </a>
             </div>
               <input
               type='password'

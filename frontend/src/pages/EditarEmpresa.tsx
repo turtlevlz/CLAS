@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import client from '../api/client';
@@ -136,6 +136,7 @@ const normalizeList = (data: any, pascalKey: string, camelKey: string) =>
 export default function EditarEmpresa() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { showToast } = useToast();
   const { usuarioActual } = useAuth();
   const esAdminClas = usuarioActual?.rol_id === 1;
@@ -171,6 +172,8 @@ export default function EditarEmpresa() {
   const [editingContactId, setEditingContactId] = useState<number | null>(null);
   const [editingProductForm, setEditingProductForm] = useState<ProductForm>(emptyProductForm);
   const [editingContactForm, setEditingContactForm] = useState<ContactForm>(emptyContactForm);
+  const [productoAEliminar, setProductoAEliminar] = useState<number | null>(null);
+  const [contactoAEliminar, setContactoAEliminar] = useState<number | null>(null);
 
   const loadData = async () => {
     if (!empresaId) return;
@@ -382,11 +385,12 @@ export default function EditarEmpresa() {
     }
   };
 
-  const handleDeleteProduct = async (productId: number) => {
-    if (!window.confirm('¿Eliminar producto o servicio?')) return;
+  const handleDeleteProduct = async () => {
+    if (productoAEliminar === null) return;
 
     try {
-      await client.delete(`/productos/${productId}`);
+      await client.delete(`/productos/${productoAEliminar}`);
+      setProductoAEliminar(null);
       await loadData();
     } catch (error: any) {
       showToast(error.response?.data?.message || 'No se pudo eliminar el producto');
@@ -443,11 +447,12 @@ export default function EditarEmpresa() {
     }
   };
 
-  const handleDeleteContact = async (contactId: number) => {
-    if (!window.confirm('¿Eliminar contacto?')) return;
+  const handleDeleteContact = async () => {
+    if (contactoAEliminar === null) return;
 
     try {
-      await client.delete(`/contactos/${contactId}`);
+      await client.delete(`/contactos/${contactoAEliminar}`);
+      setContactoAEliminar(null);
       await loadData();
     } catch (error: any) {
       showToast(error.response?.data?.message || 'No se pudo eliminar el contacto');
@@ -505,7 +510,7 @@ export default function EditarEmpresa() {
                 <h1 className="text-3xl font-bold text-gray-900">Editar Empresa</h1>
                 <p className="text-sm text-gray-500 mt-1">Datos generales, perfil público, relaciones, productos y contactos.</p>
               </div>
-              <button type="button" onClick={() => navigate('/admin')} className="px-5 py-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-600">
+              <button type="button" onClick={() => navigate('/admin', { state: { tab: (location.state as any)?.fromTab } })} className="px-5 py-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-600">
                 Volver
               </button>
             </div>
@@ -669,7 +674,7 @@ export default function EditarEmpresa() {
                       </div>
                       <div className="flex shrink-0 gap-3">
                         <button type="button" onClick={() => startEditProduct(product)} className="text-primary font-semibold">Editar</button>
-                        <button type="button" onClick={() => handleDeleteProduct(product.id_producto)} className="text-red-500 font-semibold">Eliminar</button>
+                        <button type="button" onClick={() => setProductoAEliminar(product.id_producto)} className="text-red-500 font-semibold">Eliminar</button>
                       </div>
                     </div>
                   )}
@@ -724,7 +729,7 @@ export default function EditarEmpresa() {
                       </div>
                       <div className="flex shrink-0 gap-3 self-start">
                         <button type="button" onClick={() => startEditContact(contact)} className="text-primary font-semibold">Editar</button>
-                        <button type="button" onClick={() => handleDeleteContact(contact.id_contacto)} className="text-red-500 font-semibold">Eliminar</button>
+                        <button type="button" onClick={() => setContactoAEliminar(contact.id_contacto)} className="text-red-500 font-semibold">Eliminar</button>
                       </div>
                     </div>
                   )}
@@ -735,6 +740,59 @@ export default function EditarEmpresa() {
           </section>
         </div>
       </main>
+
+      {/* Modal: eliminar producto */}
+      {productoAEliminar !== null && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[200]">
+          <div className="bg-white p-8 rounded-2xl w-full max-w-sm shadow-2xl">
+            <h2 className="text-lg font-bold text-gray-800 mb-2">¿Eliminar producto?</h2>
+            <p className="text-gray-500 text-sm mb-6">Esta acción no se puede deshacer.</p>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setProductoAEliminar(null)}
+                className="px-5 py-2 rounded-xl bg-gray-100 font-semibold text-gray-600 hover:bg-gray-200"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteProduct}
+                className="px-5 py-2 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600"
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: eliminar contacto */}
+      {contactoAEliminar !== null && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[200]">
+          <div className="bg-white p-8 rounded-2xl w-full max-w-sm shadow-2xl">
+            <h2 className="text-lg font-bold text-gray-800 mb-2">¿Eliminar contacto?</h2>
+            <p className="text-gray-500 text-sm mb-6">Esta acción no se puede deshacer.</p>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setContactoAEliminar(null)}
+                className="px-5 py-2 rounded-xl bg-gray-100 font-semibold text-gray-600 hover:bg-gray-200"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteContact}
+                className="px-5 py-2 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600"
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </>
   );
