@@ -225,11 +225,13 @@ export default function EmpresaDetalle() {
 
             <div className="!grid !gap-8 lg:!grid-cols-[minmax(0,1fr)_320px] lg:!items-center">
               <div>
-                <div className="!inline-flex !rounded-full !bg-[#e5effa] !px-4 !py-2 !text-[12px] !font-bold !uppercase !tracking-[0.12em] !text-[#213854]">
-                  {company.categoryLabel}
+                <div className="!inline-flex !max-w-full !rounded-full !bg-[#e5effa] !px-4 !py-2 !text-[12px] !font-bold !uppercase !tracking-[0.12em] !text-[#213854]">
+                  <span className="!line-clamp-2 !leading-[1.35]">
+                    {company.categoryLabel}
+                  </span>
                 </div>
 
-                <h1 className="!mt-6 !max-w-[760px] !text-[clamp(48px,6vw,86px)] !font-bold !leading-[0.9] !tracking-[-0.06em] !text-[#12284b]">
+                <h1 className="!mt-6 !max-w-[760px] !text-[clamp(42px,5vw,72px)] !font-bold !leading-[0.96] !tracking-[-0.04em] !text-[#12284b]">
                   {displayName}
                 </h1>
 
@@ -280,7 +282,7 @@ export default function EmpresaDetalle() {
                       <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
                         Razón social
                       </dt>
-                      <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
+                      <dd className="!mt-2 !break-words !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
                         {company.detail.legalName}
                       </dd>
                     </div>
@@ -291,7 +293,7 @@ export default function EmpresaDetalle() {
                       <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
                         RFC
                       </dt>
-                      <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
+                      <dd className="!mt-2 !break-words !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
                         {company.detail.rfc}
                       </dd>
                     </div>
@@ -302,7 +304,7 @@ export default function EmpresaDetalle() {
                       <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
                         Dirección
                       </dt>
-                      <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
+                      <dd className="!mt-2 !break-words !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
                         {company.detail.address}
                       </dd>
                     </div>
@@ -313,7 +315,7 @@ export default function EmpresaDetalle() {
                       <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
                         Giro
                       </dt>
-                      <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
+                      <dd className="!mt-2 !break-words !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
                         {company.detail.businessLine}
                       </dd>
                     </div>
@@ -324,7 +326,7 @@ export default function EmpresaDetalle() {
                       <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
                         Fundación
                       </dt>
-                      <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
+                      <dd className="!mt-2 !break-words !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
                         {company.detail.foundedYear}
                       </dd>
                     </div>
@@ -335,7 +337,7 @@ export default function EmpresaDetalle() {
                       <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
                         Empleados
                       </dt>
-                      <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
+                      <dd className="!mt-2 !break-words !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
                         {company.employeeRange}
                       </dd>
                     </div>
@@ -346,7 +348,7 @@ export default function EmpresaDetalle() {
                       <dt className="!text-[11px] !font-bold !uppercase !tracking-[0.13em] !text-[#94a3b8]">
                         Fabrica para automotriz
                       </dt>
-                      <dd className="!mt-2 !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
+                      <dd className="!mt-2 !break-words !text-[15px] !font-semibold !leading-[1.55] !text-[#334155]">
                         {formatBoolean(company.detail.manufacturesForAutomotive)}
                       </dd>
                     </div>
@@ -354,7 +356,7 @@ export default function EmpresaDetalle() {
                 </dl>
               </SectionCard>
 
-                            {hasItems(company.detail.certifications) ? (
+              {hasItems(company.detail.certifications) ? (
                 <section className="!rounded-[32px] !border !border-[#e5edf7] !bg-white !p-7 !shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
                   <p className="!text-[12px] !font-bold !uppercase !tracking-[0.14em] !text-[#1181e5]">
                     Certificaciones

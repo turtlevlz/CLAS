@@ -50,7 +50,7 @@ export function mapPublicCompanyApi(
     categoryLabel,
     logoUrl: company.logo ?? undefined,
     detail: {
-      displayName: company.razon_social ?? company.nombre_comercial,
+      displayName: company.nombre_comercial,
       legalName: company.razon_social ?? '',
       rfc: company.rfc ?? '',
       email: company.correo_electronico ?? '',
