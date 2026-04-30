@@ -4,41 +4,23 @@ import { Link, useNavigate, Navigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext';
-import client from '../api/client';
+import client from '../api';
+
+// IMPORTAMOS LAS NUEVAS APIS DE TUS COMPAS
+import { getAllUsers, getUsersByEmpresa, createUser, updateUser, deleteUser } from '../api/userApi';
+import { createProductoFabricado, updateProductoFabricado, deleteProductoFabricado } from '../api/productoFabricadoApi';
 
 type CatalogItem = Record<string, any>;
 
 type CompanyForm = {
-  nombre_comercial: string;
-  razon_social: string;
-  rfc: string;
-  correo_electronico: string;
-  telefono: string;
-  membresia_id: string;
-  tipo_organizacion_id: string;
-  ciudad: string;
-  domicilio_completo: string;
-  giro: string;
-  sitio_web: string;
-  descripcion: string;
-  anio_fundacion: string;
-  rango_empleados: string;
-  fabrica_para_automotriz: boolean;
+  nombre_comercial: string; razon_social: string; rfc: string; correo_electronico: string;
+  telefono: string; membresia_id: string; tipo_organizacion_id: string; ciudad: string;
+  domicilio_completo: string; giro: string; sitio_web: string; descripcion: string;
+  anio_fundacion: string; rango_empleados: string; fabrica_para_automotriz: boolean;
 };
 
-type ProductForm = {
-  nombre_producto: string;
-  clientes: string;
-  porcentaje_produccion: string;
-};
-
-type ContactForm = {
-  nombre_completo: string;
-  puesto: string;
-  telefono_celular: string;
-  correo: string;
-  funcion_id: string;
-};
+type ProductForm = { nombre_producto: string; clientes: string; porcentaje_produccion: string; };
+type ContactForm = { nombre_completo: string; puesto: string; telefono_celular: string; correo: string; funcion_id: string; };
 
 const emptyCompanyForm: CompanyForm = {
   nombre_comercial: '', razon_social: '', rfc: '', correo_electronico: '', telefono: '',
@@ -67,7 +49,8 @@ const catalogosMeta = [
   { label: 'Industrias', endpoint: '/industrias', labelKey: 'nombre_industria' },
   { label: 'Necesidades', endpoint: '/necesidades', labelKey: 'nombre_necesidad' },
   { label: 'Procesos', endpoint: '/procesos', labelKey: 'nombre_proceso' },
-  { label: 'Organizaciones', endpoint: '/organizaciones', labelKey: 'nombre_tipo' },
+  // CORRECCIÓN: La ruta correcta según sus APIs
+  { label: 'Organizaciones', endpoint: '/tipos-organizacion', labelKey: 'nombre_tipo' },
   { label: 'Funciones', endpoint: '/funciones', labelKey: 'nombre_funcion' },
 ];
 
@@ -88,9 +71,9 @@ function PanelUsuarios() {
 
   const fetchUsuarios = async () => {
     try {
-      const url = esAdminClas ? '/usuarios' : `/usuarios/empresa/${user?.empresa_id}`;
-      const res = await client.get(url);
-      setUsuarios(res.data);
+      // Usamos la API de tus compas
+      const data = esAdminClas ? await getAllUsers() : await getUsersByEmpresa(user?.empresa_id as number);
+      setUsuarios(data);
     } catch (e) {
       console.error(e);
     } finally {
@@ -117,10 +100,10 @@ function PanelUsuarios() {
   const handleBorrar = async (id: string) => {
     if (!window.confirm("¿Estás seguro de borrar este usuario?")) return;
     try {
-      await client.delete(`/usuarios/${id}`);
+      await deleteUser(id);
       setUsuarios(prev => prev.filter(u => u.id_usuario !== id));
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Error al eliminar usuario.');
+      alert('Error al eliminar usuario.');
     }
   };
 
@@ -136,32 +119,43 @@ function PanelUsuarios() {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const payload = { ...formData };
-      if (!payload.contrasena || payload.contrasena.trim() === '') {
-        delete (payload as any).contrasena;
+      const payload: any = {
+        nombre_usuario: formData.nombre_usuario,
+        correo_electronico: formData.correo_electronico
+      };
+      
+      if (formData.contrasena && formData.contrasena.trim() !== '') {
+        payload.contrasena = formData.contrasena;
       }
-      await client.patch(`/usuarios/${selectedUser.id_usuario}`, payload);
+
+      await updateUser(selectedUser.id_usuario, payload);
       setShowEditModal(false);
       fetchUsuarios();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Error al actualizar usuario.');
+      alert('Error al actualizar usuario.');
     }
   };
 
   const handleCrear = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await client.post('/auth/register', formData);
+      await createUser({
+        nombre_usuario: formData.nombre_usuario,
+        correo_electronico: formData.correo_electronico,
+        contrasena: formData.contrasena,
+        rol_id: formData.rol_id,
+        empresa_id: formData.empresa_id
+      });
       setShowCreateModal(false);
       fetchUsuarios();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Error al crear usuario.');
+      alert('Error al crear usuario.');
     }
   };
 
   const filtrados = usuarios.filter(u =>
-    u.nombre_usuario.toLowerCase().includes(busqueda.toLowerCase()) ||
-    u.correo_electronico.toLowerCase().includes(busqueda.toLowerCase())
+    u.nombre_usuario?.toLowerCase().includes(busqueda.toLowerCase()) ||
+    u.correo_electronico?.toLowerCase().includes(busqueda.toLowerCase())
   );
 
   const miId = user?.id_usuario || user?.id;
@@ -396,9 +390,15 @@ function PanelMiEmpresa() {
       empresaRes, membresiasRes, organizacionesRes, rubrosRes,
       certificacionesRes, procesosRes, industriasRes, necesidadesRes, funcionesRes,
     ] = await Promise.all([
-      client.get(`/empresas/${empresaId}`), client.get('/membresias'), client.get('/organizaciones'),
-      client.get('/rubros'), client.get('/certificaciones'), client.get('/procesos'),
-      client.get('/industrias'), client.get('/necesidades'), client.get('/funciones'),
+      client.get(`/empresas/${empresaId}`), 
+      client.get('/membresias'), 
+      client.get('/tipos-organizacion'), // CORRECCIÓN AQUÍ
+      client.get('/rubros'), 
+      client.get('/certificaciones'), 
+      client.get('/procesos'),
+      client.get('/industrias'), 
+      client.get('/necesidades'), 
+      client.get('/funciones'),
     ]);
 
     const data = empresaRes.data;
@@ -453,7 +453,7 @@ function PanelMiEmpresa() {
       await client.patch(`/empresas/${empresaId}`, data);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Error al actualizar empresa.');
+      alert('Error al actualizar empresa.');
     } finally {
       setSaving(false);
     }
@@ -470,7 +470,7 @@ function PanelMiEmpresa() {
       });
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Error al registrar la relación.');
+      alert('Error al registrar la relación.');
     }
   };
 
@@ -498,52 +498,43 @@ function PanelMiEmpresa() {
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const payload: Record<string, any> = {
-        empresa_id: empresaId,
-        id_empresa: empresaId,
+      // Usamos la API de Producto Fabricado
+      await createProductoFabricado({
+        empresa_id: empresaId as number,
         nombre_producto: productForm.nombre_producto,
         clientes: productForm.clientes,
-      };
-      
-      if (productForm.porcentaje_produccion && productForm.porcentaje_produccion.trim() !== '') {
-        payload.porcentaje_produccion = Number(productForm.porcentaje_produccion);
-      }
-
-      await client.post('/productos', payload);
+        porcentaje_produccion: productForm.porcentaje_produccion ? Number(productForm.porcentaje_produccion) : undefined
+      });
       setProductForm(emptyProductForm);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Error al agregar producto.');
+      alert('Error al agregar producto.');
     }
   };
 
   const handleUpdateProduct = async (productId: number) => {
     try {
-      const payload: Record<string, any> = {
+      // Usamos la API de Producto Fabricado
+      await updateProductoFabricado(productId, {
         nombre_producto: editingProductForm.nombre_producto,
         clientes: editingProductForm.clientes,
-      };
-
-      if (editingProductForm.porcentaje_produccion && editingProductForm.porcentaje_produccion.trim() !== '') {
-        payload.porcentaje_produccion = Number(editingProductForm.porcentaje_produccion);
-      }
-
-      await client.patch(`/productos/${productId}`, payload);
+        porcentaje_produccion: editingProductForm.porcentaje_produccion ? Number(editingProductForm.porcentaje_produccion) : undefined
+      });
       setEditingProductId(null);
       setEditingProductForm(emptyProductForm);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Error al actualizar el producto.');
+      alert('Error al actualizar el producto.');
     }
   };
 
   const handleDeleteProduct = async (productId: number) => {
     if (!window.confirm('¿Eliminar producto o servicio?')) return;
     try {
-      await client.delete(`/productos/${productId}`);
+      await deleteProductoFabricado(productId);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Error al eliminar.');
+      alert('Error al eliminar.');
     }
   };
 
@@ -558,7 +549,7 @@ function PanelMiEmpresa() {
       setContactForm(emptyContactForm);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Error al agregar contacto.');
+      alert('Error al agregar contacto.');
     }
   };
 
@@ -572,7 +563,7 @@ function PanelMiEmpresa() {
       setEditingContactForm(emptyContactForm);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Error al actualizar contacto.');
+      alert('Error al actualizar contacto.');
     }
   };
 
@@ -582,7 +573,7 @@ function PanelMiEmpresa() {
       await client.delete(`/contactos/${contactId}`);
       await loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Error al eliminar.');
+      alert('Error al eliminar.');
     }
   };
 

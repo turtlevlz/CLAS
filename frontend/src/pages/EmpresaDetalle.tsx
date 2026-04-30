@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
-import client from '../api/client';
+import client from '../api';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 import type { DirectoryCompany, DirectoryCompanyTier } from '../features/directory/types/directory';

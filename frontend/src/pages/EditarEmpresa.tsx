@@ -2,8 +2,15 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import client from '../api/client';
+import client from '../api';
 import { useAuth } from '../context/AuthContext';
+
+// IMPORTAMOS LA NUEVA API DE PRODUCTOS
+import { 
+  createProductoFabricado, 
+  updateProductoFabricado, 
+  deleteProductoFabricado 
+} from '../api/productoFabricadoApi';
 
 type CatalogItem = Record<string, any>;
 
@@ -65,7 +72,7 @@ export default function EditarEmpresa() {
   const empresaId = Number(id);
   const { usuarioActual: user } = useAuth();
 
-  // Seguridad estricta: Si Admin Empresa entra a una URL ajena o un Rol 3 se cuela, lo botamos
+  // Seguridad estricta
   if (user?.rol_id === 2 && user.empresa_id !== empresaId) return <Navigate to="/admin" replace />;
   if (user?.rol_id === 3) return <Navigate to="/directorio" replace />;
 
@@ -96,9 +103,15 @@ export default function EditarEmpresa() {
       empresaRes, membresiasRes, organizacionesRes, rubrosRes, certificacionesRes,
       procesosRes, industriasRes, necesidadesRes, funcionesRes,
     ] = await Promise.all([
-      client.get(`/empresas/${empresaId}`), client.get('/membresias'), client.get('/organizaciones'),
-      client.get('/rubros'), client.get('/certificaciones'), client.get('/procesos'),
-      client.get('/industrias'), client.get('/necesidades'), client.get('/funciones'),
+      client.get(`/empresas/${empresaId}`), 
+      client.get('/membresias'), 
+      client.get('/tipos-organizacion'), // CORRECCIÓN DE LA RUTA AQUÍ
+      client.get('/rubros'), 
+      client.get('/certificaciones'), 
+      client.get('/procesos'),
+      client.get('/industrias'), 
+      client.get('/necesidades'), 
+      client.get('/funciones'),
     ]);
 
     const data = empresaRes.data;
@@ -131,7 +144,10 @@ export default function EditarEmpresa() {
   };
 
   useEffect(() => {
-    loadData().catch((error) => { console.error(error); alert('No se pudo cargar la empresa'); }).finally(() => setLoading(false));
+    loadData().catch((error) => { 
+      console.error(error); 
+      alert('No se pudo cargar la empresa'); 
+    }).finally(() => setLoading(false));
   }, [empresaId]);
 
   const updateField = (key: keyof CompanyForm, value: string | boolean) => setFormData((current) => ({ ...current, [key]: value }));
@@ -147,31 +163,37 @@ export default function EditarEmpresa() {
       await client.patch(`/empresas/${empresaId}`, data);
       alert('Datos guardados exitosamente');
       await loadData();
-    } catch (error: any) { alert(error.response?.data?.message || 'Error al actualizar empresa'); } finally { setSaving(false); }
+    } catch (error: any) { 
+      alert('Error al actualizar empresa.'); 
+    } finally { 
+      setSaving(false); 
+    }
   };
 
+  // --- FUNCIONES DE RELACIONES BLINDADAS ---
   const handleAddRelation = async (config: typeof relationConfigs[number], relatedId: string) => {
     if (!relatedId) return;
-    try {
-      await client.post(config.addEndpoint, {
+    try { 
+      await client.post(config.addEndpoint, { 
         empresa_id: empresaId,
         id_empresa: empresaId,
         [config.payloadKey]: Number(relatedId),
         [config.idKey]: Number(relatedId)
-      });
-      await loadData();
-    } catch (error: any) {
-      console.error("Error backend (Agregar Relación):", error.response?.data || error);
-      alert(`Error: ${error.response?.data?.message || 'No se pudo asignar. Revisa la consola (F12).'}`);
+      }); 
+      await loadData(); 
+    } catch (error: any) { 
+      alert('Error al asignar el registro.'); 
     }
   };
 
   const handleRemoveRelation = async (config: typeof relationConfigs[number], relatedId: number) => {
-    try {
-      await client.delete(`${config.addEndpoint}/${empresaId}/${relatedId}`);
-      await loadData();
-    } catch (error: any) {
+    try { 
+      // Intento 1: REST Tradicional
+      await client.delete(`${config.addEndpoint}/${empresaId}/${relatedId}`); 
+      await loadData(); 
+    } catch (error: any) { 
       try {
+        // Intento 2: Body Data
         await client.delete(config.addEndpoint, {
           data: {
             empresa_id: empresaId,
@@ -182,64 +204,94 @@ export default function EditarEmpresa() {
         });
         await loadData();
       } catch (fallbackError: any) {
-        console.error(" Error backend (Quitar Relación):", fallbackError.response?.data || fallbackError);
-        alert('Error: No se pudo quitar el registro. Revisa la consola (F12).');
+        alert('Error al quitar el registro.'); 
       }
     }
   };
 
+  // --- FUNCIONES DE PRODUCTOS USANDO LA NUEVA API ---
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const payload = {
-        empresa_id: empresaId,
-        id_empresa: empresaId,
+    try { 
+      await createProductoFabricado({ 
+        empresa_id: empresaId, 
         nombre_producto: productForm.nombre_producto,
         clientes: productForm.clientes,
-        porcentaje_produccion: productForm.porcentaje_produccion ? Number(productForm.porcentaje_produccion) : null,
-      };
-      await client.post('/productos', payload);
-      setProductForm(emptyProductForm);
-      await loadData();
-    } catch (error: any) {
-      console.error(" Error backend (Agregar Producto):", error.response?.data || error);
-      alert(`Error: ${error.response?.data?.message || 'Error al agregar producto. Revisa consola (F12).'}`);
+        porcentaje_produccion: productForm.porcentaje_produccion ? Number(productForm.porcentaje_produccion) : undefined
+      }); 
+      setProductForm(emptyProductForm); 
+      await loadData(); 
+    } catch (error: any) { 
+      alert('Error al agregar el producto'); 
     }
   };
 
   const handleUpdateProduct = async (productId: number) => {
-    try {
-      const payload = {
+    try { 
+      await updateProductoFabricado(productId, {
         nombre_producto: editingProductForm.nombre_producto,
         clientes: editingProductForm.clientes,
-        porcentaje_produccion: editingProductForm.porcentaje_produccion ? Number(editingProductForm.porcentaje_produccion) : null,
-      };
-      await client.patch(`/productos/${productId}`, payload);
-      setEditingProductId(null);
-      setEditingProductForm(emptyProductForm);
-      await loadData();
-    } catch (error: any) {
-      console.error(" Error backend (Actualizar Producto):", error.response?.data || error);
-      alert('Error al actualizar el producto');
+        porcentaje_produccion: editingProductForm.porcentaje_produccion ? Number(editingProductForm.porcentaje_produccion) : undefined
+      }); 
+      setEditingProductId(null); 
+      setEditingProductForm(emptyProductForm); 
+      await loadData(); 
+    } catch (error: any) { 
+      alert('Error al actualizar el producto'); 
     }
   };
+
   const handleDeleteProduct = async (productId: number) => {
     if (!window.confirm('¿Eliminar producto o servicio?')) return;
-    try { await client.delete(`/productos/${productId}`); await loadData(); } catch (error: any) { alert('Error al eliminar'); }
+    try { 
+      await deleteProductoFabricado(productId); 
+      await loadData(); 
+    } catch (error: any) { 
+      alert('Error al eliminar'); 
+    }
   };
 
+  // --- FUNCIONES DE CONTACTOS ---
   const handleAddContact = async (e: React.FormEvent) => {
     e.preventDefault();
-    try { await client.post('/contactos', { empresa_id: empresaId, ...contactForm, funcion_id: Number(contactForm.funcion_id) }); setContactForm(emptyContactForm); await loadData(); } catch (error: any) { alert('Error al agregar el contacto'); }
-  };
-  const handleUpdateContact = async (contactId: number) => {
-    try { await client.patch(`/contactos/${contactId}`, { ...editingContactForm, funcion_id: Number(editingContactForm.funcion_id) }); setEditingContactId(null); setEditingContactForm(emptyContactForm); await loadData(); } catch (error: any) { alert('Error al actualizar'); }
-  };
-  const handleDeleteContact = async (contactId: number) => {
-    if (!window.confirm('¿Eliminar contacto?')) return;
-    try { await client.delete(`/contactos/${contactId}`); await loadData(); } catch (error: any) { alert('Error al eliminar'); }
+    try { 
+      await client.post('/contactos', { 
+        empresa_id: empresaId, 
+        ...contactForm, 
+        funcion_id: Number(contactForm.funcion_id) 
+      }); 
+      setContactForm(emptyContactForm); 
+      await loadData(); 
+    } catch (error: any) { 
+      alert('Error al agregar contacto'); 
+    }
   };
 
+  const handleUpdateContact = async (contactId: number) => {
+    try { 
+      await client.patch(`/contactos/${contactId}`, { 
+        ...editingContactForm, 
+        funcion_id: Number(editingContactForm.funcion_id) 
+      }); 
+      setEditingContactId(null); 
+      setEditingContactForm(emptyContactForm); 
+      await loadData(); 
+    } catch (error: any) { 
+      alert('Error al actualizar'); 
+    }
+  };
+
+  const handleDeleteContact = async (contactId: number) => {
+    if (!window.confirm('¿Eliminar contacto?')) return;
+    try { 
+      await client.delete(`/contactos/${contactId}`); 
+      await loadData(); 
+    } catch (error: any) { 
+      alert('Error al eliminar'); 
+    }
+  };
+
+  // --- FUNCIONES AUXILIARES DE EDICIÓN ---
   const startEditProduct = (product: any) => {
     setEditingProductId(product.id_producto);
     setEditingProductForm({
@@ -315,14 +367,14 @@ export default function EditarEmpresa() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Membresía</label>
-                    <select value={formData.membresia_id} onChange={e => updateField('membresia_id', e.target.value)} className="w-full border border-gray-300 rounded-lg p-2 mt-1 text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                    <select value={formData.membresia_id} onChange={e => updateField('membresia_id', e.target.value)} disabled={user?.rol_id === 2} className="w-full border border-gray-300 rounded-lg p-2 mt-1 text-sm bg-white disabled:bg-gray-100 disabled:cursor-not-allowed outline-none focus:ring-2 focus:ring-blue-500">
                       <option value="">Seleccionar...</option>
                       {catalogs.membresias.map((item) => ( <option key={item.id_membresia} value={item.id_membresia}>{item.nombre_membresia}</option> ))}
                     </select>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Tipo de Organización</label>
-                    <select value={formData.tipo_organizacion_id} onChange={e => updateField('tipo_organizacion_id', e.target.value)} className="w-full border border-gray-300 rounded-lg p-2 mt-1 text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                    <select value={formData.tipo_organizacion_id} onChange={e => updateField('tipo_organizacion_id', e.target.value)} disabled={user?.rol_id === 2} className="w-full border border-gray-300 rounded-lg p-2 mt-1 text-sm bg-white disabled:bg-gray-100 disabled:cursor-not-allowed outline-none focus:ring-2 focus:ring-blue-500">
                       <option value="">Seleccionar...</option>
                       {catalogs.organizaciones.map((item) => ( <option key={item.id_tipo} value={item.id_tipo}>{item.nombre_tipo}</option> ))}
                     </select>

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import client from '../../api/client';
+import client from '../../api';
 import CompanyCard from './components/CompanyCard';
 import DirectoryPagination from './components/DirectoryPagination';
 import DirectoryToolbar from './components/DirectoryToolbar';
