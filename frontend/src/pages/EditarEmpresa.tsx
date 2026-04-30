@@ -133,6 +133,7 @@ export default function EditarEmpresa() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
   const [formData, setFormData] = useState<CompanyForm>(emptyCompanyForm);
   const [logo, setLogo] = useState<File | null>(null);
   const [catalogs, setCatalogs] = useState<Record<string, CatalogItem[]>>({
@@ -260,6 +261,7 @@ export default function EditarEmpresa() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    setSaveMessage('');
 
     const data = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
@@ -275,7 +277,23 @@ export default function EditarEmpresa() {
 
     try {
       await client.patch(`/empresas/${empresaId}`, data);
+
+      const currentDescription = formData.descripcion;
+      const currentFoundedYear = formData.anio_fundacion;
+      const currentEmployeeRange = formData.rango_empleados;
+      const currentManufacturesForAutomotive = formData.fabrica_para_automotriz;
+
       await loadData();
+
+      setFormData((current) => ({
+        ...current,
+        descripcion: currentDescription,
+        anio_fundacion: currentFoundedYear,
+        rango_empleados: currentEmployeeRange,
+        fabrica_para_automotriz: currentManufacturesForAutomotive,
+      }));
+
+      setSaveMessage('Datos generales guardados correctamente.');
     } catch (error: any) {
       alert(error.response?.data?.message || 'Error al actualizar empresa');
     } finally {
@@ -445,6 +463,12 @@ export default function EditarEmpresa() {
                 Volver
               </button>
             </div>
+
+            {saveMessage ? (
+              <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-700">
+                {saveMessage}
+              </div>
+            ) : null}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <section>
