@@ -7,6 +7,8 @@ import {
     createEmpresa,
     getEmpresas,
     getEmpresaById,
+    getEmpresasPublicas,
+    getEmpresaPublicaById,
     updateEmpresa,
     deleteEmpresa
 } from "../controllers/empresaController";
@@ -20,6 +22,10 @@ router.post(
     uploadLogo.single("logo"),
     createEmpresa
 );
+
+router.get("/public", getEmpresasPublicas);
+
+router.get("/public/:id", getEmpresaPublicaById);
 
 router.get("/", verifyToken, getEmpresas);
 

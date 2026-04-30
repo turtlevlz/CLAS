@@ -8,6 +8,7 @@ import Login from './pages/Login';
 import EmpresaDetalle from './pages/EmpresaDetalle';
 import Admin from './pages/Admin';
 import ForgotPswd from './pages/ForgotPswd';
+import NuevaEmpresa from './pages/NuevaEmpresa'; 
 
 const RutaProtegida = ({ children }: { children: any }) => {
   const { usuarioActual } = useAuth();
@@ -23,6 +24,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Rutas Públicas */}
         <Route path="/" element={<Home />} />
         <Route path="/directorio" element={<Directorio />} />
         <Route path="/noticias" element={<Noticias />} />
@@ -30,6 +32,8 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/empresa/:id" element={<EmpresaDetalle />} />
         <Route path="/contrasena_reset" element={<ForgotPswd />} />
+
+        {/* Rutas Protegidas (Requieren Login) */}
         <Route 
           path="/admin" 
           element={
@@ -38,6 +42,16 @@ export default function App() {
             </RutaProtegida>
           } 
         />
+
+        <Route 
+          path="/admin/nueva-empresa" 
+          element={
+            <RutaProtegida>
+              <NuevaEmpresa />
+            </RutaProtegida>
+          } 
+        />
+        
       </Routes>
     </BrowserRouter>
   );

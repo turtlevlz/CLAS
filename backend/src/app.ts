@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import path from "path"; 
+
 import authRoutes from "./routes/authRoutes";
 import empresaRoutes from "./routes/empresaRoutes";
 import rubroRoutes from "./routes/rubroRoutes";
@@ -10,6 +12,7 @@ import funcionContactoRoutes from "./routes/funcionContactoRoutes";
 import roleRoutes from "./routes/roleRoutes";
 import contactoRoutes from "./routes/contactoRoutes";
 import userRoutes from "./routes/userRoutes";
+
 import empresaCertificacionRoutes from "./routes/empresaCertificacionRoutes";
 import empresaRubroRoutes from "./routes/empresaRubroRoutes";
 import industriaRoutes from "./routes/industriaRoutes";
@@ -23,35 +26,36 @@ import empresaProcesoRoutes from "./routes/empresaProcesoRoutes";
 const app = express();
 
 app.use(cors({ origin: 'http://localhost:5173' }));
-
 app.use(express.json());
 
 app.get("/", (req, res) => {
     res.send("CLAS API running");
 });
 
+
 app.use("/auth", authRoutes);
+app.use("/usuarios", userRoutes);
+app.use("/roles", roleRoutes);
+
 app.use("/empresas", empresaRoutes);
+app.use("/contactos", contactoRoutes);
+app.use("/productos", productoFabricadoRoutes);
+
 app.use("/rubros", rubroRoutes);
 app.use("/certificaciones", certificacionRoutes);
 app.use("/membresias", membresiaRoutes);
 app.use("/organizaciones", tipoOrganizacionRoutes);
 app.use("/funciones", funcionContactoRoutes);
-app.use("/roles", roleRoutes);
-app.use("/contactos", contactoRoutes);
-app.use("/usuarios", userRoutes);
-
-// Nuevas rutas del equipo
-app.use("/empresa-certificaciones", empresaCertificacionRoutes);
-app.use("/empresa-rubros", empresaRubroRoutes);
 app.use("/industrias", industriaRoutes);
 app.use("/necesidades", necesidadRoutes);
-app.use("/productos", productoFabricadoRoutes);
 app.use("/procesos", procesoRoutes);
+
+app.use("/empresa-certificaciones", empresaCertificacionRoutes);
+app.use("/empresa-rubros", empresaRubroRoutes);
 app.use("/empresa-industrias", empresaIndustriaRoutes);
 app.use("/empresa-necesidades", empresaNecesidadRoutes);
 app.use("/empresa-procesos", empresaProcesoRoutes);
 
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 export default app;
