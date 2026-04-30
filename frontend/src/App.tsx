@@ -10,6 +10,7 @@ import Admin from './pages/Admin';
 import ForgotPswd from './pages/ForgotPswd';
 import NuevaEmpresa from './pages/NuevaEmpresa';
 import EditarEmpresa from './pages/EditarEmpresa';
+import MiCuenta from './pages/MiCuenta';
 
 const RutaAdmin = ({ children }: { children: any }) => {
   const { usuarioActual } = useAuth();
@@ -39,6 +40,16 @@ const RutaAdminClas = ({ children }: { children: any }) => {
   return children;
 };
 
+const RutaUsuario = ({ children }: { children: any }) => {
+  const { usuarioActual } = useAuth();
+
+  if (!usuarioActual) {
+    return <Navigate to="/login" />;
+  }
+
+  return children;
+};
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -51,6 +62,14 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/empresa/:id" element={<EmpresaDetalle />} />
         <Route path="/contrasena_reset" element={<ForgotPswd />} />
+        <Route
+          path="/mi-cuenta"
+          element={
+            <RutaUsuario>
+              <MiCuenta />
+            </RutaUsuario>
+          }
+        />
 
         {/* Rutas Protegidas (Requieren Login) */}
         <Route 
