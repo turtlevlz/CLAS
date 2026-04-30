@@ -596,15 +596,17 @@ export default function EditarEmpresa() {
                       <option key={item[config.idKey]} value={item[config.idKey]}>{item[config.labelKey]}</option>
                     ))}
                   </select>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex min-w-0 flex-wrap gap-2 overflow-hidden">
                     {(assigned[config.assignedKey] || []).map((item) => (
                       <button
                         key={item[config.idKey]}
                         type="button"
                         onClick={() => handleRemoveRelation(config, item[config.idKey])}
-                        className="rounded-full bg-gray-100 px-3 py-1 text-sm font-semibold text-gray-700 hover:bg-red-50 hover:text-red-600"
+                        className="max-w-full rounded-full bg-gray-100 px-3 py-1 text-left text-sm font-semibold text-gray-700 hover:bg-red-50 hover:text-red-600"
                       >
-                        {item[config.labelKey]} ×
+                        <span className="inline-block max-w-full break-words [overflow-wrap:anywhere]">
+                          {item[config.labelKey]} ×
+                        </span>
                       </button>
                     ))}
                     {(assigned[config.assignedKey] || []).length === 0 && (
