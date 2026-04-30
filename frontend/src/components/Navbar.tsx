@@ -60,8 +60,8 @@ export default function Navbar() {
           );
         })}
 
-        {/* Lógica de Seguridad de Carlos */}
-        {usuarioActual && (
+        {/* Lógica de Seguridad Corregida: Solo Admin CLAS (1) o Admin Empresa (2) ven el botón */}
+        {usuarioActual && (usuarioActual.rol_id === 1 || usuarioActual.rol_id === 2) && (
           <li>
             <NavLink to="/admin" className={linkClass}>
               <span>Panel Admin</span>
