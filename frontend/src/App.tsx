@@ -11,7 +11,7 @@ import ForgotPswd from './pages/ForgotPswd';
 import NuevaEmpresa from './pages/NuevaEmpresa';
 import EditarEmpresa from './pages/EditarEmpresa';
 import ErrorPage from './pages/ErrorPage';
-import Membresias from './pages/membresias';
+import Membresias from './pages/Membresias';
 
 const RutaProtegida = ({ children }: { children: any }) => {
   const { usuarioActual } = useAuth();
