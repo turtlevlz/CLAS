@@ -1,34 +1,20 @@
-import { BuildingOffice2Icon, HomeIcon, MegaphoneIcon } from '@heroicons/react/20/solid';
+import { BuildingOffice2Icon, HomeIcon, MegaphoneIcon, UserCircleIcon } from '@heroicons/react/24/solid';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import claslogo from '../assets/img/clas-logo-name.png';
 import { useAuth } from '../context/AuthContext';
 
 const navItems = [
-  {
-    label: 'Inicio',
-    to: '/',
-    icon: HomeIcon,
-    end: true,
-  },
-  {
-    label: 'Directorio',
-    to: '/directorio',
-    icon: BuildingOffice2Icon,
-  },
-  {
-    label: 'Noticias',
-    to: '/noticias',
-    icon: MegaphoneIcon,
-  },
+  { label: 'Inicio', to: '/', icon: HomeIcon, end: true },
+  { label: 'Directorio', to: '/directorio', icon: BuildingOffice2Icon },
+  { label: 'Noticias', to: '/noticias', icon: MegaphoneIcon },
 ];
 
-// Estilo del equipo conservado
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   [
-    'font-body inline-flex min-w-[150px] items-center justify-center gap-2 rounded-[10px] px-4 py-1.5 text-xl font-normal no-underline transition-colors duration-200',
+    'font-body inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium no-underline transition-colors duration-200',
     isActive
-      ? 'bg-[rgba(17,129,229,0.1)] text-primary'
-      : 'text-text-muted hover:text-primary',
+      ? 'bg-[#eef5fd] text-primary'
+      : 'text-[#64748b] hover:text-[#12284b] hover:bg-gray-50',
   ].join(' ');
 
 export default function Navbar() {
@@ -41,53 +27,56 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-[100] grid h-[90px] grid-cols-[1fr_auto_1fr] items-center bg-white px-10 shadow-[0px_2px_8px_rgba(0,0,0,0.08)] max-md:px-5">
-      <Link to="/" className="flex items-center justify-self-start gap-3 no-underline">
-        <img src={claslogo} alt="Logo CLAS" className="max-h-15" />
+    <nav className="sticky top-0 z-[100] grid h-[72px] grid-cols-[1fr_auto_1fr] items-center bg-white px-10 shadow-[0_2px_4px_rgba(15,23,42,0.12),0_8px_40px_rgba(15,23,42,0.16)] max-md:px-5">
+
+      <Link to="/" className="flex items-center justify-self-start no-underline">
+        <img src={claslogo} alt="Logo CLAS" className="h-10 w-auto" />
       </Link>
 
-      <ul className="flex list-none items-center gap-4 justify-self-center max-md:hidden">
+      <ul className="flex list-none items-center gap-1 justify-self-center max-md:hidden">
         {navItems.map((item) => {
           const Icon = item.icon;
-
           return (
             <li key={item.to}>
               <NavLink to={item.to} className={linkClass} end={item.end}>
                 <Icon aria-hidden="true" className="h-5 w-5 shrink-0" />
-                <span>{item.label}</span>
+                {item.label}
               </NavLink>
             </li>
           );
         })}
 
-        {/* Lógica de Seguridad de Carlos */}
         {usuarioActual && (
           <li>
             <NavLink to="/admin" className={linkClass}>
-              <span>Panel Admin</span>
+              <UserCircleIcon className="h-5 w-5 shrink-0" aria-hidden="true" />
+              Panel Admin
             </NavLink>
           </li>
         )}
       </ul>
 
-      <div className="justify-self-end">
-        {/* Botón dinámico con clases del equipo */}
+      <div className="justify-self-end flex items-center gap-3">
         {usuarioActual ? (
-          <button
-            onClick={handleLogout}
-            className="bg-red-600 font-body rounded-[15px] px-7 py-3 text-lg font-semibold text-white no-underline shadow-[0px_4px_4px_rgba(0,0,0,0.25)] transition-opacity duration-200 hover:opacity-90"
-          >
-            Cerrar Sesión
-          </button>
+          <>
+            <span className="text-sm text-[#64748b] font-medium max-md:hidden">{usuarioActual.nombre_usuario}</span>
+            <button
+              onClick={handleLogout}
+              className="font-body text-sm font-semibold px-4 py-2 rounded-xl border border-red-200 text-red-500 hover:bg-red-600 hover:text-white hover:border-red-600 transition-colors"
+            >
+              Cerrar sesión
+            </button>
+          </>
         ) : (
           <Link
             to="/login"
-            className="bg-primary-dark font-body rounded-[15px] px-7 py-3 text-lg font-semibold text-white no-underline shadow-[0px_4px_4px_rgba(0,0,0,0.25)] transition-opacity duration-200 hover:opacity-90"
+            className="font-body text-sm font-semibold px-5 py-2 rounded-xl bg-[#12284b] text-white no-underline hover:bg-[#1a3a6b] transition-colors shadow-sm"
           >
-            Iniciar Sesión
+            Iniciar sesión
           </Link>
         )}
       </div>
+
     </nav>
   );
 }
