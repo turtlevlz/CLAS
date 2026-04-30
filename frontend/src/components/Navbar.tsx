@@ -69,7 +69,7 @@ export default function Navbar() {
           </li>
         )}
 
-        {usuarioActual && (
+        {usuarioActual?.rol_id === 3 && (
           <li>
             <NavLink to="/mi-cuenta" className={linkClass}>
             <UserIcon aria-hidden="true" className="h-5 w-5 shrink-0"/>

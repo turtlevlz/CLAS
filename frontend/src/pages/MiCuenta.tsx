@@ -20,7 +20,7 @@ export default function MiCuenta() {
 
   useEffect(() => {
     async function loadUser() {
-      if (!usuarioActual?.id_usuario) {
+      if (!usuarioActual?.id_usuario || usuarioActual.rol_id !== 3) {
         return;
       }
 
@@ -41,10 +41,14 @@ export default function MiCuenta() {
     }
 
     loadUser();
-  }, [usuarioActual?.id_usuario]);
+  }, [usuarioActual?.id_usuario, usuarioActual?.rol_id]);
 
   if (!usuarioActual) {
     return <Navigate to="/login" />;
+  }
+
+  if (usuarioActual.rol_id !== 3) {
+    return <Navigate to="/directorio" />;
   }
 
   const handleSubmit = async (event: React.FormEvent) => {

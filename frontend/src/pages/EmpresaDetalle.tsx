@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import client from '../api/client';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
+import { useAuth } from '../context/AuthContext';
 import type { DirectoryCompany, DirectoryCompanyTier } from '../features/directory/types/directory';
 
 function getCompanyInitials(name: string) {
@@ -36,7 +37,7 @@ function mapEmpresaDetalle(data: any): DirectoryCompany {
   const industrias = asList(data, 'Industrias', 'industrias');
   const necesidades = asList(data, 'Necesidades', 'necesidades');
   const productos = asList(data, 'ProductoFabricados', 'productosFabricados');
-  const contactos: any[] = [];
+  const contactos = asList(data, 'Contactos', 'contactos');
 
   return {
     id: data.id_empresa,
@@ -168,6 +169,7 @@ function NotFound() {
 
 export default function EmpresaDetalle() {
   const { id } = useParams();
+  const { usuarioActual } = useAuth();
   const [company, setCompany] = useState<DirectoryCompany | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -177,7 +179,8 @@ export default function EmpresaDetalle() {
       try {
         setLoading(true);
         setError(false);
-        const response = await client.get(`/empresas/public/${id}`);
+        const endpoint = usuarioActual ? `/empresas/${id}` : `/empresas/public/${id}`;
+        const response = await client.get(endpoint);
         setCompany(mapEmpresaDetalle(response.data));
       } catch (loadError) {
         setCompany(null);
@@ -188,7 +191,7 @@ export default function EmpresaDetalle() {
     }
 
     loadCompany();
-  }, [id]);
+  }, [id, usuarioActual]);
 
   if (loading) {
     return (
@@ -376,39 +379,41 @@ export default function EmpresaDetalle() {
                 </div>
               </section>
 
-              <section className="!rounded-[32px] !border !border-[#b7d8ff] !bg-[#edf5ff] !p-7 !shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
-                <p className="!text-[12px] !font-bold !uppercase !tracking-[0.14em] !text-[#1181e5]">
-                  Contacto
-                </p>
+              {usuarioActual ? (
+                <section className="!rounded-[32px] !border !border-[#b7d8ff] !bg-[#edf5ff] !p-7 !shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
+                  <p className="!text-[12px] !font-bold !uppercase !tracking-[0.14em] !text-[#1181e5]">
+                    Contacto
+                  </p>
 
-                <div className="!mt-5 !space-y-5">
-                  {(company.detail.contacts.length ? company.detail.contacts : [{ name: 'Sin contactos', role: '', email: '', phone: '' }]).map((contact) => (
-                    <div
-                      key={`${contact.name}-${contact.role}`}
-                      className="!rounded-[22px] !bg-white !p-5 !shadow-[0_12px_30px_rgba(15,23,42,0.05)]"
-                    >
-                      <p className="!text-[16px] !font-bold !leading-[1.2] !text-[#12284b]">
-                        {contact.name}
-                      </p>
-                      {contact.role ? (
-                        <p className="!mt-1 !text-[13px] !font-semibold !text-[#64748b]">
-                          {contact.role}
+                  <div className="!mt-5 !space-y-5">
+                    {(company.detail.contacts.length ? company.detail.contacts : [{ name: 'Sin contactos', role: '', email: '', phone: '' }]).map((contact) => (
+                      <div
+                        key={`${contact.name}-${contact.role}`}
+                        className="!rounded-[22px] !bg-white !p-5 !shadow-[0_12px_30px_rgba(15,23,42,0.05)]"
+                      >
+                        <p className="!text-[16px] !font-bold !leading-[1.2] !text-[#12284b]">
+                          {contact.name}
                         </p>
-                      ) : null}
-                      {contact.email ? (
-                        <p className="!mt-4 !text-[14px] !font-semibold !text-[#334155]">
-                          {contact.email}
-                        </p>
-                      ) : null}
-                      {contact.phone ? (
-                        <p className="!mt-1 !text-[14px] !font-semibold !text-[#334155]">
-                          {contact.phone}
-                        </p>
-                      ) : null}
-                    </div>
-                  ))}
-                </div>
-              </section>
+                        {contact.role ? (
+                          <p className="!mt-1 !text-[13px] !font-semibold !text-[#64748b]">
+                            {contact.role}
+                          </p>
+                        ) : null}
+                        {contact.email ? (
+                          <p className="!mt-4 !text-[14px] !font-semibold !text-[#334155]">
+                            {contact.email}
+                          </p>
+                        ) : null}
+                        {contact.phone ? (
+                          <p className="!mt-1 !text-[14px] !font-semibold !text-[#334155]">
+                            {contact.phone}
+                          </p>
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
             </aside>
           </div>
         </section>

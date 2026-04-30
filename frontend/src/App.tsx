@@ -40,11 +40,15 @@ const RutaAdminClas = ({ children }: { children: any }) => {
   return children;
 };
 
-const RutaUsuario = ({ children }: { children: any }) => {
+const RutaUsuarioEmpresa = ({ children }: { children: any }) => {
   const { usuarioActual } = useAuth();
 
   if (!usuarioActual) {
     return <Navigate to="/login" />;
+  }
+
+  if (usuarioActual.rol_id !== 3) {
+    return <Navigate to="/directorio" />;
   }
 
   return children;
@@ -65,9 +69,9 @@ export default function App() {
         <Route
           path="/mi-cuenta"
           element={
-            <RutaUsuario>
+            <RutaUsuarioEmpresa>
               <MiCuenta />
-            </RutaUsuario>
+            </RutaUsuarioEmpresa>
           }
         />
 
