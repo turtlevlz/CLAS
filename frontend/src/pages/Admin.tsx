@@ -257,7 +257,7 @@ function PanelUsuarios() {
                   <select
                     value={formData.rol_id}
                     onChange={e => setFormData({...formData, rol_id: Number(e.target.value)})}
-                    className="w-full border p-3 rounded-xl focus:ring-2 focus:ring-primary outline-none bg-white"
+                    className="h-11 w-full min-w-0 rounded-[16px] border border-[#dbe4ef] bg-white px-4 text-sm font-medium text-[#334155] shadow-none outline-none transition focus:outline-none focus:ring-4 focus:ring-sky-100"
                     required
                   >
                     <option value={1}>Admin CLAS</option>
@@ -273,7 +273,7 @@ function PanelUsuarios() {
                   <select
                     value={formData.empresa_id || ''}
                     onChange={e => setFormData({...formData, empresa_id: e.target.value === '' ? null : Number(e.target.value)})}
-                    className="w-full border p-3 rounded-xl focus:ring-2 focus:ring-primary outline-none bg-white"
+                    className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none"
                     required
                   >
                     <option value="">Selecciona una empresa...</option>

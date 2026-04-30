@@ -44,21 +44,21 @@ export default function Home() {
           setCtaVisible(true);
         }
       },
-      { threshold: 0.3 } 
+      { threshold: 0.3 }
     );
     if (ctaRef.current) observer.observe(ctaRef.current);
 
     const interval = setInterval(() => {
-      setCurrentHeroImage((prevIndex) => 
+      setCurrentHeroImage((prevIndex) =>
         prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
       );
     }, 4000); // 5000ms = 5 segundos
 
     return () => {
       observer.disconnect();
-      clearInterval(interval); 
+      clearInterval(interval);
     };
-  }, [heroImages.length]); 
+  }, [heroImages.length]);
 
   const logos = [
   "https://upload.wikimedia.org/wikipedia/commons/a/a0/Ford_Motor_Company_Logo.svg",
@@ -72,25 +72,25 @@ export default function Home() {
 ];
 
   const benefits = [
-    { 
-      title: "Networking", 
-      desc: "Conecte con más de 150 empresas del sector automotriz en Sonora.", 
-      icon: UserGroupIcon 
+    {
+      title: "Networking",
+      desc: "Conecte con más de 150 empresas del sector automotriz en Sonora.",
+      icon: UserGroupIcon
     },
-    { 
-      title: "Desarrollo", 
-      desc: "Acceso a oportunidades de colaboración y proyectos conjuntos.", 
-      icon: LightBulbIcon 
+    {
+      title: "Desarrollo",
+      desc: "Acceso a oportunidades de colaboración y proyectos conjuntos.",
+      icon: LightBulbIcon
     },
-    { 
-      title: "Capacitación", 
-      desc: "Programas de formation y actualización para su equipo técnico.", 
-      icon: AcademicCapIcon 
+    {
+      title: "Capacitación",
+      desc: "Programas de formation y actualización para su equipo técnico.",
+      icon: AcademicCapIcon
     },
-    { 
-      title: "Certificaciones", 
-      desc: "Apoyo en procesos de certificación y mejora de estándares.", 
-      icon: ShieldCheckIcon 
+    {
+      title: "Certificaciones",
+      desc: "Apoyo en procesos de certificación y mejora de estándares.",
+      icon: ShieldCheckIcon
     },
   ];
 
@@ -119,20 +119,20 @@ export default function Home() {
                 </button>
               </div>
             </div>
-            
+
             <div className="flex-1 w-full">
               <div className="relative w-full h-[500px] rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white/10">
                 {heroImages.map((src, index) => (
-                  <img 
+                  <img
                     key={index}
-                    src={src} 
+                    src={src}
                     alt={`Industria Automotriz Slide ${index + 1}`}
                     className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out
                       ${index === currentHeroImage ? 'opacity-100 z-10' : 'opacity-0 z-0'}
                     `}
                   />
                 ))}
-                
+
               </div>
             </div>
           </div>
@@ -183,17 +183,17 @@ export default function Home() {
 
           <div className="w-full overflow-hidden flex">
             <div className="animate-carousel cursor-pointer">
-              
+
               {[...logos, ...logos].map((src, index) => (
                 <div key={index} className="logo-container">
-                  <img 
-                  src={src} 
-                  alt="Logo" 
-                  className="h-18 w-40 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all object-contain" 
+                  <img
+                  src={src}
+                  alt="Logo"
+                  className="h-18 w-40 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all object-contain"
                 />
                 </div>
               ))}
-              
+
             </div>
           </div>
         </section>
@@ -201,13 +201,13 @@ export default function Home() {
         {/* --- SECCIÓN MISIÓN Y VISIÓN --- */}
         <section className="py-20 bg-neutral-100">
           <div style={{ maxWidth: '1200px', margin: '0 auto' }} className="px-10 flex flex-col md:flex-row items-center gap-16">
-            
+
             <div className="flex-1 w-full">
               <div className="relative group">
                 <div className="absolute -inset-4 bg-slate-100 rounded-[3rem] -z-10 group-hover:bg-blue-50 transition-colors"></div>
-                <img 
-                  src="https://mecaluxmx.cdnwm.com/img/blog/logistica-industria-automotriz.1.11.jpg" 
-                  alt="Mecánico trabajando en motor" 
+                <img
+                  src="https://mecaluxmx.cdnwm.com/img/blog/logistica-industria-automotriz.1.11.jpg"
+                  alt="Mecánico trabajando en motor"
                   className="rounded-[2.5rem] shadow-2xl w-full h-[450px] object-cover border-4 border-white"
                 />
               </div>
@@ -217,7 +217,7 @@ export default function Home() {
               <div className="mb-12">
                 <h2 className="text-4xl font-black text-primary-dark mb-6 tracking-tight">Nuestra Misión</h2>
                 <p className="text-text-muted text-lg leading-relaxed font-medium">
-                  Fortalecer la competitividad del sector automotriz en Sonora mediante la colaboración entre empresas, 
+                  Fortalecer la competitividad del sector automotriz en Sonora mediante la colaboración entre empresas,
                   gobierno y academia, impulsando la innovación, el desarrollo de talento y la atracción de inversiones.
                 </p>
               </div>
@@ -225,7 +225,7 @@ export default function Home() {
               <div>
                 <h2 className="text-4xl font-black text-primary-dark mb-6 tracking-tight">Visión 2030</h2>
                 <p className="text-text-muted text-lg leading-relaxed font-medium">
-                  Ser el cluster automotriz más innovador y competitivo de México, reconocido internacionalmente 
+                  Ser el cluster automotriz más innovador y competitivo de México, reconocido internacionalmente
                   por su excelencia operativa y contribución al desarrollo económico sustentable de la región.
                 </p>
               </div>
@@ -237,13 +237,13 @@ export default function Home() {
         {/* --- SECCIÓN QUIÉNES SOMOS / EQUIPO --- */}
         <section id="seccion-quienes-somos" className="py-20 bg-white">
           <div style={{ maxWidth: '1200px', margin: '0 auto' }} className="px-10">
-            
+
             {/* Encabezado */}
             <div className="text-center max-w-4xl mx-auto mb-20">
               <h2 className="text-5xl font-black text-primary-dark mb-8">¿Quiénes Somos?</h2>
               <p className="text-text-muted text-lg leading-relaxed font-medium">
-                En CLAS (Clúster Automotriz de Sonora) trabajamos para fortalecer y conectar el ecosistema automotriz del estado. 
-                Somos un equipo multidisciplinario comprometido con impulsar la colaboración entre empresas, proveedores, 
+                En CLAS (Clúster Automotriz de Sonora) trabajamos para fortalecer y conectar el ecosistema automotriz del estado.
+                Somos un equipo multidisciplinario comprometido con impulsar la colaboración entre empresas, proveedores,
                 instituciones académicas y organismos gubernamentales.
               </p>
             </div>
@@ -257,12 +257,12 @@ export default function Home() {
                 { name: "Margarita Bejarano Celaya", role: "Directora", empresa: "CLAS", correo: "direccion@clas.com.mx", image:"https://img1.wsimg.com/isteam/ip/dcf17818-4267-46ce-a60c-cfa6c45c9047/blob-074403d.png/:/cr=t:0%25,l:15.07%25,w:48.08%25,h:32.04%25/rs=w:730,h:730,cg:true,m"}
               ].map((member, idx) => (
                 <div key={idx} className="group bg-white border border-slate-200 rounded-[2rem] p-8 shadow-lg text-center hover:-translate-y-2 transition-transform duration-300">
-                  
+
                   {/* Avatar */}
                   <div className="w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden border-4 border-slate-50 shadow-inner bg-slate-100">
-                    <img 
-                      src={member.image} 
-                      alt={member.name} 
+                    <img
+                      src={member.image}
+                      alt={member.name}
                       className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
                     />
                   </div>
@@ -277,8 +277,8 @@ export default function Home() {
                   </p>
 
                   {/* CORREO COMO TEXTO */}
-                  <a 
-                    href={`mailto:${member.correo}`} 
+                  <a
+                    href={`mailto:${member.correo}`}
                     className="block text-primary font-medium text-sm mb-8 hover:text-primary-dark transition-colors duration-300"
                   >
                     {member.correo}
@@ -306,26 +306,29 @@ export default function Home() {
         {/* --- CTA FINAL --- */}
         <section ref={ctaRef} className="bg-linear-to-r from-[rgb(20,140,180)] to-[rgb(44,65,154)] py-20 text-center overflow-hidden">
           <div className="max-w-4xl mx-auto px-10">
-            <h2 
+            <h2
               className={`text-5xl font-black text-white mb-8 tracking-tight italic transform transition-all duration-1000 ease-out
                 ${ctaVisible ? 'translate-y-0 opacity-100' : '-translate-y-12 opacity-0'}
               `}
             >
               ¿Listo para unirse a CLAS?
             </h2>
-            <p 
+            <p
               className={`text-white/80 text-xl mb-12 font-medium transform transition-all duration-1000 delay-300 ease-out
                 ${ctaVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}
               `}
             >
               Forma parte del ecosistema automotriz más dinámico de Sonora.
             </p>
-            <div 
+            <div
               className={`transform transition-all duration-1000 delay-500 ease-out
                 ${ctaVisible ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0'}
               `}
             >
-              <Link to="/membresias" className="inline-block bg-white text-[#004a99] px-14 py-5 rounded-2xl font-black text-xl shadow-2xl hover:scale-105 transition-transform duration-300 no-underline">
+              <Link
+                to="/membresias"
+                className="inline-block bg-white text-[#004a99] px-14 py-5 rounded-2xl font-black text-xl shadow-2xl hover:scale-105 transition-transform duration-300 no-underline"
+              >
                 Solicitar membresía
               </Link>
             </div>

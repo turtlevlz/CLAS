@@ -677,7 +677,7 @@ export const updateEmpresa = async (req: Request, res: Response) => {
             }
         }
 
-        if (req.body.anio_fundacion !== undefined) {
+        if (req.body.anio_fundacion !== undefined && req.body.anio_fundacion !== '') {
             const anioFundacion = Number(req.body.anio_fundacion);
 
             if (!Number.isInteger(anioFundacion) || anioFundacion < 1800) {
