@@ -101,7 +101,7 @@ Descripción general de la API. Para una descripción detallada checar el archiv
  
 **`checkRole`** - Valida que el usuario tenga alguno de los roles permitidos.
  
-**`uploadLogo`** - Permite subir imágenes. Formatos aceptados: `.jpg, .jpeg, .png y .webp`. Se guardan en uploads/logos. Límite de 5 MBs.
+**`uploadLogo`** - Permite subir imágenes. Formatos aceptados: `.jpg`, `.jpeg`, `.png` y `.webp`. Se guardan en uploads/logos. Límite de 5 MBs.
  
 ### Usuarios
  
