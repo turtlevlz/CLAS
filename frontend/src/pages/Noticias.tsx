@@ -66,7 +66,7 @@ export default function Noticias() {
 
       <main className="mx-auto max-w-7xl px-6 py-12">
 
-        {/* HEADER */}
+        {/* Header */}
         <section className="mb-14">
           <h1 className="text-5xl font-extrabold text-gray-900 mb-3">
             Noticias y Actualizaciones
@@ -76,7 +76,7 @@ export default function Noticias() {
           </p>
         </section>
 
-        {/* DESTACADA */}
+        {/* Destacada */}
         <section className="mb-16">
           <div className="grid md:grid-cols-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition">
 
@@ -114,7 +114,7 @@ export default function Noticias() {
           </div>
         </section>
 
-        {/* GRID */}
+        {/* Grid */}
         <section className="mb-16">
           <h2 className="text-4xl font-extrabold text-gray-900 mb-8">
             Noticias Recientes
@@ -163,7 +163,7 @@ export default function Noticias() {
           </div>
         </section>
 
-        {/* NEWSLETTER */}
+        {/* Newsletter */}
         <section className="bg-[#0F4C81] text-white rounded-2xl p-10 text-center">
           <h3 className="text-3xl font-bold mb-2">
             Suscríbete a Nuestro Boletín

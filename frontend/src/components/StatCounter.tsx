@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 
 interface Props {
-  value: string; // Ejemplo: "150+"
+  value: string;
 }
 
 export const StatCounter = ({ value }: Props) => {
@@ -19,7 +19,7 @@ export const StatCounter = ({ value }: Props) => {
       if (entry.isIntersecting) {
         setIsVisible(true);
       }
-    }, { threshold: 0.5 }); // Se activa cuando el 50% del componente es visible
+    }, { threshold: 0.5 });
 
     if (domRef.current) observer.observe(domRef.current);
 
@@ -29,7 +29,7 @@ export const StatCounter = ({ value }: Props) => {
   useEffect(() => {
     // 2. Lógica de la animación de los números
     if (isVisible && current < targetNumber) {
-      const duration = 1000; // 2 segundos que dura la animación
+      const duration = 1000;
       const steps = 50; 
       const increment = targetNumber / (duration / steps);
 

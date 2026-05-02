@@ -32,7 +32,6 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={{ showToast }}>
       {children}
 
-      {/* Stack de toasts — esquina inferior derecha */}
       <div className="fixed bottom-6 right-6 z-[500] flex flex-col gap-3 pointer-events-none">
         {toasts.map(toast => (
           <div
@@ -47,14 +46,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 : 'border-green-100 '}
             `}
           >
-            {/* Ícono */}
             {toast.type === 'error' ? (
               <ExclamationCircleIcon className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
             ) : (
               <CheckCircleIcon className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
             )}
-
-            {/* Texto */}
             <div className="flex-1 min-w-0">
               <p className={`text-sm font-semibold leading-snug ${
                 toast.type === 'error' ? 'text-red-700' : 'text-green-700'
@@ -63,8 +59,6 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               </p>
               <p className="text-sm text-gray-500 mt-0.5 break-words">{toast.message}</p>
             </div>
-
-            {/* Cerrar */}
             <button
               onClick={() => remove(toast.id)}
               className="text-gray-300 hover:text-gray-500 transition-colors shrink-0 mt-0.5"
