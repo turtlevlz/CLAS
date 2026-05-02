@@ -7,7 +7,6 @@ import { useToast } from '../components/Toast';
 
 type OptionItem = Record<string, any>;
 
-// Estándares mexicanos SAT/LADA
 const RFC_REGEX    = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/i;
 const EMAIL_REGEX  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX  = /^[\d\s\-()+]{10,15}$/;
@@ -59,7 +58,6 @@ export default function NuevaEmpresa() {
 
   const updateField = (key: keyof typeof formData, value: string | boolean) => {
     setFormData((current) => ({ ...current, [key]: value }));
-    // Limpiar error al editar
     if (fieldErrors[key]) setFieldErrors((prev) => ({ ...prev, [key]: '' }));
   };
 
@@ -139,7 +137,6 @@ export default function NuevaEmpresa() {
     }
   };
 
-  // Clases dinámicas según error
   const inputCls = (key: string) =>
     `w-full min-w-0 border rounded-lg p-2 mt-1 text-sm outline-none focus:ring-2 ${
       fieldErrors[key]

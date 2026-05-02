@@ -2,7 +2,6 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Link } from 'react-router-dom';
 import { StatCounter } from '../components/StatCounter';
-// 1. Asegúrate de importar useState y useEffect
 import { useState, useEffect, useRef } from 'react';
 import {
   ArrowRightIcon,
@@ -25,19 +24,16 @@ export default function Home() {
   const ctaRef = useRef(null);
   const [ctaVisible, setCtaVisible] = useState(false);
 
-  // 2. NUEVO: Agregamos las imágenes para el Hero
   const heroImages = [
-    "https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=1000&auto=format&fit=crop", // Imagen original
-    "https://mecaluxmx.cdnwm.com/img/blog/logistica-industria-automotriz.1.11.jpg", // Imagen 2
-    "https://img1.wsimg.com/isteam/stock/98069/:/rs=w:1200,h:600,cg:true,m/cr=w:1200,h:600", // Imagen 3
-    "https://img1.wsimg.com/isteam/stock/2224/:/rs=w:1200,h:600,cg:true,m/cr=w:1200,h:600" // Imagen 4
+    "https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=1000&auto=format&fit=crop",
+    "https://mecaluxmx.cdnwm.com/img/blog/logistica-industria-automotriz.1.11.jpg",
+    "https://img1.wsimg.com/isteam/stock/98069/:/rs=w:1200,h:600,cg:true,m/cr=w:1200,h:600",
+    "https://img1.wsimg.com/isteam/stock/2224/:/rs=w:1200,h:600,cg:true,m/cr=w:1200,h:600"
   ];
 
-  // 3. NUEVO: Estado para controlar la imagen actual
   const [currentHeroImage, setCurrentHeroImage] = useState(0);
 
-  useEffect(() => {
-    // Observer para el CTA (esto ya estaba en tu código)
+  useEffect(() => { 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -52,7 +48,7 @@ export default function Home() {
       setCurrentHeroImage((prevIndex) =>
         prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
       );
-    }, 4000); // 5000ms = 5 segundos
+    }, 4000);
 
     return () => {
       observer.disconnect();
@@ -99,7 +95,7 @@ export default function Home() {
       <Navbar />
 
       <main>
-        {/* --- SECCIÓN HERO --- */}
+        {/* Hero */}
         <section className="bg-linear-to-r from-[rgb(20,140,180)] to-[rgb(44,65,154)] py-20 lg:py-18 px-10">
           <div style={{ maxWidth: '1200px', margin: '0 auto' }} className="flex flex-col lg:flex-row items-center gap-16">
             <div className="flex-1 text-white">
@@ -138,7 +134,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* --- SECCIÓN STATS ACTUALIZADA --- */}
+        {/* Stats */}
         <section className="py-20 bg-white">
           <div style={{ maxWidth: '1200px', margin: '0 auto' }} className="px-10 grid grid-cols-2 lg:grid-cols-4 gap-12">
             {stats.map((stat, idx) => (
@@ -152,7 +148,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* --- SECCIÓN BENEFICIOS (CARDS) --- */}
+        {/* Beneficios */}
         <section className="bg-slate-50/50 py-20 border-y border-slate-100">
           <div style={{ maxWidth: '1200px', margin: '0 auto' }} className="px-10">
             <div className="text-center mb-20">
@@ -174,7 +170,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* --- SECCIÓN CARRUSEL DE EMPRESAS --- */}
+        {/* Carrusel de Empresas */}
         <section className="py-20 bg-slate-50/50 overflow-hidden">
           <div className="text-center mb-12">
             <h2 className="text-sm font-bold uppercase tracking-[0.3em] text-primary mb-2">Alianzas Estratégicas</h2>
@@ -198,7 +194,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* --- SECCIÓN MISIÓN Y VISIÓN --- */}
+        {/* Vision y Mision */}
         <section className="py-20 bg-neutral-100">
           <div style={{ maxWidth: '1200px', margin: '0 auto' }} className="px-10 flex flex-col md:flex-row items-center gap-16">
 
@@ -234,11 +230,10 @@ export default function Home() {
           </div>
         </section>
 
-        {/* --- SECCIÓN QUIÉNES SOMOS / EQUIPO --- */}
+        {/* Quienes Somos */}
         <section id="seccion-quienes-somos" className="py-20 bg-white">
           <div style={{ maxWidth: '1200px', margin: '0 auto' }} className="px-10">
 
-            {/* Encabezado */}
             <div className="text-center max-w-4xl mx-auto mb-20">
               <h2 className="text-5xl font-black text-primary-dark mb-8">¿Quiénes Somos?</h2>
               <p className="text-text-muted text-lg leading-relaxed font-medium">
@@ -248,7 +243,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Grid de Equipo */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-10 max-w-4xl mx-auto">
               {[
                 { name: "Juan Carlos Campoy Ramos", role: "Presidente", empresa: "New Concept Technology", correo: "presidencia@clas.com.mx", image:"https://img1.wsimg.com/isteam/ip/dcf17818-4267-46ce-a60c-cfa6c45c9047/blob-8fa2f20.png/:/cr=t:14.81%25,l:5.78%25,w:84.75%25,h:51.43%25/rs=w:730,h:730,cg:true,m" },
@@ -276,7 +270,7 @@ export default function Home() {
                     {member.empresa}
                   </p>
 
-                  {/* CORREO COMO TEXTO */}
+                  {/* Correo */}
                   <a
                     href={`mailto:${member.correo}`}
                     className="block text-primary font-medium text-sm mb-8 hover:text-primary-dark transition-colors duration-300"
@@ -303,7 +297,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* --- CTA FINAL --- */}
+        {/*CTA*/}
         <section ref={ctaRef} className="bg-linear-to-r from-[rgb(20,140,180)] to-[rgb(44,65,154)] py-20 text-center overflow-hidden">
           <div className="max-w-4xl mx-auto px-10">
             <h2

@@ -53,7 +53,7 @@ export default function NoticiaDetalle() {
 
       <main className="mx-auto max-w-6xl px-6 py-12">
 
-        {/* HEADER */}
+        {/* Header */}
         <section className="mb-10 border-b border-gray-300 pb-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <span className="text-2xl font-bold text-gray-900">
@@ -75,7 +75,7 @@ export default function NoticiaDetalle() {
           </p>
         </section>
 
-        {/* IMAGEN */}
+        {/* Imagen */}
         <section className="mb-12">
           <img
             src={noticia.imagen}
@@ -84,14 +84,14 @@ export default function NoticiaDetalle() {
           />
         </section>
 
-        {/* CONTENIDO */}
+        {/* Contenido */}
         <section className="mb-16 max-w-4xl mx-auto space-y-6 text-gray-600 leading-8 text-[17px]">
           {noticia.contenido.map((parrafo, index) => (
             <p key={index}>{parrafo}</p>
           ))}
         </section>
 
-        {/* OTRAS NOTICIAS */}
+        {/* Otras Noticias */}
         <section>
           <div className="mb-6 border-b border-gray-400">
             <h2 className="inline-block border-b-4 border-gray-700 pb-2 text-2xl font-bold">
