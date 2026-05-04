@@ -11,6 +11,7 @@ import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext';
 import client from '../api/client';
 import { useToast } from '../components/Toast';
+import AdminSelect from '../features/directory/components/AdminSelect';
 
 function PanelUsuarios() {
   const { usuarioActual } = useAuth();
@@ -279,35 +280,37 @@ function PanelUsuarios() {
               {esAdminClas && !showEditModal && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Rol del Usuario</label>
-                  <select
+                  <AdminSelect
                     value={formData.rol_id}
-                    onChange={e => setFormData({...formData, rol_id: Number(e.target.value)})}
-                    className="h-11 w-full min-w-0 rounded-[16px] border border-[#dbe4ef] bg-white px-4 text-sm font-medium text-[#334155] shadow-none outline-none transition focus:outline-none focus:ring-4 focus:ring-sky-100"
-                    required
-                  >
-                    <option value={1}>Admin CLAS</option>
-                    <option value={2}>Admin Empresa</option>
-                    <option value={3}>Usuario Empresa</option>
-                  </select>
+                    onChange={(value) =>
+                      setFormData({ ...formData, rol_id: Number(value) })
+                    }
+                    options={[
+                      { value: 1, label: 'Admin CLAS' },
+                      { value: 2, label: 'Admin Empresa' },
+                      { value: 3, label: 'Usuario Empresa' },
+                    ]}
+                  />
                 </div>
               )}
 
               {esAdminClas && formData.rol_id !== 1 && !showEditModal && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Empresa Asignada</label>
-                  <select
+                  <AdminSelect
                     value={formData.empresa_id || ''}
-                    onChange={e => setFormData({...formData, empresa_id: e.target.value === '' ? null : Number(e.target.value)})}
-                    className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none"
-                    required
-                  >
-                    <option value="">Selecciona una empresa...</option>
-                    {empresasLista.map(emp => (
-                      <option key={emp.id_empresa} value={emp.id_empresa}>
-                        {emp.nombre_comercial}
-                      </option>
-                    ))}
-                  </select>
+                    placeholder="Selecciona una empresa..."
+                    onChange={(value) =>
+                      setFormData({
+                        ...formData,
+                        empresa_id: value === '' ? null : Number(value),
+                      })
+                    }
+                    options={empresasLista.map((emp) => ({
+                      value: emp.id_empresa,
+                      label: emp.nombre_comercial,
+                    }))}
+                  />
                 </div>
               )}
 
@@ -600,15 +603,24 @@ function PanelCatalogos() {
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Catálogos</h1>
           <p className="text-gray-500 text-sm">Gestiona los valores de cada catálogo del sistema.</p>
         </div>
-        <select
-          value={seleccionado.endpoint}
-          onChange={e => setSeleccionado(catalogos.find(c => c.endpoint === e.target.value)!)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none"
-        >
-          {catalogos.map(c => (
-            <option key={c.endpoint} value={c.endpoint}>{c.label}</option>
-          ))}
-        </select>
+        <div className="w-full max-w-xs">
+          <AdminSelect
+            value={seleccionado.endpoint}
+            onChange={(value) => {
+              const nextCatalog = catalogos.find(
+                (catalogo) => catalogo.endpoint === value,
+              );
+
+              if (nextCatalog) {
+                setSeleccionado(nextCatalog);
+              }
+            }}
+            options={catalogos.map((catalogo) => ({
+              value: catalogo.endpoint,
+              label: catalogo.label,
+            }))}
+          />
+        </div>
       </div>
       <PanelCatalogo
         key={seleccionado.endpoint}
