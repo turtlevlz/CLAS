@@ -14,8 +14,8 @@ export const login = async (req: Request, res: Response) => {
         });
 
         if (!user) {
-            return res.status(404).json({
-                message: "Usuario no encontrado"
+            return res.status(401).json({
+                message: "Credenciales inválidas"
             });
         }
 
@@ -26,7 +26,7 @@ export const login = async (req: Request, res: Response) => {
 
         if (!passwordValid) {
             return res.status(401).json({
-                message: "Contraseña incorrecta"
+                message: "Credenciales inválidas"
             });
         }
 
