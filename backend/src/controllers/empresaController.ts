@@ -361,18 +361,27 @@ export const createEmpresa = async (req: Request, res: Response) => {
     }
 };
 
+const parsePositiveInteger = (
+    value: unknown,
+    defaultValue: number
+) => {
+    const parsedValue = Number(value);
 
+    if (!Number.isInteger(parsedValue) || parsedValue <= 0) {
+        return defaultValue;
+    }
+
+    return parsedValue;
+};
 
 export const getEmpresas = async (req: Request, res: Response) => {
     try {
 
         const baseUrl = `${req.protocol}://${req.get("host")}`;
 
-        // página (default 1)
-        const page = Number(req.query.page) || 1;
-
-        // límite fijo en 12
-        const limit = 12;
+        const page = parsePositiveInteger(req.query.page, 1);
+        const requestedLimit = parsePositiveInteger(req.query.limit, 12);
+        const limit = Math.min(requestedLimit, 100);
         const offset = (page - 1) * limit;
 
         const { count, rows } = await Empresa.findAndCountAll({
@@ -659,6 +668,56 @@ export const updateEmpresa = async (req: Request, res: Response) => {
             } else {
                 updates.sitio_web = null;
             }
+        }
+
+        if (user.rol_id === 1 && req.body.membresia_id !== undefined) {
+            const membresiaId = Number(req.body.membresia_id);
+
+            if (!Number.isInteger(membresiaId) || membresiaId <= 0) {
+                deleteFile(req.file);
+                return res.status(400).json({
+                    message: "Membresía inválida"
+                });
+            }
+
+            const membresia = await Membresia.findByPk(membresiaId);
+
+            if (!membresia) {
+                deleteFile(req.file);
+                return res.status(404).json({
+                    message: "Membresía no encontrada"
+                });
+            }
+
+            updates.membresia_id = membresiaId;
+        }
+
+        if (user.rol_id === 1 && req.body.tipo_organizacion_id !== undefined) {
+            const tipoOrganizacionId = Number(req.body.tipo_organizacion_id);
+
+            if (!Number.isInteger(tipoOrganizacionId) || tipoOrganizacionId <= 0) {
+                deleteFile(req.file);
+                return res.status(400).json({
+                    message: "Tipo de organización inválido"
+                });
+            }
+
+            const tipoOrganizacion = await TipoOrganizacion.findByPk(tipoOrganizacionId);
+
+            if (!tipoOrganizacion) {
+                deleteFile(req.file);
+                return res.status(404).json({
+                    message: "Tipo de organización no encontrado"
+                });
+            }
+
+            updates.tipo_organizacion_id = tipoOrganizacionId;
+        }
+
+        if (user.rol_id === 1 && req.body.activo !== undefined) {
+            updates.activo =
+                req.body.activo === true ||
+                req.body.activo === "true";
         }
 
         const fields = [
