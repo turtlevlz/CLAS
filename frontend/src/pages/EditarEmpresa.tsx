@@ -691,12 +691,20 @@ export default function EditarEmpresa() {
               <input required placeholder="Puesto *" value={contactForm.puesto} onChange={e => setContactForm({ ...contactForm, puesto: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
               <input required placeholder="Teléfono *" value={contactForm.telefono_celular} onChange={e => setContactForm({ ...contactForm, telefono_celular: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
               <input type="email" placeholder="Correo" value={contactForm.correo} onChange={e => setContactForm({ ...contactForm, correo: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
-              <select required value={contactForm.funcion_id} onChange={e => setContactForm({ ...contactForm, funcion_id: e.target.value })} className="h-11 min-w-0 rounded-[16px] border border-[#dbe4ef] bg-white px-4 text-sm font-medium text-[#334155] shadow-none outline-none transition focus:outline-none focus:ring-4 focus:ring-sky-100">
-                <option value="">Función...</option>
-                {catalogs.funciones.map((item) => (
-                  <option key={item.id_funcion} value={item.id_funcion}>{item.nombre_funcion}</option>
-                ))}
-              </select>
+              <AdminSelect
+                value={contactForm.funcion_id}
+                placeholder="Función..."
+                onChange={(value) =>
+                  setContactForm({
+                    ...contactForm,
+                    funcion_id: String(value),
+                  })
+                }
+                options={catalogs.funciones.map((item) => ({
+                  value: item.id_funcion,
+                  label: item.nombre_funcion,
+                }))}
+              />
               <button className="bg-primary text-white rounded-lg px-4 py-2 text-sm font-semibold md:col-span-5">Agregar contacto</button>
             </form>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -708,12 +716,20 @@ export default function EditarEmpresa() {
                       <input value={editingContactForm.puesto} onChange={e => setEditingContactForm({ ...editingContactForm, puesto: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
                       <input value={editingContactForm.telefono_celular} onChange={e => setEditingContactForm({ ...editingContactForm, telefono_celular: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
                       <input type="email" value={editingContactForm.correo} onChange={e => setEditingContactForm({ ...editingContactForm, correo: e.target.value })} className="min-w-0 border border-gray-300 rounded-lg p-2 text-sm" />
-                      <select value={editingContactForm.funcion_id} onChange={e => setEditingContactForm({ ...editingContactForm, funcion_id: e.target.value })} className="h-11 min-w-0 rounded-[16px] border border-[#dbe4ef] bg-white px-4 text-sm font-medium text-[#334155] shadow-none outline-none transition focus:outline-none focus:ring-4 focus:ring-sky-100">
-                        <option value="">Función...</option>
-                        {catalogs.funciones.map((item) => (
-                          <option key={item.id_funcion} value={item.id_funcion}>{item.nombre_funcion}</option>
-                        ))}
-                      </select>
+                      <AdminSelect
+                        value={editingContactForm.funcion_id}
+                        placeholder="Función..."
+                        onChange={(value) =>
+                          setEditingContactForm({
+                            ...editingContactForm,
+                            funcion_id: String(value),
+                          })
+                        }
+                        options={catalogs.funciones.map((item) => ({
+                          value: item.id_funcion,
+                          label: item.nombre_funcion,
+                        }))}
+                      />
                       <div className="flex gap-3">
                         <button type="button" onClick={() => handleUpdateContact(contact.id_contacto)} className="text-primary font-semibold">Guardar</button>
                         <button type="button" onClick={() => setEditingContactId(null)} className="text-gray-500 font-semibold">Cancelar</button>

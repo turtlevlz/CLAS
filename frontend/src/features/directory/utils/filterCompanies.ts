@@ -7,18 +7,30 @@ export function filterCompanies(
 ): DirectoryCompany[] {
   const normalizedSearch = filters.search.trim().toLowerCase();
   const hasSearch = normalizedSearch.length > 0;
-  const hasCategoryFilter =
-    filters.categoryId.trim().length > 0 && filters.categoryId !== 'all';
+  const hasCategoryFilter = filters.categoryIds.length > 0;
+  const hasTierFilter = filters.tierIds.length > 0;
 
   return companies.filter((company) => {
+    const companyCategoryIds = [
+      company.categoryId,
+      ...company.specialties.map(createCategoryId),
+    ];
+
     const matchesCategory = hasCategoryFilter
-      ? company.categoryId === filters.categoryId ||
-        company.specialties.some(
-          (specialty) => createCategoryId(specialty) === filters.categoryId,
+      ? filters.categoryIds.some((categoryId) =>
+          companyCategoryIds.includes(categoryId),
         )
       : true;
 
     if (!matchesCategory) {
+      return false;
+    }
+
+    const matchesTier = hasTierFilter
+      ? filters.tierIds.includes(company.tierId)
+      : true;
+
+    if (!matchesTier) {
       return false;
     }
 
@@ -31,6 +43,8 @@ export function filterCompanies(
       company.city,
       company.state,
       company.categoryLabel,
+      company.tierLabel,
+      company.detail.about,
       ...company.specialties,
     ];
 
