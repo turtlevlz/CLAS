@@ -40,6 +40,7 @@ export type DirectoryCompanyDetail = {
 export type DirectoryCompany = {
   id: number;
   name: string;
+  tierId: string;
   tierLabel: DirectoryCompanyTier;
   shortDescription: string;
   city: string;
@@ -56,7 +57,8 @@ export type DirectoryCompany = {
 
 export type DirectoryFilters = {
   search: string;
-  categoryId: string;
+  categoryIds: string[];
+  tierIds: string[];
 };
 
 export type DirectorySortDirection = 'asc' | 'desc';

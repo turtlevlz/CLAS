@@ -24,7 +24,7 @@ function mapTierLabel(value?: string | null): DirectoryCompanyTier {
 export function mapPublicCompanyApi(
   company: PublicCompanyApi,
 ): DirectoryCompany {
-  const membresia = company.Membresia ?? company.membresia
+  const membresia = company.Membresia ?? company.membresia;
   const tipoOrganizacion =
     company.TipoOrganizacion ?? company.tipoOrganizacion;
   const rubros = company.Rubros ?? company.rubros ?? [];
@@ -34,11 +34,14 @@ export function mapPublicCompanyApi(
 
   const specialties = rubros.map((rubro) => rubro.nombre_rubro);
   const categoryLabel = company.giro ?? specialties[0] ?? 'Sin categoría';
+  const tierLabel = mapTierLabel(tipoOrganizacion?.nombre_tipo);
+  const tierId = createCategoryId(tierLabel);
 
   return {
     id: company.id_empresa,
     name: company.nombre_comercial,
-    tierLabel: mapTierLabel(tipoOrganizacion?.nombre_tipo),
+    tierLabel,
+    tierId,
     shortDescription: company.descripcion ?? '',
     city: company.ciudad ?? 'Sonora',
     state: 'Sonora',

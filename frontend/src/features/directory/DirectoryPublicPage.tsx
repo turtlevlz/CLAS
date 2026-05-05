@@ -20,7 +20,8 @@ import { createCategoryId } from './utils/createCategoryId';
 
 const initialFilters: DirectoryFilters = {
   search: '',
-  categoryId: 'all',
+  categoryIds: [],
+  tierIds: [],
 };
 
 const companiesPerPage = 9;
@@ -52,6 +53,22 @@ export default function DirectoryPublicPage() {
       ...backendCategories,
     ];
   }, [rubros]);
+
+  const directoryTiers = useMemo<DirectoryCategory[]>(() => {
+    const backendTiers = companies
+      .map((company) => ({
+        id: company.tierId,
+        label: company.tierLabel,
+      }))
+      .filter((tier) => tier.id.length > 0)
+      .filter(
+        (tier, index, tiers) =>
+          tiers.findIndex((currentTier) => currentTier.id === tier.id) === index,
+      )
+      .sort((a, b) => a.label.localeCompare(b.label, 'es'));
+
+    return backendTiers;
+  }, [companies]);
 
   useEffect(() => {
     let isMounted = true;
@@ -126,11 +143,39 @@ export default function DirectoryPublicPage() {
     setCurrentPage(1);
   }
 
-  function handleCategoryChange(value: string) {
-    setFilters((currentFilters) => ({
-      ...currentFilters,
-      categoryId: value,
-    }));
+  function handleCategoryToggle(value: string) {
+    setFilters((currentFilters) => {
+      const isSelected = currentFilters.categoryIds.includes(value);
+
+      return {
+        ...currentFilters,
+        categoryIds: isSelected
+          ? currentFilters.categoryIds.filter((categoryId) => categoryId !== value)
+          : [...currentFilters.categoryIds, value],
+      };
+    });
+
+    setCurrentPage(1);
+  }
+
+  function handleTierToggle(value: string) {
+    setFilters((currentFilters) => {
+      const isSelected = currentFilters.tierIds.includes(value);
+
+      return {
+        ...currentFilters,
+        tierIds: isSelected
+          ? currentFilters.tierIds.filter((tierId) => tierId !== value)
+          : [...currentFilters.tierIds, value],
+      };
+    });
+
+    setCurrentPage(1);
+  }
+
+  function handleClearFilters() {
+    setFilters(initialFilters);
+    setSortDirection('asc');
     setCurrentPage(1);
   }
 
@@ -173,12 +218,16 @@ export default function DirectoryPublicPage() {
         <section className="mt-9.5!">
           <DirectoryToolbar
             searchValue={filters.search}
-            categoryValue={filters.categoryId}
+            categoryValues={filters.categoryIds}
+            tierValues={filters.tierIds}
             sortDirection={sortDirection}
             categories={directoryCategories}
+            tiers={directoryTiers}
             onSearchChange={handleSearchChange}
-            onCategoryChange={handleCategoryChange}
+            onCategoryToggle={handleCategoryToggle}
+            onTierToggle={handleTierToggle}
             onSortDirectionToggle={handleSortDirectionToggle}
+            onClearFilters={handleClearFilters}
           />
         </section>
 
