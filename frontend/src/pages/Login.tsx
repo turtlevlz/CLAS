@@ -131,7 +131,7 @@ export default function Login() {
               <div className='absolute inset-0 bg-gradient-to-b from-transparent to-blue-800'/>
               <div className='absolute bottom-0 left-0 p-4 z-10 text-white'>
                 <p className='font-medium text-sm'>Únete a mas de 150 empresas</p>
-                <p className='text-xs opacity-80'>Formando parte del ecosistema automotriz mas importante de Sonora</p>
+                <p className='text-xs opacity-80'>Formando parte del ecosistema automotriz más importante de la región</p>
               </div>
             </div>
 

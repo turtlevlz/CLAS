@@ -2,7 +2,7 @@
 
 > **Note:** This branch is a sanitized public portfolio demo of an academic project originally built for a real automotive-industry client. Seed data, company names, contact details, and logos throughout this repo have been replaced with fictional equivalents; no real client or company data is included. Live demo: _link coming soon once deployed_.
 
-Main web platform for the `Cluster Automotriz de Sonora (CLAS)`.
+Full-stack company directory and membership platform, originally built as a client proposal for an automotive-industry cluster organization in Sonora, México.
 
 This repository contains the public-facing directory, authentication flow, protected administration areas, and the backend API used to manage companies, contacts, memberships, catalogs, and related business data for the automotive cluster.
 
@@ -212,10 +212,10 @@ Authorization: Bearer <token>
 
 Role IDs currently used by the application:
 
-| ID | Role Name |
-|---|---|
-| `1` | Admin Cluster |
-| `2` | Admin Empresa |
+| ID  | Role Name       |
+| --- | --------------- |
+| `1` | Admin Cluster   |
+| `2` | Admin Empresa   |
 | `3` | Usuario Empresa |
 
 High-level access model:
@@ -228,11 +228,11 @@ High-level access model:
 
 The seed data includes one user per role so all three access levels can be exercised in the live demo:
 
-| Role | Email | Password | Access |
-|---|---|---|---|
-| Admin Cluster | `admin@cluster.com` | `123456` | Full administrative access across every company, catalog, and user. |
-| Admin Empresa | `admin@horizonteci-demo.com` | `empresa123` | Scoped to Horizonte Componentes Industriales — manages that company's own profile and users. |
-| Usuario Empresa | `usuario@meridianmotors-demo.com` | `usuario123` | Scoped to Meridian Motors — standard authenticated user access, no admin actions. |
+| Role            | Email                             | Password     | Access                                                                                       |
+| --------------- | --------------------------------- | ------------ | -------------------------------------------------------------------------------------------- |
+| Admin Cluster   | `admin@cluster.com`               | `123456`     | Full administrative access across every company, catalog, and user.                          |
+| Admin Empresa   | `admin@horizonteci-demo.com`      | `empresa123` | Scoped to Horizonte Componentes Industriales — manages that company's own profile and users. |
+| Usuario Empresa | `usuario@meridianmotors-demo.com` | `usuario123` | Scoped to Meridian Motors — standard authenticated user access, no admin actions.            |
 
 These are fictional demo-only accounts on fictional seed companies; do not reuse these passwords anywhere else.
 
@@ -242,43 +242,43 @@ The main API is mounted in `backend/src/app.ts`.
 
 ### Core Endpoints
 
-| Area | Base Path | Notes |
-|---|---|---|
-| Auth | `/auth` | Includes `POST /auth/login` |
-| Users | `/usuarios` | User CRUD and company-scoped user listing |
-| Roles | `/roles` | Role catalog CRUD |
-| Companies | `/empresas` | Protected company CRUD plus paginated listing |
+| Area             | Base Path          | Notes                                              |
+| ---------------- | ------------------ | -------------------------------------------------- |
+| Auth             | `/auth`            | Includes `POST /auth/login`                        |
+| Users            | `/usuarios`        | User CRUD and company-scoped user listing          |
+| Roles            | `/roles`           | Role catalog CRUD                                  |
+| Companies        | `/empresas`        | Protected company CRUD plus paginated listing      |
 | Public Companies | `/empresas/public` | Public directory listing and public company detail |
-| Contacts | `/contactos` | Company contact CRUD |
-| Products | `/productos` | Manufactured product CRUD |
+| Contacts         | `/contactos`       | Company contact CRUD                               |
+| Products         | `/productos`       | Manufactured product CRUD                          |
 
 ### Catalog Endpoints
 
-| Resource | Base Path |
-|---|---|
-| Rubros | `/rubros` |
-| Certifications | `/certificaciones` |
-| Memberships | `/membresias` |
-| Organization Types | `/organizaciones` |
-| Contact Functions | `/funciones` |
-| Industries | `/industrias` |
-| Needs | `/necesidades` |
-| Processes | `/procesos` |
+| Resource           | Base Path          |
+| ------------------ | ------------------ |
+| Rubros             | `/rubros`          |
+| Certifications     | `/certificaciones` |
+| Memberships        | `/membresias`      |
+| Organization Types | `/organizaciones`  |
+| Contact Functions  | `/funciones`       |
+| Industries         | `/industrias`      |
+| Needs              | `/necesidades`     |
+| Processes          | `/procesos`        |
 
 ### Company Relationship Endpoints
 
-| Relationship | Base Path |
-|---|---|
+| Relationship           | Base Path                  |
+| ---------------------- | -------------------------- |
 | Company Certifications | `/empresa-certificaciones` |
-| Company Rubros | `/empresa-rubros` |
-| Company Industries | `/empresa-industrias` |
-| Company Needs | `/empresa-necesidades` |
-| Company Processes | `/empresa-procesos` |
+| Company Rubros         | `/empresa-rubros`          |
+| Company Industries     | `/empresa-industrias`      |
+| Company Needs          | `/empresa-necesidades`     |
+| Company Processes      | `/empresa-procesos`        |
 
 ### Static Assets
 
-| Path | Purpose |
-|---|---|
+| Path       | Purpose                                                  |
+| ---------- | -------------------------------------------------------- |
 | `/uploads` | Serves uploaded files from the backend runtime directory |
 
 ## API Behavior Notes
