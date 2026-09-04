@@ -50,7 +50,7 @@ export default function Login() {
                 </svg>
                 <div>
                   <p className='font-medium text-base'>Iniciar Sesión</p>
-                  <p className='text-xs text-gray-400'>Accede a tu cuenta de CLAS</p>
+                  <p className='text-xs text-gray-400'>Accede a tu cuenta de Directorio Demo</p>
                 </div>
               </div>
 
@@ -117,10 +117,10 @@ export default function Login() {
 
           <div>
             <span className='inline-block text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full border border-blue-100 mb-3'>
-              Portal de Miembros CLAS
+              Portal de Miembros
             </span>
             <h1 className='text-2xl font-semibold leading-tight mb-2'>
-              Bienvenido al Cluster Automotriz de Sonora
+              Bienvenido a Directorio Demo
             </h1>
             <p className='text-sm text-gray-500 mb-4'>
               Accede a recursos exclusivos, networking y oportunidades de crecimiento

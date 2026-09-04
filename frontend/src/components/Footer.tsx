@@ -11,34 +11,28 @@ export default function Footer() {
 
           <div className="md:col-span-1">
             <div className="flex items-start gap-3 mb-4">
-              <img src={clasLogo} alt="CLAS" className="h-14 w-auto" />
+              <img src={clasLogo} alt="Directorio Demo" className="h-14 w-auto" />
             </div>
             <p className="text-sm text-white/50 leading-relaxed mb-6">
-              Cluster Automotriz de Sonora. Fortaleciendo la industria automotriz regional a través de la colaboración.
+              Directorio de empresas del sector industrial (demo). Plataforma de ejemplo para portafolio.
             </p>
             <div className="flex gap-3">
               <a
-                href="https://www.linkedin.com/in/clusterautomotrizdesonora/"
-                target="_blank"
-                rel="noreferrer"
+                href="#"
                 className="w-9 h-9 rounded-lg bg-white/5 hover:bg-primary flex items-center justify-center transition-colors no-underline"
                 aria-label="LinkedIn"
               >
                 <FaLinkedin size={16} />
               </a>
               <a
-                href="https://www.facebook.com/profile.php?id=61568197160101"
-                target="_blank"
-                rel="noreferrer"
+                href="#"
                 className="w-9 h-9 rounded-lg bg-white/5 hover:bg-primary flex items-center justify-center transition-colors no-underline"
                 aria-label="Facebook"
               >
                 <FaFacebook size={16} />
               </a>
               <a
-                href="https://www.instagram.com/clusterautomotrizsonora/"
-                target="_blank"
-                rel="noreferrer"
+                href="#"
                 className="w-9 h-9 rounded-lg bg-white/5 hover:bg-primary flex items-center justify-center transition-colors no-underline"
                 aria-label="Instagram"
               >
@@ -64,13 +58,13 @@ export default function Footer() {
                 <svg className="w-4 h-4 mt-0.5 text-primary shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                 </svg>
-                <span className="text-sm text-white/60">contacto@clas-sonora.mx</span>
+                <span className="text-sm text-white/60">contacto@directoriodemo.mx</span>
               </li>
               <li className="flex items-start gap-2">
                 <svg className="w-4 h-4 mt-0.5 text-primary shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                 </svg>
-                <span className="text-sm text-white/60">+52 (662) 123-4567</span>
+                <span className="text-sm text-white/60">+52 (662) 555-0123</span>
               </li>
               <li className="flex items-start gap-2">
                 <svg className="w-4 h-4 mt-0.5 text-primary shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -85,7 +79,7 @@ export default function Footer() {
           <div>
             <h4 className="font-heading font-semibold text-sm uppercase tracking-widest text-white/40 mb-5">Membresía</h4>
             <p className="text-sm text-white/60 leading-relaxed mb-4">
-              ¿Tu empresa forma parte del sector automotriz de Sonora? Únete a la red.
+              ¿Tu empresa forma parte del sector industrial? Únete a la red.
             </p>
             <Link
               to="/membresias"
@@ -99,7 +93,7 @@ export default function Footer() {
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6">
           <p className="text-xs text-white/30">
-            © 2026 CLAS — Cluster Automotriz de Sonora. Todos los derechos reservados.
+            © 2026 Directorio Demo. Todos los derechos reservados.
           </p>
           <div className="flex items-center gap-1">
             <div className="w-1.5 h-1.5 rounded-full bg-primary/60"></div>

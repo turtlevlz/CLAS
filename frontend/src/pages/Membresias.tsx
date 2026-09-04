@@ -55,7 +55,7 @@ return (
         <div className="text-center mb-20">
           <p className="text-gray-600 mb-4">Ponte en contacto y solicita tu membresia</p>
           <a 
-            href="mailto:direccion@clas.com.mx?subject=Información sobre Membresías CLAS"
+            href="mailto:direccion@directoriodemo.mx?subject=Información sobre Membresías"
             className="inline-block bg-[rgb(44,65,154)] hover:bg-[rgb(20,140,180)] text-white font-bold py-3 px-8 rounded-full transition-colors duration-300 shadow-lg"
           >
             Contactar por correo

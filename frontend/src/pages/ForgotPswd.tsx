@@ -1,5 +1,5 @@
 import { useState } from "react";
-import claslogo from "../assets/img/clas-logo.png"
+import claslogo from "../assets/img/clas-logo-name.png"
 import Footer from "../components/Footer";
 
 export default function ForgotPswd() {
@@ -18,8 +18,7 @@ export default function ForgotPswd() {
                             <div> 
 
                                 <div className="flex flex-col items-center p-8">
-                                        <img src={claslogo} className="max-h-35"/>
-                                        <span className="font-heading font-light text-xl text-text-muted">Cluster Automotriz De Sonora</span>
+                                        <img src={claslogo} className="max-h-20"/>
                                 </div>
 
                                 <p className="text-center text-xl pb-5">Herramienta de recuperación de contraseña</p>

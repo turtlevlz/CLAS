@@ -201,7 +201,7 @@ export default function DirectoryPublicPage() {
 
         <section className="pt-5!">
           <span className="inline-flex items-center rounded-full bg-[#e5effa] px-4.5! py-2! text-[13px] font-bold leading-none tracking-[0.08em] text-[#213854] uppercase">
-            CLAS SONORA
+            DIRECTORIO DEMO
           </span>
 
           <h1 className="mt-5.5! max-w-162.5 text-[clamp(72px,7vw,88px)]! font-bold leading-[0.92] tracking-tighter text-[#12284b]">
@@ -211,7 +211,7 @@ export default function DirectoryPublicPage() {
           </h1>
 
           <p className="mt-5.5! max-w-215 text-[18px] leading-[1.65] text-[#64748b]">
-            Explora la red de empresas del Cluster Automotriz de Sonora.
+            Explora la red de empresas del clúster industrial (demo).
           </p>
         </section>
 

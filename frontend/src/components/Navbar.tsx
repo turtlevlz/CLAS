@@ -30,7 +30,7 @@ export default function Navbar() {
     <nav className="sticky top-0 z-[100] grid h-[72px] grid-cols-[1fr_auto_1fr] items-center bg-white px-10 shadow-[0_2px_4px_rgba(15,23,42,0.12),0_8px_40px_rgba(15,23,42,0.16)] max-md:px-5">
 
       <Link to="/" className="flex items-center justify-self-start no-underline">
-        <img src={claslogo} alt="Logo CLAS" className="h-10 w-auto" />
+        <img src={claslogo} alt="Directorio Demo" className="h-10 w-auto" />
       </Link>
 
       <ul className="flex list-none items-center gap-1 justify-self-center max-md:hidden">

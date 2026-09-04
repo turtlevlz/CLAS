@@ -1,5 +1,7 @@
 # CLAS Platform
 
+> **Note:** This branch is a sanitized public portfolio demo of an academic project originally built for a real automotive-industry client. Seed data, company names, contact details, and logos throughout this repo have been replaced with fictional equivalents; no real client or company data is included. Live demo: _link coming soon once deployed_.
+
 Main web platform for the `Cluster Automotriz de Sonora (CLAS)`.
 
 This repository contains the public-facing directory, authentication flow, protected administration areas, and the backend API used to manage companies, contacts, memberships, catalogs, and related business data for the automotive cluster.

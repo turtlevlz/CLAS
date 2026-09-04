@@ -16,11 +16,11 @@ const noticias = [
   {
     id: '2',
     categoria: 'Tecnología',
-    titulo: 'CLAS Firma Convenio con Universidad de Sonora para Desarrollo de Talento',
+    titulo: 'Directorio Demo Firma Convenio con Universidad Regional para Desarrollo de Talento',
     descripcion:
       'Se establece alianza estratégica para crear programas especializados en ingeniería automotriz.',
     fecha: '15 Febrero, 2026',
-    autor: 'Dirección CLAS',
+    autor: 'Dirección Directorio Demo',
     imagen:
       'https://images.unsplash.com/photo-1523240795612-9a054b0db644',
   },
@@ -39,7 +39,7 @@ const noticias = [
     categoria: 'Certificación',
     titulo: 'Certificación IATF 16949 para 15 Empresas Miembro',
     descripcion:
-      'CLAS apoya proceso que fortalece la competitividad de empresas locales.',
+      'Directorio Demo apoya proceso que fortalece la competitividad de empresas locales.',
     fecha: '28 Enero, 2026',
     imagen:
       'https://images.unsplash.com/photo-1551836022-d5d88e9218df',

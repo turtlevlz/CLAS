@@ -12,6 +12,10 @@ import {
 } from '@heroicons/react/24/outline';
 import { FaLinkedin, FaInstagram } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
+import avatar1 from '../assets/img/avatar-1.png';
+import avatar2 from '../assets/img/avatar-2.png';
+import avatar3 from '../assets/img/avatar-3.png';
+import avatar4 from '../assets/img/avatar-4.png';
 
 export default function Home() {
   const stats = [
@@ -57,14 +61,12 @@ export default function Home() {
   }, [heroImages.length]);
 
   const logos = [
-  "https://upload.wikimedia.org/wikipedia/commons/a/a0/Ford_Motor_Company_Logo.svg",
-  "https://upload.wikimedia.org/wikipedia/commons/d/d8/Schnellecke_Logistics_Logo.svg",
-  "https://recruiting.paylocity.com/recruiting/jobs/GetLogoFile?moduleId=37188",
-  "https://static.cdnlogo.com/logos/m/36/monta-plast.svg",
-  "https://upload.wikimedia.org/wikipedia/commons/0/02/Lear_Corporation_logo.svg",
-  "https://upload.wikimedia.org/wikipedia/commons/4/41/Faurecia_logo-RVB.jpg",
-  "https://media.licdn.com/dms/image/v2/D560BAQFevtTBnPINug/company-logo_200_200/company-logo_200_200/0/1736454120166/suppliers_city_logo?e=2147483647&v=beta&t=6sr2haV6Dbq-CLJXZg7wV8JEhjT0KlhanH7wIr20i9c",
-  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5oqIN_X46q5DDEYQv6IUd8X8r4mPG_0sDOw&s"
+  "/company-logos/ford-logo.svg",
+  "/company-logos/schnellecke-logo.png",
+  "/company-logos/grupo-esd-logo.svg",
+  "/company-logos/montaplast-logo.png",
+  "/company-logos/martin-rea-logo.png",
+  "/company-logos/new-concept-logo.png",
 ];
 
   const benefits = [
@@ -103,7 +105,7 @@ export default function Home() {
                 Impulsando la Industria Automotriz de Sonora
               </h1>
               <p className="text-xl opacity-90 mb-10 leading-relaxed max-w-xl font-medium">
-                CLAS es el principal cluster automotriz del estado, promoviendo la competitividad, innovación y crecimiento sostenible del sector.
+                Directorio Demo es una plataforma de ejemplo que ilustra un directorio del sector industrial, mostrando competitividad, innovación y crecimiento sostenible del sector.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link to="/directorio" className="bg-white text-[#005bb7] px-8 py-4 rounded-xl font-black text-lg flex items-center gap-3 shadow-xl hover:bg-slate-50 transition-all">
@@ -237,18 +239,18 @@ export default function Home() {
             <div className="text-center max-w-4xl mx-auto mb-20">
               <h2 className="text-5xl font-black text-primary-dark mb-8">¿Quiénes Somos?</h2>
               <p className="text-text-muted text-lg leading-relaxed font-medium">
-                En CLAS (Clúster Automotriz de Sonora) trabajamos para fortalecer y conectar el ecosistema automotriz del estado.
-                Somos un equipo multidisciplinario comprometido con impulsar la colaboración entre empresas, proveedores,
+                En Directorio Demo mostramos cómo una plataforma puede fortalecer y conectar el ecosistema industrial de una región.
+                Este es un proyecto de portafolio: un equipo multidisciplinario ficticio comprometido con impulsar la colaboración entre empresas, proveedores,
                 instituciones académicas y organismos gubernamentales.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-10 max-w-4xl mx-auto">
               {[
-                { name: "Juan Carlos Campoy Ramos", role: "Presidente", empresa: "New Concept Technology", correo: "presidencia@clas.com.mx", image:"https://img1.wsimg.com/isteam/ip/dcf17818-4267-46ce-a60c-cfa6c45c9047/blob-8fa2f20.png/:/cr=t:14.81%25,l:5.78%25,w:84.75%25,h:51.43%25/rs=w:730,h:730,cg:true,m" },
-                { name: "Mario Alberto Montiel Guzmán", role: "Vicepresidente", empresa: "Schnellecke Logistics México", correo: "vicepresidencia@clas.com.mx", image:"https://img1.wsimg.com/isteam/ip/dcf17818-4267-46ce-a60c-cfa6c45c9047/Imagen%20de%20WhatsApp%202025-07-09%20a%20las%2013.07.50_b.jpg/:/cr=t:0%25,l:15.14%25,w:66.81%25,h:70.43%25/rs=w:730,h:730,cg:true,m" },
-                { name: "Diego Cacho Campillo", role: "Tesorero", empresa: "Grupo Industrial ESD", correo: "tesoreria@clas.com.mx", image:"https://img1.wsimg.com/isteam/ip/dcf17818-4267-46ce-a60c-cfa6c45c9047/Diego%20Cacho.jpg/:/cr=t:2.17%25,l:0%25,w:100%25,h:71.41%25/rs=w:730,h:730,cg:true" },
-                { name: "Margarita Bejarano Celaya", role: "Directora", empresa: "CLAS", correo: "direccion@clas.com.mx", image:"https://img1.wsimg.com/isteam/ip/dcf17818-4267-46ce-a60c-cfa6c45c9047/blob-074403d.png/:/cr=t:0%25,l:15.07%25,w:48.08%25,h:32.04%25/rs=w:730,h:730,cg:true,m"}
+                { name: "Alejandro Ruiz Beltrán", role: "Presidente", empresa: "Meridian Motors", correo: "presidencia@directoriodemo.mx", image: avatar1 },
+                { name: "Marina Torres Aguilar", role: "Vicepresidenta", empresa: "Veloz Logística", correo: "vicepresidencia@directoriodemo.mx", image: avatar2 },
+                { name: "Emilio Rangel Soto", role: "Tesorero", empresa: "Grupo Aster", correo: "tesoreria@directoriodemo.mx", image: avatar3 },
+                { name: "Paola Sánchez Duarte", role: "Directora", empresa: "Directorio Demo", correo: "direccion@directoriodemo.mx", image: avatar4 }
               ].map((member, idx) => (
                 <div key={idx} className="group bg-white border border-slate-200 rounded-[2rem] p-8 shadow-lg text-center hover:-translate-y-2 transition-transform duration-300">
 
@@ -305,7 +307,7 @@ export default function Home() {
                 ${ctaVisible ? 'translate-y-0 opacity-100' : '-translate-y-12 opacity-0'}
               `}
             >
-              ¿Listo para unirse a CLAS?
+              ¿Listo para unirse a Directorio Demo?
             </h2>
             <p
               className={`text-white/80 text-xl mb-12 font-medium transform transition-all duration-1000 delay-300 ease-out

@@ -23,7 +23,7 @@ export default function ErrorPage() {
             </h1>
 
             <p className="max-w-xl text-lg font-medium leading-relaxed text-white/85 lg:text-xl">
-              La página que buscas no existe o fue movida. Puedes volver al inicio o explorar el directorio de empresas CLAS.
+              La página que buscas no existe o fue movida. Puedes volver al inicio o explorar el directorio de empresas.
             </p>
 
             <div className="mt-10 flex flex-wrap gap-4">

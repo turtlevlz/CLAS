@@ -146,7 +146,7 @@ function PanelUsuarios() {
       <div className="flex justify-between items-center mb-6">
         <div>
            <h1 className="text-2xl font-bold text-gray-900 mb-1">Panel de administrador</h1>
-           <p className="text-gray-500 text-sm">Gestión de Perfiles Socio de CLAS.</p>
+           <p className="text-gray-500 text-sm">Gestión de Perfiles Socio.</p>
         </div>
         {canManageUsers && (
           <button
@@ -205,7 +205,7 @@ function PanelUsuarios() {
                       u.rol_id === 2 ? 'bg-blue-100 text-blue-700' :
                         'bg-gray-100 text-gray-700'
                     }`}>
-                      {u.rol_id === 1 ? 'Admin CLAS' : u.rol_id === 2 ? 'Admin Empresa' : 'Usuario Empresa'}
+                      {u.rol_id === 1 ? 'Admin Cluster' : u.rol_id === 2 ? 'Admin Empresa' : 'Usuario Empresa'}
                   </span>
                 </td>
                 {canManageUsers && (
@@ -286,7 +286,7 @@ function PanelUsuarios() {
                       setFormData({ ...formData, rol_id: Number(value) })
                     }
                     options={[
-                      { value: 1, label: 'Admin CLAS' },
+                      { value: 1, label: 'Admin Cluster' },
                       { value: 2, label: 'Admin Empresa' },
                       { value: 3, label: 'Usuario Empresa' },
                     ]}
@@ -382,7 +382,7 @@ function PanelEmpresas() {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Empresas</h1>
-          <p className="text-gray-500 text-sm">Empresas registradas en CLAS.</p>
+          <p className="text-gray-500 text-sm">Empresas registradas en el directorio.</p>
         </div>
         <Link to="/admin/nueva-empresa" className="bg-[#10b981] text-white px-4 py-2 rounded-lg flex items-center gap-2 font-semibold no-underline">
           <PlusIcon className="w-5 h-5" /> Registrar Empresa

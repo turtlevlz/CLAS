@@ -96,19 +96,19 @@ INSERT INTO empresas (
     rango_empleados,
     fabrica_para_automotriz
 ) VALUES (
-    'New Concept Technology',
-    'Necontech de Mexico S de RL de CV',
-    'NME110429QSA',
-    'contacto@necontech.com',
-    '6622164162',
-    'https://www.newconcepttech.com',
+    'Horizonte Componentes Industriales',
+    'Horizonte Componentes Industriales de Mexico S de RL de CV',
+    'HCI150312AB9',
+    'contacto@horizonteci-demo.com',
+    '6625550123',
+    'https://www.horizonteci-demo.com',
     1,
     3,
     'Hermosillo',
-    'El Llano, Hermosillo, Sonora, CP 83299',
+    'Parque Industrial Sonora, Hermosillo, Sonora, CP 83100',
     'Fabricación de autopartes de plástico',
     'Empresa especializada en moldeo por inyección y ensamble automotriz.',
-    2011,
+    2012,
     '100-500',
     TRUE
 );
@@ -150,10 +150,10 @@ INSERT INTO contactos (
 ) VALUES (
     1,
     1,
-    'Juan Carlos Campoy',
+    'Roberto Ivan Duarte',
     'Director General',
-    '6621234567',
-    'jcampoy@necontech.com'
+    '6625550187',
+    'roberto.duarte@horizonteci-demo.com'
 );
 
 
@@ -168,8 +168,8 @@ INSERT INTO productos_fabricados (
     clientes,
     porcentaje_produccion
 ) VALUES
-(1, 'Partes moldeadas de plástico', 'TE, Sensata, Flex', 85),
-(1, 'Conectores ensamblados', 'TE Connectivity', 10);
+(1, 'Partes moldeadas de plástico', 'Vantex Motors, Corvex Sensores, Aurelia Flex', 85),
+(1, 'Conectores ensamblados', 'Vantex Connect', 10);
 
 
 
