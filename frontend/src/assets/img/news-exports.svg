@@ -1,0 +1,25 @@
+<svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d3350"/>
+      <stop offset="1" stop-color="#155a86"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#bg)"/>
+  <g opacity="0.10" stroke="#ffffff" stroke-width="2">
+    <line x1="0" y1="140" x2="800" y2="140"/>
+    <line x1="0" y1="260" x2="800" y2="260"/>
+    <line x1="0" y1="380" x2="800" y2="380"/>
+  </g>
+
+  <g transform="translate(160,260)">
+    <rect x="0" y="0" width="180" height="110" rx="6" fill="#f4f6fb"/>
+    <rect x="0" y="0" width="180" height="18" fill="#c7cbe0"/>
+    <line x1="30" y1="30" x2="30" y2="110" stroke="#9aa3c2" stroke-width="4"/>
+    <line x1="90" y1="30" x2="90" y2="110" stroke="#9aa3c2" stroke-width="4"/>
+    <line x1="150" y1="30" x2="150" y2="110" stroke="#9aa3c2" stroke-width="4"/>
+  </g>
+  <polyline points="420,340 500,290 580,310 680,180" fill="none" stroke="#4f9cd9" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <polygon points="680,180 715,192 682,210" fill="#4f9cd9"/>
+
+</svg>

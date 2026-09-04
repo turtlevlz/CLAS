@@ -86,16 +86,19 @@ CLAS/
 ## Runtime URLs
 
 - Frontend development app: `http://localhost:5173`
-- Backend API: `http://localhost:3000`
-- Current backend CORS origin: `http://localhost:5173`
+- Backend API: `http://localhost:3000` by default
+- Backend CORS origin: `http://localhost:5173` by default
 
-The backend currently listens on port `3000` from code, and the frontend API client is also configured to call `http://localhost:3000`.
+Both the backend port and CORS origin, and the frontend's API base URL, are configurable via environment variables (see below) so the app can be deployed to non-local hosts.
 
 ## Environment Variables
 
 Create a `.env` file inside `backend/` with the variables the backend actually uses:
 
 ```env
+PORT=3000
+FRONTEND_URL=http://localhost:5173
+
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=clas_db
@@ -104,10 +107,17 @@ DB_PASSWORD=your_password
 JWT_SECRET=super_secret_key
 ```
 
+Create a `.env` file inside `frontend/` if you need the API client to point somewhere other than `http://localhost:3000`:
+
+```env
+VITE_API_URL=http://localhost:3000
+```
+
 Notes:
 
-- `backend/src/connection/database.ts` loads these values with `dotenv`.
-- The backend port is currently hardcoded in `backend/src/index.ts`, so there is no `PORT` environment variable in active use.
+- `backend/src/index.ts` loads `.env` via `dotenv` before anything else, so `PORT` and `FRONTEND_URL` are available at module load time.
+- `backend/src/connection/database.ts` also loads the same `.env` for the DB connection values.
+- `PORT` falls back to `3000`, `FRONTEND_URL` falls back to `http://localhost:5173`, and the frontend's `VITE_API_URL` falls back to `http://localhost:3000` if unset.
 
 ## Database Setup
 
@@ -130,9 +140,8 @@ What gets created:
 
 Seed data highlights:
 
-- A seeded admin user exists with email `admin@cluster.com`.
-- The seed file includes the comment `password: admin123 (ejemplo hasheado con bcrypt)`.
-- The same insert also includes an inline comment `contrasena: 123456`, so treat the seed comments as documentation notes and verify locally before sharing credentials.
+- Three demo users are seeded, one per role. See [Demo credentials](#demo-credentials) below for logins.
+- 22 fictional companies are seeded across different membership tiers, rubros, certifications, processes, industries, and needs.
 
 Additional database notes are available in `backend/database/README.md`.
 
@@ -214,6 +223,18 @@ High-level access model:
 - `1`: full administrative access across the platform.
 - `2`: company-scoped administration for its own company data and users.
 - `3`: standard authenticated company user access.
+
+### Demo Credentials
+
+The seed data includes one user per role so all three access levels can be exercised in the live demo:
+
+| Role | Email | Password | Access |
+|---|---|---|---|
+| Admin Cluster | `admin@cluster.com` | `123456` | Full administrative access across every company, catalog, and user. |
+| Admin Empresa | `admin@horizonteci-demo.com` | `empresa123` | Scoped to Horizonte Componentes Industriales — manages that company's own profile and users. |
+| Usuario Empresa | `usuario@meridianmotors-demo.com` | `usuario123` | Scoped to Meridian Motors — standard authenticated user access, no admin actions. |
+
+These are fictional demo-only accounts on fictional seed companies; do not reuse these passwords anywhere else.
 
 ## Backend API Overview
 

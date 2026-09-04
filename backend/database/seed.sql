@@ -474,9 +474,13 @@ INSERT INTO empresas (
 
 
 -- =========================
--- USUARIO ADMIN CLUSTER
+-- USUARIOS DEMO
 -- =========================
--- password: Admin123 (ejemplo hasheado con bcrypt)
+-- Un usuario por rol para poder demostrar la autorización basada en roles.
+-- Contraseñas de ejemplo hasheadas con bcrypt (cost 10):
+--   Admin Cluster:   123456
+--   Admin Empresa:   empresa123
+--   Usuario Empresa: usuario123
 
 INSERT INTO usuarios (
     nombre_usuario,
@@ -484,12 +488,27 @@ INSERT INTO usuarios (
     correo_electronico,
     empresa_id,
     rol_id
-) VALUES (
+) VALUES
+(
     'Admin Cluster',
     '$2b$10$ceYrtWlWqCZrJf7JsyreMOEZzttKkX7CLUaSbfOApzxIi.4TgkknS', -- contrasena: 123456
     'admin@cluster.com',
     NULL,
     1
+),
+(
+    'Camila Rios Beltran',
+    '$2b$10$h0AFHk1RUbN43TJocOxdZeXs4.cFwaxAS/8uxtYn.awGoY17q4UES', -- contrasena: empresa123
+    'admin@horizonteci-demo.com',
+    1,
+    2
+),
+(
+    'Tomas Vidal Cortes',
+    '$2b$10$5qyJMwzK8UcNmKDIklA.bef4/FtaTtauaTsQ1hCZkzy5IHMR07NB2', -- contrasena: usuario123
+    'usuario@meridianmotors-demo.com',
+    2,
+    3
 );
 
 
@@ -638,6 +657,7 @@ INSERT INTO empresa_procesos VALUES
 (4, 2),
 (4, 4),
 (5, 1),
+(6, 4),
 (7, 4),
 (8, 3),
 (9, 4),
@@ -647,6 +667,7 @@ INSERT INTO empresa_procesos VALUES
 (13, 1),
 (14, 4),
 (15, 2),
+(16, 4),
 (17, 3),
 (18, 2),
 (19, 4),

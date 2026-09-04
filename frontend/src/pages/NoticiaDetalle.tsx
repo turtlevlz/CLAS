@@ -1,6 +1,9 @@
 import { useParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
+import newsPartnership from '../assets/img/news-partnership.svg'
+import newsInvestment from '../assets/img/news-investment.svg'
+import newsSummit from '../assets/img/news-summit.svg'
 
 const noticias = [
   {
@@ -11,8 +14,7 @@ const noticias = [
       'Se establece alianza estratégica para crear programas especializados en ingeniería automotriz y formación de profesionales del sector.',
     fecha: '15 de Febrero, 2026',
     autor: 'Dirección Directorio Demo',
-    imagen:
-      'https://images.unsplash.com/photo-1523240795612-9a054b0db644',
+    imagen: newsPartnership,
     contenido: [
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque in ex maximus, suscipit magna eget, volutpat tortor.',
       'Suspendisse luctus lobortis sapien id mattis. Donec non lobortis elit, et tristique mauris.',
@@ -29,16 +31,14 @@ const otrasNoticias = [
     titulo: 'Inversión de $50 Millones USD en Nueva Planta de Autopartes',
     descripcion:
       'Empresa internacional anuncia la instalación de su planta en Hermosillo.',
-    imagen:
-      'https://images.unsplash.com/photo-1581092335878-2d9ff86ca2bf',
+    imagen: newsInvestment,
   },
   {
     id: '3',
     titulo: 'Cumbre Automotriz 2026: Innovación y Sustentabilidad',
     descripcion:
       'Más de 300 empresarios se reunirán en marzo para discutir el futuro del sector.',
-    imagen:
-      'https://images.unsplash.com/photo-1517048676732-d65bc937f952',
+    imagen: newsSummit,
   },
 ]
 

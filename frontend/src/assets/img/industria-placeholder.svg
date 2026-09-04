@@ -1,0 +1,60 @@
+<svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#148cb4"/>
+      <stop offset="1" stop-color="#2c419a"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0f2f57"/>
+      <stop offset="1" stop-color="#0a2144"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="500" fill="url(#bg)"/>
+
+  <g opacity="0.12" stroke="#ffffff" stroke-width="2">
+    <line x1="0" y1="120" x2="800" y2="120"/>
+    <line x1="0" y1="220" x2="800" y2="220"/>
+    <line x1="0" y1="320" x2="800" y2="320"/>
+  </g>
+
+  <rect x="0" y="360" width="800" height="140" fill="url(#floor)"/>
+
+  <g opacity="0.9">
+    <rect x="70" y="255" width="90" height="105" rx="6" fill="#e6a13a"/>
+    <rect x="70" y="255" width="90" height="18" fill="#c7852a"/>
+    <rect x="180" y="285" width="70" height="75" rx="6" fill="#e6e6ea"/>
+    <rect x="180" y="285" width="70" height="16" fill="#c7c7cf"/>
+    <rect x="265" y="240" width="80" height="120" rx="6" fill="#4f7cac"/>
+    <rect x="265" y="240" width="80" height="18" fill="#3c6088"/>
+  </g>
+
+  <g transform="translate(430,235)">
+    <rect x="0" y="70" width="150" height="55" rx="8" fill="#f4f6fb"/>
+    <rect x="18" y="30" width="70" height="45" rx="6" fill="#f4f6fb"/>
+    <rect x="20" y="36" width="40" height="26" rx="3" fill="#9fd8ea"/>
+    <circle cx="35" cy="132" r="16" fill="#1b2436"/>
+    <circle cx="35" cy="132" r="7" fill="#8a93a6"/>
+    <circle cx="120" cy="132" r="16" fill="#1b2436"/>
+    <circle cx="120" cy="132" r="7" fill="#8a93a6"/>
+    <rect x="150" y="90" width="10" height="20" fill="#d3d8e4"/>
+    <rect x="150" y="55" width="8" height="45" fill="#d3d8e4"/>
+    <rect x="140" y="45" width="34" height="14" rx="2" fill="#e6a13a"/>
+  </g>
+
+  <g opacity="0.9">
+    <rect x="640" y="270" width="95" height="90" rx="6" fill="#7a5cc7"/>
+    <rect x="640" y="270" width="95" height="16" fill="#5f45a3"/>
+  </g>
+
+  <g stroke="#ffffff" stroke-opacity="0.35" stroke-width="4" stroke-linecap="round">
+    <line x1="40" y1="360" x2="760" y2="360"/>
+  </g>
+  <g fill="#ffffff" fill-opacity="0.5">
+    <circle cx="120" cy="360" r="5"/>
+    <circle cx="260" cy="360" r="5"/>
+    <circle cx="400" cy="360" r="5"/>
+    <circle cx="540" cy="360" r="5"/>
+    <circle cx="680" cy="360" r="5"/>
+  </g>
+</svg>

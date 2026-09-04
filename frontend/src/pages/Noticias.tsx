@@ -1,6 +1,11 @@
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { useNavigate } from 'react-router-dom'
+import newsInvestment from '../assets/img/news-investment.svg'
+import newsPartnership from '../assets/img/news-partnership.svg'
+import newsSummit from '../assets/img/news-summit.svg'
+import newsCertification from '../assets/img/news-certification.svg'
+import newsExports from '../assets/img/news-exports.svg'
 
 const noticias = [
   {
@@ -10,8 +15,7 @@ const noticias = [
     descripcion:
       'Empresa internacional anuncia la instalación de su planta en Hermosillo.',
     fecha: '10 Febrero, 2026',
-    imagen:
-      'https://images.unsplash.com/photo-1581090700227-1e37b190418e',
+    imagen: newsInvestment,
   },
   {
     id: '2',
@@ -21,8 +25,7 @@ const noticias = [
       'Se establece alianza estratégica para crear programas especializados en ingeniería automotriz.',
     fecha: '15 Febrero, 2026',
     autor: 'Dirección Directorio Demo',
-    imagen:
-      'https://images.unsplash.com/photo-1523240795612-9a054b0db644',
+    imagen: newsPartnership,
   },
   {
     id: '3',
@@ -31,8 +34,7 @@ const noticias = [
     descripcion:
       'Más de 300 empresarios se reunirán en marzo para discutir el futuro del sector.',
     fecha: '5 Febrero, 2026',
-    imagen:
-      'https://images.unsplash.com/photo-1515169067868-5387ec356754',
+    imagen: newsSummit,
   },
   {
     id: '4',
@@ -41,18 +43,16 @@ const noticias = [
     descripcion:
       'Directorio Demo apoya proceso que fortalece la competitividad de empresas locales.',
     fecha: '28 Enero, 2026',
-    imagen:
-      'https://images.unsplash.com/photo-1551836022-d5d88e9218df',
+    imagen: newsCertification,
   },
   {
     id: '5',
     categoria: 'Economía',
     titulo: 'Exportaciones del Sector Crecen 18% en 2025',
     descripcion:
-      'El cluster automotriz de Sonora registra cifras récord en exportaciones.',
+      'El clúster industrial (demo) registra cifras récord en exportaciones.',
     fecha: '20 Enero, 2026',
-    imagen:
-      'https://images.unsplash.com/photo-1551288049-bebda4e38f71',
+    imagen: newsExports,
   },
 ]
 
@@ -72,7 +72,7 @@ export default function Noticias() {
             Noticias y Actualizaciones
           </h1>
           <p className="text-lg text-gray-500 max-w-2xl">
-            Mantente informado sobre los últimos acontecimientos del cluster automotriz.
+            Mantente informado sobre los últimos acontecimientos del sector industrial.
           </p>
         </section>
 

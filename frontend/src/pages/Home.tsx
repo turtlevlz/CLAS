@@ -16,6 +16,7 @@ import avatar1 from '../assets/img/avatar-1.png';
 import avatar2 from '../assets/img/avatar-2.png';
 import avatar3 from '../assets/img/avatar-3.png';
 import avatar4 from '../assets/img/avatar-4.png';
+import industriaPlaceholder from '../assets/img/industria-placeholder.svg';
 
 export default function Home() {
   const stats = [
@@ -30,7 +31,7 @@ export default function Home() {
 
   const heroImages = [
     "https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=1000&auto=format&fit=crop",
-    "https://mecaluxmx.cdnwm.com/img/blog/logistica-industria-automotriz.1.11.jpg",
+    industriaPlaceholder,
     "https://img1.wsimg.com/isteam/stock/98069/:/rs=w:1200,h:600,cg:true,m/cr=w:1200,h:600",
     "https://img1.wsimg.com/isteam/stock/2224/:/rs=w:1200,h:600,cg:true,m/cr=w:1200,h:600"
   ];
@@ -61,12 +62,12 @@ export default function Home() {
   }, [heroImages.length]);
 
   const logos = [
-  "/company-logos/ford-logo.svg",
-  "/company-logos/schnellecke-logo.png",
-  "/company-logos/grupo-esd-logo.svg",
-  "/company-logos/montaplast-logo.png",
-  "/company-logos/martin-rea-logo.png",
-  "/company-logos/new-concept-logo.png",
+  "/company-logos/meridian-logo.svg",
+  "/company-logos/veloz-logo.png",
+  "/company-logos/aster-logo.svg",
+  "/company-logos/plastia-logo.png",
+  "/company-logos/rowan-logo.png",
+  "/company-logos/horizonte-logo.png",
 ];
 
   const benefits = [
@@ -102,7 +103,7 @@ export default function Home() {
           <div style={{ maxWidth: '1200px', margin: '0 auto' }} className="flex flex-col lg:flex-row items-center gap-16">
             <div className="flex-1 text-white">
               <h1 className="text-4xl lg:text-6xl font-black leading-[1.1] tracking-tight mb-5">
-                Impulsando la Industria Automotriz de Sonora
+                Directorio Demo: Impulsando el Sector Industrial
               </h1>
               <p className="text-xl opacity-90 mb-10 leading-relaxed max-w-xl font-medium">
                 Directorio Demo es una plataforma de ejemplo que ilustra un directorio del sector industrial, mostrando competitividad, innovación y crecimiento sostenible del sector.
@@ -204,8 +205,8 @@ export default function Home() {
               <div className="relative group">
                 <div className="absolute -inset-4 bg-slate-100 rounded-[3rem] -z-10 group-hover:bg-blue-50 transition-colors"></div>
                 <img
-                  src="https://mecaluxmx.cdnwm.com/img/blog/logistica-industria-automotriz.1.11.jpg"
-                  alt="Mecánico trabajando en motor"
+                  src={industriaPlaceholder}
+                  alt="Ilustración de logística industrial"
                   className="rounded-[2.5rem] shadow-2xl w-full h-[450px] object-cover border-4 border-white"
                 />
               </div>
@@ -223,7 +224,7 @@ export default function Home() {
               <div>
                 <h2 className="text-4xl font-black text-primary-dark mb-6 tracking-tight">Visión 2030</h2>
                 <p className="text-text-muted text-lg leading-relaxed font-medium">
-                  Ser el cluster automotriz más innovador y competitivo de México, reconocido internacionalmente
+                  Ser la plataforma de directorio industrial más innovadora y completa, reconocida
                   por su excelencia operativa y contribución al desarrollo económico sustentable de la región.
                 </p>
               </div>

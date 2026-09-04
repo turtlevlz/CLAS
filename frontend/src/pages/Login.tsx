@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import client from '../api/client';
-import photo from '../assets/img/login-stock-photo.jpg';
+import photo from '../assets/img/login-placeholder.svg';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
