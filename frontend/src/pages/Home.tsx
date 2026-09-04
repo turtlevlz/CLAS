@@ -17,6 +17,9 @@ import avatar2 from '../assets/img/avatar-2.png';
 import avatar3 from '../assets/img/avatar-3.png';
 import avatar4 from '../assets/img/avatar-4.png';
 import industriaPlaceholder from '../assets/img/industria-placeholder.svg';
+import heroWorkshop from '../assets/img/hero-workshop.svg';
+import heroFactory from '../assets/img/hero-factory.svg';
+import heroTeam from '../assets/img/hero-team.svg';
 
 export default function Home() {
   const stats = [
@@ -30,10 +33,10 @@ export default function Home() {
   const [ctaVisible, setCtaVisible] = useState(false);
 
   const heroImages = [
-    "https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=1000&auto=format&fit=crop",
+    heroWorkshop,
     industriaPlaceholder,
-    "https://img1.wsimg.com/isteam/stock/98069/:/rs=w:1200,h:600,cg:true,m/cr=w:1200,h:600",
-    "https://img1.wsimg.com/isteam/stock/2224/:/rs=w:1200,h:600,cg:true,m/cr=w:1200,h:600"
+    heroFactory,
+    heroTeam
   ];
 
   const [currentHeroImage, setCurrentHeroImage] = useState(0);
@@ -73,7 +76,7 @@ export default function Home() {
   const benefits = [
     {
       title: "Networking",
-      desc: "Conecte con más de 150 empresas del sector automotriz en Sonora.",
+      desc: "Conecte con más de 150 empresas del sector industrial en Directorio Demo.",
       icon: UserGroupIcon
     },
     {
@@ -156,7 +159,7 @@ export default function Home() {
           <div style={{ maxWidth: '1200px', margin: '0 auto' }} className="px-10">
             <div className="text-center mb-20">
               <h2 className="text-4xl font-black text-slate-900 mb-4 tracking-tight">Beneficios de ser Miembro</h2>
-              <p className="text-slate-500 font-medium text-lg">Únase a la red más importante de empresas automotrices en Sonora.</p>
+              <p className="text-slate-500 font-medium text-lg">Únase a la red de empresas más importante de Directorio Demo.</p>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -216,7 +219,7 @@ export default function Home() {
               <div className="mb-12">
                 <h2 className="text-4xl font-black text-primary-dark mb-6 tracking-tight">Nuestra Misión</h2>
                 <p className="text-text-muted text-lg leading-relaxed font-medium">
-                  Fortalecer la competitividad del sector automotriz en Sonora mediante la colaboración entre empresas,
+                  Fortalecer la competitividad del sector industrial mediante la colaboración entre empresas,
                   gobierno y academia, impulsando la innovación, el desarrollo de talento y la atracción de inversiones.
                 </p>
               </div>
@@ -315,7 +318,7 @@ export default function Home() {
                 ${ctaVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}
               `}
             >
-              Forma parte del ecosistema automotriz más dinámico de Sonora.
+              Forma parte del ecosistema industrial más dinámico de Directorio Demo.
             </p>
             <div
               className={`transform transition-all duration-1000 delay-500 ease-out
